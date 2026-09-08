@@ -1,0 +1,124 @@
+﻿Build started 7/9/2026 22:17:20.
+     1>Project "C:\CTR-HighOctane\CTR-HighOctane\CTR-HighOctane\CTR-HighOctane.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         main.c
+         ps3ppusnc.exe -DNDEBUG -D__PS3__ -o PS3_Release\main.o -c -Xdepmode=1 -MD -Xmserrors -I"C:\CTR-HighOctane\include" -I. -IC:/usr/local/cell\target\ppu\include -IC:/usr/local/cell\target\common\include -I"C:/usr/local/cell\host-win32\sn\ppu\include" -O2 -Xc-=rtti C:\CTR-HighOctane\main.c
+     1>C:\CTR-HighOctane\include\psn00bsdk/include/psxapi.h(33,1): error 40: expected an identifier
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h(34,1): error 40: expected an identifier
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h(35,1): error 40: expected an identifier
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h(260,4): error 148: declaration is incompatible with "off_t lseek(int, off_t, int)" (declared at line 18 of "C:/usr/local/cell\target\ppu\include/unistd.h")
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h(263,4): error 148: declaration is incompatible with "int getc(FILE *)" (declared at line 192 of "C:/usr/local/cell\target\ppu\include/stdio.h")
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h(264,4): error 148: declaration is incompatible with "int putc(int, FILE *)" (declared at line 194 of "C:/usr/local/cell\target\ppu\include/stdio.h")
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h(281): warning 64: declaration does not declare anything
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h(282,25): error 55-D: too many arguments in invocation of macro "ExitCriticalSection"
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h(282): warning 64: declaration does not declare anything
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk/include/stdio.h(18,5): error 148: declaration is incompatible with "int puts(const char *)" (declared at line 144 of "C:/usr/local/cell\target\ppu\include/stdio.h")
+         
+     1>C:\CTR-HighOctane\include\psn00bsdk\include\stdio.h(20,5): error 148: declaration is incompatible with "int putchar(int)" (declared at line 195 of "C:/usr/local/cell\target\ppu\include/stdio.h")
+         
+     1>C:\CTR-HighOctane\include\psx/kernel.h(121,7): error 102: "EXEC" has already been declared in the current scope
+         
+     1>C:\CTR-HighOctane\include\psx\kernel.h(146,7): error 102: "DIRENTRY" has already been declared in the current scope
+         
+     1>C:\CTR-HighOctane\include\psx/libapi.h(23,11): error 148: declaration is incompatible with "int OpenEvent(uint32_t, uint32_t, int, void (*)())" (declared at line 249 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(24,11): error 148: declaration is incompatible with "int CloseEvent(int)" (declared at line 250 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(25,11): error 148: declaration is incompatible with "int WaitEvent(int)" (declared at line 251 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(26,11): error 148: declaration is incompatible with "int TestEvent(int)" (declared at line 252 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(27,11): error 148: declaration is incompatible with "int EnableEvent(int)" (declared at line 253 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(28,11): error 148: declaration is incompatible with "int DisableEvent(int)" (declared at line 254 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(29,12): error 148: declaration is incompatible with "void DeliverEvent(uint32_t, uint32_t)" (declared at line 255 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(30,12): error 148: declaration is incompatible with "void UnDeliverEvent(uint32_t, uint32_t)" (declared at line 256 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(32,11): error 148: declaration is incompatible with "int OpenTh(uint32_t (*)(), uint32_t, uint32_t)" (declared at line 318 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(37,11): error 148: declaration is incompatible with "int open(const char *, int)" (declared at line 258 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(39,11): error 148: declaration is incompatible with "int lseek(int, uint32_t, int)" (declared at line 260 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(40,11): error 148: declaration is incompatible with "ssize_t read(int, void *, size_t)" (declared at line 16 of "C:/usr/local/cell\target\ppu\include/unistd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(41,11): error 148: declaration is incompatible with "ssize_t write(int, const void *, size_t)" (declared at line 17 of "C:/usr/local/cell\target\ppu\include/unistd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(44,24): error 148: declaration is incompatible with "struct DIRENTRY *firstfile(const char *, struct DIRENTRY *)" (declared at line 267 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(45,24): error 148: declaration is incompatible with "struct DIRENTRY *nextfile(struct DIRENTRY *)" (declared at line 268 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(47,11): error 148: declaration is incompatible with "int erase(const char *)" (declared at line 269 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(52,11): error 148: declaration is incompatible with "int Exec(struct EXEC *, int, const char **)" (declared at line 322 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(53,11): error 148: declaration is incompatible with "int LoadExec(const char *, int, const char **)" (declared at line 323 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(55,11): error 148: declaration is incompatible with "void InitPAD(uint8_t *, int, uint8_t *, int)" (declared at line 290 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(56,11): error 148: declaration is incompatible with "void StartPAD(void)" (declared at line 291 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(64): warning 64: declaration does not declare anything
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(64): warning 1014: a storage class may not be specified here
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(65): warning 64: declaration does not declare anything
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(65): warning 1014: a storage class may not be specified here
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(68,12): error 148: declaration is incompatible with "int SwEnterCriticalSection(void)" (declared at line 283 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(78,11): error 148: declaration is incompatible with "int SetConf(int, int, uint32_t)" (declared at line 332 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(79,12): error 148: declaration is incompatible with "void GetConf(int *, int *, uint32_t *)" (declared at line 333 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(99,11): error 148: declaration is incompatible with "void StartCARD(void)" (declared at line 295 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(100,11): error 148: declaration is incompatible with "void StopCARD(void)" (declared at line 296 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libapi.h(109,20): error 148: declaration is incompatible with "int _card_chan(void)" (declared at line 304 of "C:\CTR-HighOctane\include\psn00bsdk\include\psxapi.h")
+         
+     1>C:\CTR-HighOctane\include\psx/libcd.h(108,15): error 257: invalid redeclaration of type name "CdlCB" (declared at line 278 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(119,2): error 257: invalid redeclaration of type name "CdlLOC" (declared at line 157 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(129,2): error 257: invalid redeclaration of type name "CdlFILTER" (declared at line 266 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(140,2): error 257: invalid redeclaration of type name "CdlATV" (declared at line 174 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(154,2): error 257: invalid redeclaration of type name "CdlFILE" (declared at line 190 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(220,9): error 148: declaration is incompatible with "CdlFILE *CdSearchFile(CdlFILE *, const char *)" (declared at line 952 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(221,8): error 148: declaration is incompatible with "CdlLOC *CdIntToPos(int, CdlLOC *)" (declared at line 314 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(224,4): error 148: declaration is incompatible with "int CdControl(CdlCommand, const void *, uint8_t *)" (declared at line 404 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(225,4): error 148: declaration is incompatible with "int CdControlB(CdlCommand, const void *, uint8_t *)" (declared at line 425 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(226,4): error 148: declaration is incompatible with "int CdControlF(CdlCommand, const void *)" (declared at line 451 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(230,4): error 148: declaration is incompatible with "int CdGetToc(CdlLOC *)" (declared at line 889 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(232,4): error 148: declaration is incompatible with "int CdMix(const CdlATV *)" (declared at line 909 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+     1>C:\CTR-HighOctane\include\psx\libcd.h(233,4): error 148: declaration is incompatible with "int CdPosToInt(const CdlLOC *)" (declared at line 327 of "C:\CTR-HighOctane\include\psn00bsdk/include/psxcd.h")
+         
+         Error limit reached.
+         Compilation terminated.
+     1>Done Building Project "C:\CTR-HighOctane\CTR-HighOctane\CTR-HighOctane\CTR-HighOctane.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.21
