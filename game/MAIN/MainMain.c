@@ -635,7 +635,13 @@ void StateZero()
 #define MEMPACK_SIZE 0x200000 // 2mb
 
 	MEMPACK_Init(MEMPACK_SIZE);
+	Platform_Log("[CTR Native] StateZero: MEMPACK initialized\n");
+	Platform_LogFlush();
+
 	LOAD_InitCD();
+	Platform_Log("[CTR Native] StateZero: CD initialized\n");
+	Platform_LogFlush();
+
 	RaceFlag_SetFullyOffScreen();
 
 	ResetGraph(0);
@@ -704,7 +710,18 @@ void StateZero()
 #endif
 
 	// Get CD Position fo BIGFILE
+	Platform_Log("[CTR Native] StateZero: Reading BIGFILE...\n");
+	Platform_LogFlush();
 	sdata->ptrBigfile1 = LOAD_ReadDirectory(BIGPATH);
+
+	if (sdata->ptrBigfile1 == NULL)
+	{
+		Platform_LogError("[CTR Native] FATAL ERROR: LOAD_ReadDirectory failed for %s!\n", BIGPATH);
+		Platform_LogFlush();
+		return;
+	}
+	Platform_Log("[CTR Native] StateZero: BIGFILE read successfully\n");
+	Platform_LogFlush();
 
 // Defrag to save heap space,
 // required because MEMPACK_Init moves heap
@@ -728,12 +745,17 @@ void StateZero()
 #ifdef CTR_NATIVE
 	// Load PAL English on native so the boot language selector can use the
 	// localized language-name strings shared by the PAL language files.
+	Platform_Log("[CTR Native] StateZero: Loading LangFile (lang=%d)...\n", cfg_language);
+	Platform_LogFlush();
 	LOAD_LangFile((int)sdata->ptrBigfile1, cfg_language);
 #else
 	// English=1
 	// PAL SCES02105 calls it multiple times
 	LOAD_LangFile((int)sdata->ptrBigfile1, 1);
 #endif
+	Platform_Log("[CTR Native] StateZero: LangFile loaded\n");
+	Platform_LogFlush();
+
 	GAMEPROG_NewGame_OnBoot();
 	gGT->overlayIndex_null_notUsed = 0;
 
@@ -762,23 +784,48 @@ void StateZero()
 	DrawSync(0);
 
 	// Load Intro TIM for "SCEA Presents" from VRAM file
+	Platform_Log("[CTR Native] StateZero: Loading VRAM intro TIM...\n");
+	Platform_LogFlush();
 	LOAD_VramFile(sdata->ptrBigfile1, 0x1fd, NULL, &vramSize, -1);
 	MainInit_VRAMDisplay();
+	Platform_Log("[CTR Native] StateZero: VRAM intro TIM loaded\n");
+	Platform_LogFlush();
 
 	// \SOUNDS\KART.HWL;1
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c8e0-0x8003c928 for startup HOWL/music/XA setup.
+	Platform_Log("[CTR Native] StateZero: Initializing howl globals...\n");
+	Platform_LogFlush();
 	howl_InitGlobals(data.kartHwlPath);
+	Platform_Log("[CTR Native] StateZero: Howl globals initialized\n");
+	Platform_LogFlush();
 
 	VSyncCallback(MainDrawCb_Vsync);
 
+	Platform_Log("[CTR Native] StateZero: Calling Music_SetIntro...\n");
+	Platform_LogFlush();
 	Music_SetIntro();
+	Platform_Log("[CTR Native] StateZero: Music_SetIntro complete\n");
+	Platform_LogFlush();
+
+	Platform_Log("[CTR Native] StateZero: Calling CseqMusic_StopAll...\n");
+	Platform_LogFlush();
 	CseqMusic_StopAll();
+
+	Platform_Log("[CTR Native] StateZero: Calling CseqMusic_Start...\n");
+	Platform_LogFlush();
 	CseqMusic_Start(CSEQ_SONG_LEVEL, 0, NULL, 0, 0);
+
+	Platform_Log("[CTR Native] StateZero: Calling Music_Start...\n");
+	Platform_LogFlush();
 	Music_Start(0);
 
 	// "Start your engines, for Sony Computer..."
+	Platform_Log("[CTR Native] StateZero: Calling CDSYS_XAPlay...\n");
+	Platform_LogFlush();
 	CDSYS_XAPlay(CDSYS_XA_TYPE_EXTRA, 0x50);
 
+	Platform_Log("[CTR Native] StateZero: Entering XA wait loop...\n");
+	Platform_LogFlush();
 	while (sdata->XA_State != 0)
 	{
 		// WARNING: Read-only address (ram, 0x8008d888) is written
@@ -795,12 +842,18 @@ void StateZero()
 #endif
 		CDSYS_XAPauseAtEnd();
 	}
+	Platform_Log("[CTR Native] StateZero: XA wait loop finished\n");
+	Platform_LogFlush();
 
 	DecalGlobal_Clear(gGT);
 
 	// This loads UI textures (shared.vrm)
 	// This includes traffic lights, font, and more
+	Platform_Log("[CTR Native] StateZero: Loading UI textures (shared.vrm)...\n");
+	Platform_LogFlush();
 	LOAD_VramFile(sdata->ptrBigfile1, 0x102, NULL, &vramSize, -1);
+	Platform_Log("[CTR Native] StateZero: UI textures loaded\n");
+	Platform_LogFlush();
 
 	sdata->mainGameState = 3;
 
@@ -810,4 +863,6 @@ void StateZero()
 	clockEffect = &gGT->clockEffectEnabled;
 	gGT->gameMode1 |= LOADING;
 	gGT->clockEffectEnabled = *clockEffect & 0xfffe;
+	Platform_Log("[CTR Native] StateZero: Complete!\n");
+	Platform_LogFlush();
 }

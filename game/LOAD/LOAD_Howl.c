@@ -11,6 +11,9 @@ int LOAD_HowlHeaderSectors(CdlFILE *cdlFileHWL, void *ptrDestination, int firstS
 	int sizeOver = ((firstSector + numSector) * LOAD_CD_DATA_SECTOR_SIZE - cdlFileHWL->size);
 	if (sizeOver >= LOAD_CD_DATA_SECTOR_SIZE)
 	{
+		Platform_LogError("[CTR Native] LOAD_HowlHeaderSectors: sizeOver error! firstSector=%d numSector=%d cdlSize=%d sizeOver=%d\n",
+		                 firstSector, numSector, cdlFileHWL->size, sizeOver);
+		Platform_LogFlush();
 		return 0;
 	}
 
@@ -21,11 +24,15 @@ int LOAD_HowlHeaderSectors(CdlFILE *cdlFileHWL, void *ptrDestination, int firstS
 
 	if (CdRead(numSector, ptrDestination, CdlModeSpeed) == 0)
 	{
+		Platform_LogError("[CTR Native] LOAD_HowlHeaderSectors: CdRead failed! firstSector=%d numSector=%d\n", firstSector, numSector);
+		Platform_LogFlush();
 		return 0;
 	}
 
 	if (CdReadSync(0, 0) != 0)
 	{
+		Platform_LogError("[CTR Native] LOAD_HowlHeaderSectors: CdReadSync failed! firstSector=%d numSector=%d\n", firstSector, numSector);
+		Platform_LogFlush();
 		return 0;
 	}
 

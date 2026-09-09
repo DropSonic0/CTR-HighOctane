@@ -9,6 +9,10 @@
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
 #else
+#include <PSGL/psgl.h>
+#include <PSGL/psglu.h>
+#include <sysutil/sysutil_sysparam.h>
+
 typedef struct { int x, y, w, h; } SDL_Rect;
 typedef int SDL_WindowFlags;
 typedef u8 Uint8;
@@ -31,18 +35,22 @@ typedef u32 Uint32;
 #define SDL_memset memset
 #define SDL_memcpy memcpy
 #define SDL_SetError(...) ((void)0)
+
+static PSGLdevice *s_psglDevice = NULL;
+static PSGLcontext *s_psglContext = NULL;
 #endif
 
 #include "platform/native_assets.h"
 #include "platform/native_gpu.h"
 #include "platform/native_adhoc.h"
-#include "platform/native_glad.h"
 #include "platform/native_log.h"
 #include "platform/native_perf.h"
 #include "platform/native_renderer.h"
 
 #include <assert.h>
 #include <string.h>
+
+#include "platform/native_glad.h"
 
 #ifdef __vita__
 #include <png.h>
@@ -64,7 +72,7 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #endif // def WIN32
 
-#ifdef __vita__
+#if defined(__vita__) || defined(__PS3__) || defined(__CELLOS_LV2__)
 #define VRAM_FORMAT          GL_RGBA
 #define VRAM_INTERNAL_FORMAT GL_RGBA
 #else
@@ -177,7 +185,7 @@ struct NativeVramState
 
 global_variable struct NativeVramState s_vram;
 
-#ifdef __vita__
+#if defined(__vita__) || defined(__PS3__) || defined(__CELLOS_LV2__)
 global_variable u8 s_vitaVramTransferPixels[VRAM_WIDTH * VRAM_HEIGHT * 4];
 
 #define NATIVE_P4_CACHE_CAPACITY 320
@@ -434,7 +442,57 @@ global_variable GLuint s_glVramFramebuffer;
 
 internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	(void)windowName;
+	(void)fullscreen;
+	PSGLinitOptions options;
+	PSGLdeviceParameters params;
+	GLuint width = 0;
+	GLuint height = 0;
+
+	memset(&options, 0, sizeof(options));
+	options.enable = PSGL_INIT_MAX_SPUS | PSGL_INIT_INITIALIZE_SPUS | PSGL_INIT_HOST_MEMORY_SIZE;
+	options.maxSPUs = 1;
+	options.initializeSPUs = GL_FALSE;
+	options.hostMemorySize = 8 * 1024 * 1024;
+
+	psglInit(&options);
+
+	memset(&params, 0, sizeof(params));
+	params.enable = PSGL_DEVICE_PARAMETERS_COLOR_FORMAT | PSGL_DEVICE_PARAMETERS_DEPTH_FORMAT |
+	                PSGL_DEVICE_PARAMETERS_MULTISAMPLING_MODE | PSGL_DEVICE_PARAMETERS_BUFFERING_MODE |
+	                PSGL_DEVICE_PARAMETERS_RESC_ADJUST_ASPECT_RATIO | PSGL_DEVICE_PARAMETERS_RESC_RATIO_MODE;
+	params.bufferingMode = PSGL_BUFFERING_MODE_TRIPLE;
+	params.colorFormat = GL_ARGB_SCE;
+	params.depthFormat = GL_NONE;
+	params.multisamplingMode = GL_MULTISAMPLING_NONE_SCE;
+	params.rescRatioMode = RESC_RATIO_MODE_FULLSCREEN;
+
+	s_psglDevice = psglCreateDeviceExtended(&params);
+	if (s_psglDevice == NULL)
+	{
+		NATIVE_RENDERER_ERROR("%s\n", "Failed to create PSGL device!");
+		return 0;
+	}
+
+	psglGetDeviceDimensions(s_psglDevice, &width, &height);
+	if (width > 0 && height > 0)
+	{
+		g_windowWidth = (int)width;
+		g_windowHeight = (int)height;
+	}
+
+	s_psglContext = psglCreateContext();
+	if (s_psglContext == NULL)
+	{
+		NATIVE_RENDERER_ERROR("%s\n", "Failed to create PSGL context!");
+		return 0;
+	}
+
+	psglMakeCurrent(s_psglContext, s_psglDevice);
+	psglResetCurrentContext();
+	return 1;
+#else
 	SDL_WindowFlags windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 #ifndef __vita__
 	windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
@@ -480,10 +538,6 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 	}
 
 	return 1;
-#else
-	(void)windowName;
-	(void)fullscreen;
-	return 1;
 #endif
 }
 
@@ -505,8 +559,10 @@ internal int NativeRenderer_InitialiseGLExt(void)
 	const char *versionStr = (const char *)glGetString(GL_VERSION);
 	NATIVE_RENDERER_LOG("*OpenGL version: %s\n", versionStr);
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	const char *glslVersionStr = (const char *)glGetString(GL_SHADING_LANGUAGE_VERSION);
 	NATIVE_RENDERER_LOG("*GLSL version: %s\n", glslVersionStr);
+#endif
 	return 1;
 }
 
@@ -516,7 +572,18 @@ int NativeRenderer_InitialiseRender(char *windowName, int width, int height, int
 	g_windowHeight = height;
 	NativeRenderer_SetPresentationAspect(width, height);
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	if (!NativeRenderer_InitialiseGLContext(windowName, fullscreen))
+	{
+		NATIVE_RENDERER_ERROR("%s\n", "Failed to Initialise PSGL Context!");
+		return 0;
+	}
+	if (!NativeRenderer_InitialiseGLExt())
+	{
+		NATIVE_RENDERER_ERROR("%s\n", "Failed to Initialise GL extensions!");
+		return 0;
+	}
+#else
 	// Due to debugging in fullscreen
 	SDL_SetHint(SDL_HINT_WINDOW_ALLOW_TOPMOST, "0");
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -578,11 +645,25 @@ void NativeRenderer_Shutdown(void)
 	glDeleteProgram(s_presentRgbaShader);
 	glDeleteVertexArrays(1, &s_vramQuadVAO);
 	glDeleteBuffers(1, &s_vramQuadVBO);
+
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	if (s_psglContext != NULL)
+	{
+		psglDestroyContext(s_psglContext);
+		s_psglContext = NULL;
+	}
+	if (s_psglDevice != NULL)
+	{
+		psglDestroyDevice(s_psglDevice);
+		s_psglDevice = NULL;
+	}
+#endif
 }
 
 #if defined(CTR_INTERNAL)
 internal void NativeRenderer_ResolveGpuMeasurements(b32 waitForResults)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	for (s32 i = 0; i < NATIVE_GPU_TIMER_QUERY_COUNT; i++)
 	{
 		struct NativeGpuTimerQuery *query = &s_gpuTimerQueries[i];
@@ -606,6 +687,9 @@ internal void NativeRenderer_ResolveGpuMeasurements(b32 waitForResults)
 		NativePerf_RecordGpuFrame(query->frameIndex, (f64)elapsedNanoseconds / 1000000.0);
 		query->pending = false;
 	}
+#else
+	(void)waitForResults;
+#endif
 }
 #endif
 
@@ -2015,8 +2099,10 @@ int NativeRenderer_InitialisePSX(void)
 #if defined(CTR_INTERNAL)
 	GLint glMajor = 0;
 	GLint glMinor = 0;
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glGetIntegerv(GL_MAJOR_VERSION, &glMajor);
 	glGetIntegerv(GL_MINOR_VERSION, &glMinor);
+#endif
 	s_gpuTimerSupported = (glMajor > 3) || ((glMajor == 3) && (glMinor >= 3)) || SDL_GL_ExtensionSupported("GL_ARB_timer_query");
 	if (s_gpuTimerSupported)
 	{
@@ -3069,13 +3155,13 @@ internal void NativeRenderer_SyncGpuVRAMToCPU(int x, int y, int w, int h)
 	GLint previousPackRowLength;
 	GLint previousPackAlignment;
 	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &previousReadFramebuffer);
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glGetIntegerv(GL_PACK_ROW_LENGTH, &previousPackRowLength);
 	glGetIntegerv(GL_PACK_ALIGNMENT, &previousPackAlignment);
 #endif
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, s_glVramFramebuffer);
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glPixelStorei(GL_PACK_ROW_LENGTH, VRAM_WIDTH);
 	glPixelStorei(GL_PACK_ALIGNMENT, sizeof(u16));
 	glReadPixels(readRect.x, readRect.y, readRect.w, readRect.h, VRAM_FORMAT, GL_UNSIGNED_BYTE,
@@ -3086,7 +3172,7 @@ internal void NativeRenderer_SyncGpuVRAMToCPU(int x, int y, int w, int h)
 	// bytes immediately, so make this explicit at the native synchronization
 	// boundary instead of disabling the speedhack globally.
 	glFinish();
-	// vitaGL always packs rows tightly.  Passing a pointer into cpuPixels here
+	// vitaGL/PSGL always packs rows tightly.  Passing a pointer into cpuPixels here
 	// would advance each subsequent row by readRect.w instead of VRAM_WIDTH.
 	glReadPixels(readRect.x, readRect.y, readRect.w, readRect.h, VRAM_FORMAT, GL_UNSIGNED_BYTE, s_vitaVramTransferPixels);
 	for (int row = 0; row < readRect.h; row++)
@@ -3109,7 +3195,7 @@ internal void NativeRenderer_SyncGpuVRAMToCPU(int x, int y, int w, int h)
 		}
 	}
 
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glPixelStorei(GL_PACK_ROW_LENGTH, previousPackRowLength);
 	glPixelStorei(GL_PACK_ALIGNMENT, previousPackAlignment);
 #endif
@@ -3405,7 +3491,7 @@ void NativeRenderer_UpdateVRAM(void)
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, s_vram.texture);
-#ifdef __vita__
+#if defined(__vita__) || defined(__PS3__) || defined(__CELLOS_LV2__)
 	// Expand each packed PSX word to the RGBA render-target representation.
 	// The shaders consume only .r/.g, which retain the low/high PSX bytes.
 	for (s32 i = 0; i < rectCount; i++)
@@ -3815,7 +3901,9 @@ void NativeRenderer_SwapWindow(void)
 	{
 		SDL_GL_SwapWindow(g_window);
 	}
-#elif !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#elif defined(__PS3__) || defined(__CELLOS_LV2__)
+	psglSwap();
+#else
 	SDL_GL_SwapWindow(g_window);
 #endif
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_SWAP_WINDOW);
@@ -4040,7 +4128,7 @@ void NativeRenderer_DrawTriangles(int start_vertex, int triangles)
 
 void NativeRenderer_PushDebugLabel(const char *label)
 {
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (!GLAD_GL_KHR_debug)
 	{
 		return;
@@ -4051,7 +4139,7 @@ void NativeRenderer_PushDebugLabel(const char *label)
 
 void NativeRenderer_PopDebugLabel(void)
 {
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (!GLAD_GL_KHR_debug)
 	{
 		return;

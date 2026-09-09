@@ -11,6 +11,12 @@
 #else
 #include <unistd.h>
 #endif
+
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+#include <sys/process.h>
+#include <sysutil/sysutil_sysparam.h>
+SYS_PROCESS_PARAM(1001, 0x80000);
+#endif
 #if !defined(__PS3__)
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
@@ -203,6 +209,8 @@ static const char *NativeConfig_GetPath(void)
 {
 #ifdef __vita__
 	return "ux0:data/ctr/config.ini";
+#elif defined(__PS3__) || defined(__CELLOS_LV2__)
+	return "/dev_hdd0/game/CTR000004/USRDIR/config.ini";
 #else
 	return "config.ini";
 #endif
@@ -251,6 +259,27 @@ void load_config(void)
 		}
 		fclose(config);
 	}
+
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	if (!s_nativeLanguageChosen)
+	{
+		int ps3Lang = 0;
+		if (cellSysutilGetSystemParamInt(CELL_SYSUTIL_SYSTEMPARAM_ID_LANG, &ps3Lang) == 0)
+		{
+			switch (ps3Lang)
+			{
+			case 0: cfg_language = 0; break; // Japanese
+			case 1: cfg_language = 1; break; // English
+			case 2: cfg_language = 3; break; // French
+			case 3: cfg_language = 6; break; // Spanish
+			case 4: cfg_language = 4; break; // German
+			case 5: cfg_language = 5; break; // Italian
+			case 6: cfg_language = 7; break; // Dutch
+			default: cfg_language = 1; break;
+			}
+		}
+	}
+#endif
 }
 
 void save_config(void)
@@ -307,6 +336,11 @@ void *real_main(void *_argv)
 int main(int argc, char *argv[])
 {
 #endif
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	Platform_LogSetPath("/dev_hdd0/game/CTR000004/USRDIR/log.txt");
+	Platform_LogInit("Crash Team Racing: High Octane");
+#endif
+
 	for (int argIndex = 1; argIndex < argc; argIndex++)
 	{
 		if (NativeArg_IsVersion(argv[argIndex]))
@@ -322,7 +356,7 @@ int main(int argc, char *argv[])
 #ifdef __vita__
 	const char *sdlBasePath = "ux0:data/ctr";
 #elif defined(__PS3__) || defined(__CELLOS_LV2__)
-	const char *sdlBasePath = NULL;
+	const char *sdlBasePath = "/dev_hdd0/game/CTR000004/USRDIR";
 #else
 	const char *sdlBasePath = SDL_GetBasePath();
 #endif
@@ -331,7 +365,7 @@ int main(int argc, char *argv[])
 
 	if (!NativeAssets_Init(sdlBasePath))
 	{
-		fprintf(stderr, "[CTR Native] Failed to initialize asset paths.\n");
+		Platform_LogError("[CTR Native] Failed to initialize asset paths.\n");
 		return NativeConsole_Return(1);
 	}
 
@@ -344,7 +378,7 @@ int main(int argc, char *argv[])
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (chdir(NativeAssets_GetBaseDir()) != 0)
 	{
-		fprintf(stderr, "[CTR Native] Failed to enter base directory: %s\n", NativeAssets_GetBaseDir());
+		Platform_LogError("[CTR Native] Failed to enter base directory: %s\n", NativeAssets_GetBaseDir());
 		return NativeConsole_Return(1);
 	}
 #endif

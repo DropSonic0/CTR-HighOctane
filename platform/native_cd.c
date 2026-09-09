@@ -23,7 +23,7 @@ typedef void SDL_Thread;
 // as dev/modding overrides; missing files can fall back to assets/ctr-u.bin.
 
 #define NATIVE_CD_SECTOR_WORDS   512
-#define NATIVE_CD_MAX_OPEN_FILES 8
+#define NATIVE_CD_MAX_OPEN_FILES 256
 #define NATIVE_CD_SECTOR_SIZE    0x800
 
 enum NativeCDFileSource
@@ -36,6 +36,7 @@ enum NativeCDFileSource
 struct NativeCDOpenFile
 {
 	int source;
+	char path[256];
 	FILE *hostFile;
 	struct NativeDiscImageFile discFile;
 };
@@ -113,27 +114,52 @@ internal s32 NativeCD_OpenFile(const char *filename, s32 *outSize)
 	s32 fileIndex;
 	long fileSize;
 
-	if (s_nativeCdFileCount >= NATIVE_CD_MAX_OPEN_FILES)
-	{
-		return -1;
-	}
-
 	if (NativeCD_NormalizeFilename(normalized, sizeof(normalized), filename) == 0)
 	{
 		return -1;
 	}
 
 	rootless = NativeCD_PathAfterRoot(NativeStr8_FromCString(normalized));
+	if (!NativeStr8_CopyToCString(rootlessPath, sizeof(rootlessPath), rootless))
+	{
+		return -1;
+	}
+
+	for (fileIndex = 0; fileIndex < s_nativeCdFileCount; fileIndex++)
+	{
+		if ((s_nativeCdFiles[fileIndex].source != NATIVE_CD_FILE_NONE) &&
+		    (strcmp(s_nativeCdFiles[fileIndex].path, rootlessPath) == 0))
+		{
+			if (s_nativeCdFiles[fileIndex].source == NATIVE_CD_FILE_HOST && s_nativeCdFiles[fileIndex].hostFile != NULL)
+			{
+				if (fseek(s_nativeCdFiles[fileIndex].hostFile, 0, SEEK_END) == 0)
+				{
+					*outSize = (s32)ftell(s_nativeCdFiles[fileIndex].hostFile);
+					fseek(s_nativeCdFiles[fileIndex].hostFile, 0, SEEK_SET);
+				}
+			}
+			else
+			{
+				*outSize = (s32)s_nativeCdFiles[fileIndex].discFile.size;
+			}
+			return fileIndex;
+		}
+	}
+
+	if (s_nativeCdFileCount >= NATIVE_CD_MAX_OPEN_FILES)
+	{
+		return -1;
+	}
 
 	file = NativeAssets_OpenHostStr8(rootless, "rb");
-	if ((file == NULL) && NativeStr8_CopyToCString(rootlessPath, sizeof(rootlessPath), rootless))
+	if (file == NULL)
 	{
 		file = fopen(rootlessPath, "rb");
 	}
 
 	if (file == NULL)
 	{
-		if (!NativeStr8_CopyToCString(rootlessPath, sizeof(rootlessPath), rootless) || !NativeDiscImage_FindFile(rootlessPath, &discFile))
+		if (!NativeDiscImage_FindFile(rootlessPath, &discFile))
 		{
 			return -1;
 		}
@@ -141,6 +167,7 @@ internal s32 NativeCD_OpenFile(const char *filename, s32 *outSize)
 		fileIndex = s_nativeCdFileCount++;
 		memset(&s_nativeCdFiles[fileIndex], 0, sizeof(s_nativeCdFiles[fileIndex]));
 		s_nativeCdFiles[fileIndex].source = NATIVE_CD_FILE_DISC;
+		strncpy(s_nativeCdFiles[fileIndex].path, rootlessPath, sizeof(s_nativeCdFiles[fileIndex].path) - 1);
 		s_nativeCdFiles[fileIndex].discFile = discFile;
 		*outSize = (s32)discFile.size;
 		return fileIndex;
@@ -168,6 +195,7 @@ internal s32 NativeCD_OpenFile(const char *filename, s32 *outSize)
 	fileIndex = s_nativeCdFileCount++;
 	memset(&s_nativeCdFiles[fileIndex], 0, sizeof(s_nativeCdFiles[fileIndex]));
 	s_nativeCdFiles[fileIndex].source = NATIVE_CD_FILE_HOST;
+	strncpy(s_nativeCdFiles[fileIndex].path, rootlessPath, sizeof(s_nativeCdFiles[fileIndex].path) - 1);
 	s_nativeCdFiles[fileIndex].hostFile = file;
 	*outSize = (s32)fileSize;
 	return fileIndex;
@@ -588,6 +616,7 @@ int CdRead(int sectors, uint32_t *buf, int mode)
 		return 0;
 	}
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeCdReadWorker.mutex == NULL)
 	{
 		success = NativeCD_ReadSectorsAt(s_nativeCdCurrentFile, s_nativeCdCurrentSector, sectors, buf);
@@ -628,6 +657,18 @@ int CdRead(int sectors, uint32_t *buf, int mode)
 	SDL_SignalCondition(s_nativeCdReadWorker.condition);
 	SDL_UnlockMutex(s_nativeCdReadWorker.mutex);
 	return 1;
+#else
+	success = NativeCD_ReadSectorsAt(s_nativeCdCurrentFile, s_nativeCdCurrentSector, sectors, buf);
+	if (success)
+	{
+		s_nativeCdCurrentSector += sectors;
+	}
+	if (s_nativeCdReadCallback != NULL)
+	{
+		s_nativeCdReadCallback(success ? CdlComplete : CdlDiskError, NULL);
+	}
+	return success;
+#endif
 }
 
 int CdReadSync(int mode, uint8_t *result)
@@ -635,6 +676,7 @@ int CdReadSync(int mode, uint8_t *result)
 	b32 success;
 	CdlCB callback;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeCdReadWorker.mutex == NULL)
 	{
 		return 0;
@@ -675,4 +717,12 @@ int CdReadSync(int mode, uint8_t *result)
 	}
 
 	return success ? 0 : CdlDiskError;
+#else
+	(void)mode;
+	if (result != NULL)
+	{
+		result[0] = CdlComplete;
+	}
+	return 0;
+#endif
 }

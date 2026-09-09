@@ -3294,9 +3294,9 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 	bool fullDrawEnvPacket = false;
 	for (int i = 0; i < polyTag->len; ++i)
 	{
-		const u32 code = codePtr[i];
-		const int primType = code >> 24 & 0xF0;
-		const int primSubType = code >> 24 & 0x0F;
+		const u32 code = CTR_ReadU32LE(&codePtr[i]);
+		const int primType = (code >> 24) & 0xF0;
+		const int primSubType = (code >> 24) & 0x0F;
 
 		// NOTE(aalhendi): CTR can pack draw-env commands, tagless geometry,
 		// and more draw-env commands into one OT entry. Stop at the first
@@ -3425,9 +3425,11 @@ internal int ProcessPsyXPrims(P_TAG *polyTag)
 	case 0x01:
 	{
 		DR_PSYX_TEX *psytex = (DR_PSYX_TEX *)polyTag;
-		s_gpu.overrideTexture = psytex->code[0] & 0xFFFFFF;
-		s_gpu.overrideTextureWidth = psytex->code[1] & 0xFFF;
-		s_gpu.overrideTextureHeight = psytex->code[1] >> 16 & 0xFFF;
+		u32 code0 = CTR_ReadU32LE(&psytex->code[0]);
+		u32 code1 = CTR_ReadU32LE(&psytex->code[1]);
+		s_gpu.overrideTexture = code0 & 0xFFFFFF;
+		s_gpu.overrideTextureWidth = code1 & 0xFFF;
+		s_gpu.overrideTextureHeight = (code1 >> 16) & 0xFFF;
 		return 2;
 	}
 	case 0x02:
@@ -3461,11 +3463,11 @@ int ParsePrimitive(P_TAG *polyTag)
 		// emit a retail length-2 zero packet when weather is enabled but the
 		// level has no fill-mode payload. The PSX consumes it by tag length;
 		// the native parser must advance past it too.
-		if (polyTag->len == 2 && codePtr[0] == 0 && codePtr[1] == 0)
+		if (polyTag->len == 2 && CTR_ReadU32LE(&codePtr[0]) == 0 && CTR_ReadU32LE(&codePtr[1]) == 0)
 		{
 			primLength = 2;
 		}
-		else if (polyTag->len == 0 && *(u32 *)polyTag == 0)
+		else if (polyTag->len == 0 && CTR_ReadU32LE(polyTag) == 0)
 		{
 			// CTR ghost transparency packets include raw GPU NOP words between
 			// draw-mode changes and triangle commands. They consume exactly one
@@ -3479,11 +3481,12 @@ int ParsePrimitive(P_TAG *polyTag)
 		else if (primSubType == 0x1)
 		{
 			DR_MOVE *drmove = (DR_MOVE *)polyTag;
-			const u32 rectPos = drmove->code[2];
-			const u32 rectSize = drmove->code[4];
+			const u32 rectPos = CTR_ReadU32LE(&drmove->code[2]);
+			const u32 rectSize = CTR_ReadU32LE(&drmove->code[4]);
+			u32 code3 = CTR_ReadU32LE(&drmove->code[3]);
 
-			const int y = drmove->code[3] >> 0x10 & 0xFFFF;
-			const int x = drmove->code[3] & 0xFFFF;
+			const int y = (code3 >> 0x10) & 0xFFFF;
+			const int x = code3 & 0xFFFF;
 
 			RECT16 rect;
 			rect.x = (s16)(rectPos & 0xffff);
@@ -3589,8 +3592,8 @@ int ParsePrimitive(P_TAG *polyTag)
 		// DR_LOAD
 		{
 			DR_LOAD *drload = (DR_LOAD *)polyTag;
-			const u32 rectPos = drload->code[1];
-			const u32 rectSize = drload->code[2];
+			const u32 rectPos = CTR_ReadU32LE(&drload->code[1]);
+			const u32 rectSize = CTR_ReadU32LE(&drload->code[2]);
 
 			RECT16 rect;
 			rect.x = (s16)(rectPos & 0xffff);
@@ -3634,7 +3637,7 @@ int ParsePrimitive(P_TAG *polyTag)
 
 int ParseTaglessPrimitive(u32 *command)
 {
-	const u32 code = *command;
+	const u32 code = CTR_ReadU32LE(command);
 	const int primType = (code >> 24) & 0xF0;
 
 	if (code == 0)

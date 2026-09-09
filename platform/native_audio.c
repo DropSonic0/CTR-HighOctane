@@ -4100,7 +4100,7 @@ internal int NativeAudio_OpenDevice(void)
 
 void NativeAudio_SetBackgroundMuted(int muted)
 {
-#if !defined(__vita__)
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	b32 backgroundMuted = muted != 0;
 	if (s_audio.output.backgroundMuted == backgroundMuted)
 	{

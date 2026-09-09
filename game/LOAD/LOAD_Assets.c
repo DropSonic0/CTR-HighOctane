@@ -11,8 +11,10 @@ void LOAD_RunPtrMap(char *origin, int *patchArr, int numPtrs)
 
 	for (ptrCurrOffset = &patchArr[0]; ptrCurrOffset < &patchArr[numPtrs]; ptrCurrOffset++)
 	{
-		int offset = (*ptrCurrOffset >> 2) << 2;
-		*(int *)&origin[offset] = *(int *)&origin[offset] + (int)origin;
+		int rawOffset = (int)CTR_ReadU32LE(ptrCurrOffset);
+		int offset = (rawOffset >> 2) << 2;
+		u32 currentVal = CTR_ReadU32LE(&origin[offset]);
+		*(u32 *)&origin[offset] = currentVal + (u32)origin;
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 		NativeCheckpoint_RegisterPointerSlot(&origin[offset]);
 #endif
@@ -225,20 +227,41 @@ void LOAD_LangFile(int bigfilePtr, int lang)
 	VSync(0);
 #endif
 
+	if (bigfilePtr == 0)
+	{
+		Platform_LogError("[CTR Native] ERROR: LOAD_LangFile called with NULL bigfilePtr!\n");
+		return;
+	}
+
+	struct BigHeader *bigfile = (struct BigHeader *)bigfilePtr;
+	struct BigEntry *entries = BIG_GETENTRY(bigfile);
+	u32 numEntries = CTR_ReadU32LE(&bigfile->numEntry);
+
+	if ((BI_LANGUAGEFILE + lang >= numEntries) || (CTR_ReadU32LE(&entries[BI_LANGUAGEFILE + lang].size) == 0))
+	{
+		Platform_LogWarn("[CTR Native] Lang index %d not available in BIGFILE, falling back to English (1)\n", lang);
+		lang = 1;
+		if ((BI_LANGUAGEFILE + lang >= numEntries) || (CTR_ReadU32LE(&entries[BI_LANGUAGEFILE + lang].size) == 0))
+		{
+			lang = 0;
+		}
+	}
+
 	if (sdata->lngFile == 0)
 	{
-		struct BigHeader *bigfile = (struct BigHeader *)bigfilePtr;
-		struct BigEntry *entries = BIG_GETENTRY(bigfile);
 		u32 langBufferSize = (u32)sdata->langBufferSize;
 
 		for (int i = 0; i < (BI_RACERMODELHI - BI_LANGUAGEFILE); i++)
 		{
-			u32 fileSize = (u32)entries[BI_LANGUAGEFILE + i].size;
-			u32 readSize = (fileSize + LOAD_CD_DATA_SECTOR_ROUND_MASK) & ~LOAD_CD_DATA_SECTOR_ROUND_MASK;
-
-			if (langBufferSize < readSize)
+			if (BI_LANGUAGEFILE + i < numEntries)
 			{
-				langBufferSize = readSize;
+				u32 fileSize = CTR_ReadU32LE(&entries[BI_LANGUAGEFILE + i].size);
+				u32 readSize = (fileSize + LOAD_CD_DATA_SECTOR_ROUND_MASK) & ~LOAD_CD_DATA_SECTOR_ROUND_MASK;
+
+				if (langBufferSize < readSize)
+				{
+					langBufferSize = readSize;
+				}
 			}
 		}
 
@@ -249,20 +272,22 @@ void LOAD_LangFile(int bigfilePtr, int lang)
 	lngFile = sdata->lngFile;
 
 	lngFile = LOAD_ReadFile_ex((struct BigHeader *)bigfilePtr, LT_SETADDR, BI_LANGUAGEFILE + lang, lngFile, &size, NULL);
-	if (lngFile == NULL)
+	if (lngFile == NULL || size == 0)
 	{
+		Platform_LogError("[CTR Native] ERROR: Failed to load LangFile for lang index %d\n", lang);
 		return;
 	}
 
-	numStrings = lngFile->numStrings;
-	strArray = (char **)((u32)lngFile + lngFile->offsetToPtrArr);
+	numStrings = (int)CTR_ReadU32LE(&lngFile->numStrings);
+	u32 offsetToPtrArr = CTR_ReadU32LE(&lngFile->offsetToPtrArr);
+	strArray = (char **)((u32)lngFile + offsetToPtrArr);
 
 	sdata->numLngStrings = numStrings;
 	sdata->lngStrings = strArray;
 
 	for (i = 0; i < numStrings; i++)
 	{
-		strArray[i] = (char *)((u32)strArray[i] + (u32)lngFile);
+		strArray[i] = (char *)(CTR_ReadU32LE(&strArray[i]) + (u32)lngFile);
 	}
 #if defined(CTR_NATIVE)
 	NativeAudio_SetVoiceLanguage(lang);

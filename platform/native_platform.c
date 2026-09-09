@@ -246,6 +246,11 @@ void Platform_SetBorderless(int enabled)
 	Platform_UpdateCursorVisibility();
 	NativeRenderer_ResetDevice();
 }
+#else
+void Platform_SetBorderless(int enabled)
+{
+	(void)enabled;
+}
 #endif
 
 internal void Platform_HandleFullscreenToggle(void)
@@ -453,7 +458,7 @@ void Platform_Init(const char *title, int width, int height)
 		return;
 	}
 #endif
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	Platform_SetBorderless(gNativeBorderlessEnabled);
 #endif
 	atexit(Platform_Shutdown);

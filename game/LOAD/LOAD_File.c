@@ -102,8 +102,10 @@ void *LOAD_ReadDirectory(char *filename)
 	// Save position
 	bh->cdpos = CdPosToInt(&cdlFile.pos);
 
+	u32 numEntry = CTR_ReadU32LE(&bh->numEntry);
+
 	// undo header allocation, only use "needed" size
-	MEMPACK_ReallocMem(sizeof(struct BigHeader) + sizeof(struct BigEntry) * bh->numEntry);
+	MEMPACK_ReallocMem(sizeof(struct BigHeader) + sizeof(struct BigEntry) * numEntry);
 
 	sdata->ptrBigfileCdPos_2 = bh;
 	return bh;
@@ -117,14 +119,15 @@ void LOAD_DramFileCallback(struct LoadQueueSlot *lqs)
 
 	if (fileBuf != NULL)
 	{
-		int ptrMapOffset = *(int *)&fileBuf[0];
+		int ptrMapOffset = (int)CTR_ReadU32LE(&fileBuf[0]);
 		char *realFileBuf = &fileBuf[4];
 
 		if (ptrMapOffset >= 0)
 		{
 			struct DramPointerMap *dpm = (struct DramPointerMap *)&realFileBuf[ptrMapOffset];
+			u32 numBytes = CTR_ReadU32LE(&dpm->numBytes);
 
-			LOAD_RunPtrMap(realFileBuf, (int *)DRAM_GETOFFSETS(dpm), dpm->numBytes >> 2);
+			LOAD_RunPtrMap(realFileBuf, (int *)DRAM_GETOFFSETS(dpm), numBytes >> 2);
 
 #if defined(CTR_NATIVE)
 			if ((lqs->flags & LT_MEMPACK) != 0)
@@ -198,30 +201,43 @@ void LOAD_VramFileCallback(struct LoadQueueSlot *lqs)
 
 	struct VramHeader *vh = (struct VramHeader *)vramBuf;
 
-	// if just one TIM
-	if ((vramBuf != NULL) && (vramBuf[0] != 0x20))
+	if (vramBuf != NULL)
 	{
-		LoadImage(&vh->rect, VRAMHEADER_GETPIXLES(vh));
-	}
+		u32 firstWord = CTR_ReadU32LE(vramBuf);
 
-	// if multiple TIMs are packed together
-	if ((vramBuf != NULL) && (vramBuf[0] == 0x20))
-	{
-		int size;
-		vramBuf++;
-
-		size = vramBuf[0];
-		vh = (struct VramHeader *)&vramBuf[1];
-
-		while (size != 0)
+		// if just one TIM
+		if (firstWord != 0x20)
 		{
-			LoadImage(&vh->rect, VRAMHEADER_GETPIXLES(vh));
+			RECT16 rect;
+			rect.x = (s16)CTR_ReadU16LE(&vh->rect.x);
+			rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
+			rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
+			rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
+			LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
+		}
+		else
+		{
+			int size;
+			vramBuf++;
 
-			// goto next
-			vramBuf = (int *)((u8 *)vh + (size & ~3));
-
-			size = vramBuf[0];
+			size = (int)CTR_ReadU32LE(vramBuf);
 			vh = (struct VramHeader *)&vramBuf[1];
+
+			while (size != 0)
+			{
+				RECT16 rect;
+				rect.x = (s16)CTR_ReadU16LE(&vh->rect.x);
+				rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
+				rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
+				rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
+				LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
+
+				// goto next
+				vramBuf = (int *)((u8 *)vh + (size & ~3));
+
+				size = (int)CTR_ReadU32LE(vramBuf);
+				vh = (struct VramHeader *)&vramBuf[1];
+			}
 		}
 	}
 
@@ -344,8 +360,8 @@ void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex
 
 	// get size and offset of subfile
 	struct BigEntry *entry = BIG_GETENTRY(bigfile);
-	int eSize = entry[subfileIndex].size;
-	int eOffs = entry[subfileIndex].offset;
+	int eSize = (int)CTR_ReadU32LE(&entry[subfileIndex].size);
+	int eOffs = (int)CTR_ReadU32LE(&entry[subfileIndex].offset);
 
 	*sizePtr = eSize;
 

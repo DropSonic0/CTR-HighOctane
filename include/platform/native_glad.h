@@ -29,7 +29,213 @@
 #ifndef __glad_h_
 #define __glad_h_
 
-#ifdef __vita__
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+#include <PSGL/psgl.h>
+#include <PSGL/psglu.h>
+#define gladLoadGL() 1
+#define GLAD_GL_KHR_debug 0
+
+#ifndef GL_FRAMEBUFFER
+#if defined(GL_FRAMEBUFFER_OES)
+#define GL_FRAMEBUFFER GL_FRAMEBUFFER_OES
+#elif defined(GL_FRAMEBUFFER_EXT)
+#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#else
+#define GL_FRAMEBUFFER 0x8D40
+#endif
+#endif
+
+#ifndef GL_RENDERBUFFER
+#if defined(GL_RENDERBUFFER_OES)
+#define GL_RENDERBUFFER GL_RENDERBUFFER_OES
+#elif defined(GL_RENDERBUFFER_EXT)
+#define GL_RENDERBUFFER GL_RENDERBUFFER_EXT
+#else
+#define GL_RENDERBUFFER 0x8D41
+#endif
+#endif
+
+#ifndef GL_COLOR_ATTACHMENT0
+#if defined(GL_COLOR_ATTACHMENT0_OES)
+#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_OES
+#elif defined(GL_COLOR_ATTACHMENT0_EXT)
+#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
+#else
+#define GL_COLOR_ATTACHMENT0 0x8CE0
+#endif
+#endif
+
+#ifndef GL_DEPTH_ATTACHMENT
+#if defined(GL_DEPTH_ATTACHMENT_OES)
+#define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_OES
+#elif defined(GL_DEPTH_ATTACHMENT_EXT)
+#define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_EXT
+#else
+#define GL_DEPTH_ATTACHMENT 0x8D00
+#endif
+#endif
+
+#ifndef GL_STENCIL_ATTACHMENT
+#if defined(GL_STENCIL_ATTACHMENT_OES)
+#define GL_STENCIL_ATTACHMENT GL_STENCIL_ATTACHMENT_OES
+#elif defined(GL_STENCIL_ATTACHMENT_EXT)
+#define GL_STENCIL_ATTACHMENT GL_STENCIL_ATTACHMENT_EXT
+#else
+#define GL_STENCIL_ATTACHMENT 0x8D20
+#endif
+#endif
+
+#ifndef GL_FRAMEBUFFER_COMPLETE
+#if defined(GL_FRAMEBUFFER_COMPLETE_OES)
+#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_OES
+#elif defined(GL_FRAMEBUFFER_COMPLETE_EXT)
+#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_EXT
+#else
+#define GL_FRAMEBUFFER_COMPLETE 0x8CD5
+#endif
+#endif
+
+#ifndef GL_STENCIL_INDEX8
+#if defined(GL_STENCIL_INDEX8_OES)
+#define GL_STENCIL_INDEX8 GL_STENCIL_INDEX8_OES
+#elif defined(GL_STENCIL_INDEX8_EXT)
+#define GL_STENCIL_INDEX8 GL_STENCIL_INDEX8_EXT
+#else
+#define GL_STENCIL_INDEX8 0x8D48
+#endif
+#endif
+
+#ifndef GL_READ_FRAMEBUFFER
+#if defined(GL_READ_FRAMEBUFFER_OES)
+#define GL_READ_FRAMEBUFFER GL_READ_FRAMEBUFFER_OES
+#elif defined(GL_READ_FRAMEBUFFER_EXT)
+#define GL_READ_FRAMEBUFFER GL_READ_FRAMEBUFFER_EXT
+#elif defined(GL_FRAMEBUFFER_OES)
+#define GL_READ_FRAMEBUFFER GL_FRAMEBUFFER_OES
+#elif defined(GL_FRAMEBUFFER_EXT)
+#define GL_READ_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#else
+#define GL_READ_FRAMEBUFFER 0x8CA8
+#endif
+#endif
+
+#ifndef GL_READ_FRAMEBUFFER_BINDING
+#if defined(GL_READ_FRAMEBUFFER_BINDING_OES)
+#define GL_READ_FRAMEBUFFER_BINDING GL_READ_FRAMEBUFFER_BINDING_OES
+#elif defined(GL_READ_FRAMEBUFFER_BINDING_EXT)
+#define GL_READ_FRAMEBUFFER_BINDING GL_READ_FRAMEBUFFER_BINDING_EXT
+#elif defined(GL_FRAMEBUFFER_BINDING_OES)
+#define GL_READ_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+#elif defined(GL_FRAMEBUFFER_BINDING_EXT)
+#define GL_READ_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
+#else
+#define GL_READ_FRAMEBUFFER_BINDING 0x8CAA
+#endif
+#endif
+
+#ifndef glBindFramebuffer
+#if defined(glBindFramebufferOES)
+#define glBindFramebuffer glBindFramebufferOES
+#elif defined(glBindFramebufferEXT)
+#define glBindFramebuffer glBindFramebufferEXT
+#endif
+#endif
+
+#ifndef glGenFramebuffers
+#if defined(glGenFramebuffersOES)
+#define glGenFramebuffers glGenFramebuffersOES
+#elif defined(glGenFramebuffersEXT)
+#define glGenFramebuffers glGenFramebuffersEXT
+#endif
+#endif
+
+#ifndef glDeleteFramebuffers
+#if defined(glDeleteFramebuffersOES)
+#define glDeleteFramebuffers glDeleteFramebuffersOES
+#elif defined(glDeleteFramebuffersEXT)
+#define glDeleteFramebuffers glDeleteFramebuffersEXT
+#endif
+#endif
+
+#ifndef glFramebufferTexture2D
+#if defined(glFramebufferTexture2DOES)
+#define glFramebufferTexture2D glFramebufferTexture2DOES
+#elif defined(glFramebufferTexture2DEXT)
+#define glFramebufferTexture2D glFramebufferTexture2DEXT
+#endif
+#endif
+
+#ifndef glCheckFramebufferStatus
+#if defined(glCheckFramebufferStatusOES)
+#define glCheckFramebufferStatus glCheckFramebufferStatusOES
+#elif defined(glCheckFramebufferStatusEXT)
+#define glCheckFramebufferStatus glCheckFramebufferStatusEXT
+#endif
+#endif
+
+#ifndef glBindRenderbuffer
+#if defined(glBindRenderbufferOES)
+#define glBindRenderbuffer glBindRenderbufferOES
+#elif defined(glBindRenderbufferEXT)
+#define glBindRenderbuffer glBindRenderbufferEXT
+#endif
+#endif
+
+#ifndef glGenRenderbuffers
+#if defined(glGenRenderbuffersOES)
+#define glGenRenderbuffers glGenRenderbuffersOES
+#elif defined(glGenRenderbuffersEXT)
+#define glGenRenderbuffers glGenRenderbuffersEXT
+#endif
+#endif
+
+#ifndef glDeleteRenderbuffers
+#if defined(glDeleteRenderbuffersOES)
+#define glDeleteRenderbuffers glDeleteRenderbuffersOES
+#elif defined(glDeleteRenderbuffersEXT)
+#define glDeleteRenderbuffers glDeleteRenderbuffersEXT
+#endif
+#endif
+
+#ifndef glRenderbufferStorage
+#if defined(glRenderbufferStorageOES)
+#define glRenderbufferStorage glRenderbufferStorageOES
+#elif defined(glRenderbufferStorageEXT)
+#define glRenderbufferStorage glRenderbufferStorageEXT
+#endif
+#endif
+
+#ifndef glFramebufferRenderbuffer
+#if defined(glFramebufferRenderbufferOES)
+#define glFramebufferRenderbuffer glFramebufferRenderbufferOES
+#elif defined(glFramebufferRenderbufferEXT)
+#define glFramebufferRenderbuffer glFramebufferRenderbufferEXT
+#endif
+#endif
+
+#ifndef GL_SCISSOR_BOX
+#define GL_SCISSOR_BOX 0x0C10
+#endif
+#ifndef GL_COLOR_CLEAR_VALUE
+#define GL_COLOR_CLEAR_VALUE 0x0C22
+#endif
+
+#ifndef GL_FRAGMENT_SHADER
+#define GL_FRAGMENT_SHADER 0x8B30
+#endif
+#ifndef GL_VERTEX_SHADER
+#define GL_VERTEX_SHADER 0x8B31
+#endif
+#ifndef GL_COMPILE_STATUS
+#define GL_COMPILE_STATUS 0x8B81
+#endif
+#ifndef GL_LINK_STATUS
+#define GL_LINK_STATUS 0x8B82
+#endif
+#ifndef GL_SHADING_LANGUAGE_VERSION
+#define GL_SHADING_LANGUAGE_VERSION 0x8B8C
+#endif
+#elif defined(__vita__)
 #include <vitaGL.h>
 #else
 

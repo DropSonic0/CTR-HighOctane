@@ -95,6 +95,10 @@ void Platform_LogInit(const char *appName)
 	{
 		fprintf(stderr, "[CTR Native] Error: cannot create log file '%s'\n", s_logPath);
 	}
+	else
+	{
+		setvbuf(s_logStream, NULL, _IONBF, 0);
+	}
 }
 
 void Platform_LogShutdown(void)
