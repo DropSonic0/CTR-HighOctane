@@ -18,8 +18,10 @@
 #include "platform/native_savestate.h"
 #include "platform/native_str.h"
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#endif
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

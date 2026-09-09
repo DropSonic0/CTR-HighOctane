@@ -12,8 +12,10 @@
 #include <unistd.h>
 #endif
 #if !defined(__PS3__)
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#endif
 #endif
 
 #define _EnterCriticalSection(x)

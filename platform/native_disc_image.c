@@ -2,7 +2,9 @@
 
 #include <platform/native_path.h>
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL_mutex.h>
+#endif
 #if defined(__vita__)
 #include <psp2/io/fcntl.h>
 #endif
@@ -47,7 +49,9 @@ global_variable FILE *s_nativeDiscImageFile;
 #endif
 global_variable struct NativeDiscImageFile s_nativeDiscImageRoot;
 global_variable int s_nativeDiscImageAvailable;
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 global_variable SDL_Mutex *s_nativeDiscImageMutex;
+#endif
 global_variable u32 s_nativeDiscImageSectorCount;
 global_variable u32 s_nativeDiscImageCacheLba;
 global_variable u32 s_nativeDiscImageCacheCount;
@@ -246,10 +250,12 @@ internal int NativeDiscImage_ReadRawSector(u32 lba, u8 *sector)
 		return 0;
 	}
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeDiscImageMutex != NULL)
 	{
 		SDL_LockMutex(s_nativeDiscImageMutex);
 	}
+#endif
 	if (!NativeDiscImage_EnsureRawSectorCached(lba))
 	{
 		goto done;
@@ -261,10 +267,12 @@ internal int NativeDiscImage_ReadRawSector(u32 lba, u8 *sector)
 	result = NativeDiscImage_CheckRawSectorHeader(sector);
 
 done:
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeDiscImageMutex != NULL)
 	{
 		SDL_UnlockMutex(s_nativeDiscImageMutex);
 	}
+#endif
 	return result;
 }
 
@@ -568,10 +576,12 @@ int NativeDiscImage_Init(const char *assetsDir)
 {
 	char path[NATIVE_DISC_IMAGE_PATH_MAX];
 	u64 imageSize;
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeDiscImageMutex == NULL)
 	{
 		s_nativeDiscImageMutex = SDL_CreateMutex();
 	}
+#endif
 
 	s_nativeDiscImageAvailable = 0;
 	s_nativeDiscImagePath[0] = '\0';

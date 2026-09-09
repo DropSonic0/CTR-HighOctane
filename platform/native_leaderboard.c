@@ -10,7 +10,9 @@
 #include "platform/native_http_win32.h"
 #endif
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#endif
 #if defined(__vita__)
 #include <curl/curl.h>
 #include <openssl/sha.h>

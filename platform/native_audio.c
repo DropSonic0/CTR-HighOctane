@@ -5,7 +5,9 @@
 #include <platform/native_path.h>
 #include <platform/native_perf.h>
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#endif
 #if defined(__vita__)
 #include <psp2/io/fcntl.h>
 #endif

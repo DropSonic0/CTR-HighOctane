@@ -6,7 +6,9 @@
 
 #include <macros.h>
 #include "platform/native_renderer_types.h"
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#endif
 
 #include "platform/native_assets.h"
 #include "platform/native_gpu.h"

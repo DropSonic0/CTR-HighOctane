@@ -18,7 +18,7 @@ void GhostReplay_ThTick(struct Thread *t)
 	struct GhostTape *tape = d->ghostTape;
 	struct Instance *inst = d->instSelf;
 
-	inst->scale = (SVec3){.x = 0xccc, .y = 0xccc, .z = 0xccc};
+	inst->scale = (SVec3){{0xccc, 0xccc, 0xccc}};
 
 	// 6-second timer != 0, and ghost made by human
 	if ((sdata->ghostOverflowTextTimer != 0) && (d->ghostID == 0))
@@ -218,11 +218,11 @@ void GhostReplay_ThTick(struct Thread *t)
 	inst->matrix.t[1] = currPacket->pos.y + ((vel[1] * lerp4096) >> 0xC);
 	inst->matrix.t[2] = currPacket->pos.z + ((vel[2] * lerp4096) >> 0xC);
 
-	SVec3 local_rot = {
-	    .x = Ghost_LerpRot12(currPacket->rot.x, nextPacket->rot.x, lerp4096),
-	    .y = Ghost_LerpRot12(currPacket->rot.y, nextPacket->rot.y, lerp4096),
-	    .z = Ghost_LerpRot12(currPacket->rot.z, nextPacket->rot.z, lerp4096),
-	};
+	SVec3 local_rot = {{
+	    Ghost_LerpRot12(currPacket->rot.x, nextPacket->rot.x, lerp4096),
+	    Ghost_LerpRot12(currPacket->rot.y, nextPacket->rot.y, lerp4096),
+	    Ghost_LerpRot12(currPacket->rot.z, nextPacket->rot.z, lerp4096),
+	}};
 
 	ConvertRotToMatrix(&inst->matrix, &local_rot);
 

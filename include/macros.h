@@ -7,7 +7,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#if defined(__PPU__) || defined(__PS3__) || defined(__CELLOS_LV2__) || defined(__SNC__)
+#define CTR_STATIC_ASSERT(expr) typedef char static_assertion_at_line_##__LINE__[(expr) ? 1 : -1]
+#else
 #define CTR_STATIC_ASSERT(expr) _Static_assert((expr), #expr)
+#endif
 
 typedef uint64_t u64;
 typedef int64_t s64;

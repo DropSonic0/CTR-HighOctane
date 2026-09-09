@@ -603,7 +603,7 @@ void VehPhysForce_OnApplyForces(struct Thread *thread, struct Driver *driver)
 
 	VehPhysForce_OnGravity(driver, &driver->velocity);
 
-	const SVec3 up = {.x = FP(0), .y = FP(1), .z = FP(0)};
+	const SVec3 up = {{FP(0), FP(1), FP(0)}};
 	driver->normalVecUP = up;
 	driver->AxisAngle1_normalVec = up;
 	driver->collisionFlags = 0;

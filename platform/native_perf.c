@@ -7,7 +7,9 @@
 #include "platform/native_log.h"
 #include "platform/native_path.h"
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#endif
 
 #include <errno.h>
 #include <stdio.h>

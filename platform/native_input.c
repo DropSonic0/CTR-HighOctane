@@ -4,7 +4,9 @@
 #include "platform/native_adhoc.h"
 #include "psx/libpad.h"
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -320,7 +320,11 @@ void UI_TrackerBG(struct Icon *targetIcon, s16 centerX, s16 centerY, struct Prim
 void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *primMem, uint32_t *ot, char transparency, s16 scale, u32 color)
 {
 	PolyFT4 *p = primMem->cursor;
-	const PrimCode primCode = {.poly = {.renderCode = RenderCode_Polygon, .quad = 1, .textured = 1}};
+	PrimCode primCode;
+	primCode.code = 0;
+	primCode.poly.renderCode = RenderCode_Polygon;
+	primCode.poly.quad = 1;
+	primCode.poly.textured = 1;
 	p->colorCode.self = color;
 	p->colorCode.code = primCode;
 

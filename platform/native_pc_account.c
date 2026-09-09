@@ -3,7 +3,9 @@
 
 #if defined(_WIN32) && !defined(__vita__)
 #include "platform/native_log.h"
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#endif
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>

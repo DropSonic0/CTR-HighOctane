@@ -110,17 +110,6 @@ typedef union ColorCode
 
 typedef ColorCode Color;
 
-#define MakeColorCode(red, green, blue, renderCode)         \
-	(ColorCode)                                             \
-	{                                                       \
-		.r = red, .g = green, .b = blue, .code = renderCode \
-	}
-#define MakeColor(red, green, blue)     \
-	(Color)                             \
-	{                                   \
-		.r = red, .g = green, .b = blue \
-	}
-
 typedef union Point
 {
 	struct
@@ -131,11 +120,51 @@ typedef union Point
 	s32 self;
 } Point;
 
+#if defined(__PPU__) || defined(__PS3__) || defined(__CELLOS_LV2__) || defined(__SNC__)
+static inline ColorCode MakeColorCode(u8 red, u8 green, u8 blue, PrimCode renderCode)
+{
+	ColorCode c;
+	c.r = red;
+	c.g = green;
+	c.b = blue;
+	c.code = renderCode;
+	return c;
+}
+
+static inline Color MakeColor(u8 red, u8 green, u8 blue)
+{
+	Color c;
+	c.r = red;
+	c.g = green;
+	c.b = blue;
+	c.code.code = 0;
+	return c;
+}
+
+static inline Point MakePoint(s16 px, s16 py)
+{
+	Point p;
+	p.x = px;
+	p.y = py;
+	return p;
+}
+#else
+#define MakeColorCode(red, green, blue, renderCode)         \
+	(ColorCode)                                             \
+	{                                                       \
+		.r = red, .g = green, .b = blue, .code = renderCode \
+	}
+#define MakeColor(red, green, blue)     \
+	(Color)                             \
+	{                                   \
+		.r = red, .g = green, .b = blue \
+	}
 #define MakePoint(px, py) \
 	(Point)               \
 	{                     \
 		.x = px, .y = py  \
 	}
+#endif
 
 typedef union UV
 {

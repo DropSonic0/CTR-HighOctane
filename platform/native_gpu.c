@@ -9,7 +9,9 @@
 
 #include <platform.h>
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#endif
 
 #include "platform/native_log.h"
 #include "platform/native_perf.h"

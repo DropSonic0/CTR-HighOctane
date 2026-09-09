@@ -10,7 +10,9 @@ void CTR_Box_DrawWirePrims(Point p1, Point p2, Color color, void *ot)
 		return;
 	}
 
-	const PrimCode primCode = {.line = {.renderCode = RenderCode_Line}};
+	PrimCode primCode;
+	primCode.code = 0;
+	primCode.line.renderCode = RenderCode_Line;
 	color.code = primCode;
 	p->colorCode = color;
 	p->v[0].pos = p1;
@@ -29,7 +31,10 @@ void CTR_Box_DrawWireBox(RECT *r, const Color *color, void *ot, struct PrimMem *
 	}
 	primMem->cursor = p + 1;
 
-	const PrimCode primCode = {.line = {.renderCode = RenderCode_Line, .polyline = 1}};
+	PrimCode primCode;
+	primCode.code = 0;
+	primCode.line.renderCode = RenderCode_Line;
+	primCode.line.polyline = 1;
 	p->tag.size = (sizeof(*p) - sizeof(p->tag)) / sizeof(u32);
 	p->colorCode = *color;
 	p->colorCode.code = primCode;
@@ -84,10 +89,18 @@ void CTR_Box_DrawClearBox(const RECT *r, const Color *color, int transparency, u
 		return;
 	}
 
-	p->t.texpage = (Texpage){.code = 0xE1, .semiTransparency = transparency, .dither = 1, .y_VRAM_EXP = 1};
+	p->t.texpage.self = 0;
+	p->t.texpage.code = 0xE1;
+	p->t.texpage.semiTransparency = transparency;
+	p->t.texpage.dither = 1;
+	p->t.texpage.y_VRAM_EXP = 1;
 	p->p.tag.self = 0;
 
-	const PrimCode primCode = {.poly = {.renderCode = RenderCode_Polygon, .quad = 1, .semiTransparency = 1}};
+	PrimCode primCode;
+	primCode.code = 0;
+	primCode.poly.renderCode = RenderCode_Polygon;
+	primCode.poly.quad = 1;
+	primCode.poly.semiTransparency = 1;
 	Color primColor = *color;
 	primColor.code = primCode;
 	p->p.colorCode = primColor;
@@ -123,7 +136,10 @@ void CTR_Box_DrawSolidBox(RECT *r, Color color, uint32_t *ot)
 		return;
 	}
 
-	const PrimCode primCode = {.poly = {.renderCode = RenderCode_Polygon, .quad = 1}};
+	PrimCode primCode;
+	primCode.code = 0;
+	primCode.poly.renderCode = RenderCode_Polygon;
+	primCode.poly.quad = 1;
 	color.code = primCode;
 	p->colorCode = color;
 

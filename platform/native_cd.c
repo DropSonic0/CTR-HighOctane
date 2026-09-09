@@ -5,7 +5,9 @@
 #include <platform/native_path.h>
 #include <psx/libcd.h>
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#endif
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
