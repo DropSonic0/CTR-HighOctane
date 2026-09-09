@@ -6,6 +6,51 @@
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#else
+typedef s32 SDL_JoystickID;
+typedef void SDL_Gamepad;
+typedef s32 Sint32;
+
+#define SDL_SCANCODE_X             101
+#define SDL_SCANCODE_V             102
+#define SDL_SCANCODE_Z             103
+#define SDL_SCANCODE_C             104
+#define SDL_SCANCODE_LSHIFT        105
+#define SDL_SCANCODE_LCTRL         106
+#define SDL_SCANCODE_LEFTBRACKET   107
+#define SDL_SCANCODE_RSHIFT        108
+#define SDL_SCANCODE_RCTRL         109
+#define SDL_SCANCODE_RIGHTBRACKET  110
+#define SDL_SCANCODE_UP            111
+#define SDL_SCANCODE_DOWN          112
+#define SDL_SCANCODE_LEFT          113
+#define SDL_SCANCODE_RIGHT         114
+#define SDL_SCANCODE_SPACE         115
+#define SDL_SCANCODE_RETURN        116
+#define SDL_SCANCODE_RALT          117
+#define SDL_SCANCODE_LALT          118
+
+#define SDL_GAMEPAD_BUTTON_WEST            201
+#define SDL_GAMEPAD_BUTTON_EAST            202
+#define SDL_GAMEPAD_BUTTON_NORTH           203
+#define SDL_GAMEPAD_BUTTON_SOUTH           204
+#define SDL_GAMEPAD_BUTTON_LEFT_SHOULDER   205
+#define SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER  206
+#define SDL_GAMEPAD_BUTTON_LEFT_STICK      207
+#define SDL_GAMEPAD_BUTTON_RIGHT_STICK     208
+#define SDL_GAMEPAD_BUTTON_DPAD_UP         209
+#define SDL_GAMEPAD_BUTTON_DPAD_DOWN       210
+#define SDL_GAMEPAD_BUTTON_DPAD_LEFT       211
+#define SDL_GAMEPAD_BUTTON_DPAD_RIGHT      212
+#define SDL_GAMEPAD_BUTTON_BACK            213
+#define SDL_GAMEPAD_BUTTON_START           214
+
+#define SDL_GAMEPAD_AXIS_LEFT_TRIGGER      301
+#define SDL_GAMEPAD_AXIS_RIGHT_TRIGGER     302
+#define SDL_GAMEPAD_AXIS_LEFTX             303
+#define SDL_GAMEPAD_AXIS_LEFTY             304
+#define SDL_GAMEPAD_AXIS_RIGHTX            305
+#define SDL_GAMEPAD_AXIS_RIGHTY            306
 #endif
 #include <stdio.h>
 #include <stdlib.h>
@@ -315,6 +360,7 @@ internal void NativeInput_DefaultMappings(void)
 
 internal s32 NativeInput_ControllerButtonState(SDL_Gamepad *controller, s32 buttonOrAxis)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (controller == NULL)
 	{
 		return 0;
@@ -339,6 +385,11 @@ internal s32 NativeInput_ControllerButtonState(SDL_Gamepad *controller, s32 butt
 	}
 
 	return SDL_GetGamepadButton(controller, (SDL_GamepadButton)buttonOrAxis) * 32767;
+#else
+	(void)controller;
+	(void)buttonOrAxis;
+	return 0;
+#endif
 }
 
 internal u8 NativeInput_AxisToByte(s32 axis)
@@ -428,7 +479,33 @@ internal void NativeInput_ApplyController(s32 slot)
 	rightY = ((s32)pad.ry - 128) * 256;
 	leftX = ((s32)pad.lx - 128) * 256;
 	leftY = ((s32)pad.ly - 128) * 256;
-#else
+
+	if ((buttons != 0xffff) || NativeInput_AxisIsActive(rightX) || NativeInput_AxisIsActive(rightY) || NativeInput_AxisIsActive(leftX) ||
+	    NativeInput_AxisIsActive(leftY))
+	{
+		s_lastActiveControllerSlot = slot;
+	}
+
+	if (((buttons & 0x1) == 0) && ((buttons & 0x8) == 0))
+	{
+		buttons = 0xffff;
+		if (nativeController->switchingAnalog == 0)
+		{
+			nativeController->analogEnabled = nativeController->analogEnabled == 0;
+		}
+		nativeController->switchingAnalog = 1;
+	}
+	else
+	{
+		nativeController->switchingAnalog = 0;
+	}
+
+	NativeInput_SetSnapshotButtons(snapshot, buttons);
+	snapshot->analog[0] = NativeInput_AxisToByte(rightX);
+	snapshot->analog[1] = NativeInput_AxisToByte(rightY);
+	snapshot->analog[2] = NativeInput_AxisToByte(leftX);
+	snapshot->analog[3] = NativeInput_AxisToByte(leftY);
+#elif !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	const struct NativeInputControllerMapping *mapping = &s_controllerMapping;
 	SDL_Gamepad *controller = nativeController->controller;
 	u16 buttons = 0xffff;
@@ -515,7 +592,6 @@ internal void NativeInput_ApplyController(s32 slot)
 	rightY = NativeInput_ControllerButtonState(controller, mapping->gc_axis_right_y);
 	leftX = NativeInput_ControllerButtonState(controller, mapping->gc_axis_left_x);
 	leftY = NativeInput_ControllerButtonState(controller, mapping->gc_axis_left_y);
-#endif
 
 	if ((buttons != 0xffff) || NativeInput_AxisIsActive(rightX) || NativeInput_AxisIsActive(rightY) || NativeInput_AxisIsActive(leftX) ||
 	    NativeInput_AxisIsActive(leftY))
@@ -542,11 +618,15 @@ internal void NativeInput_ApplyController(s32 slot)
 	snapshot->analog[1] = NativeInput_AxisToByte(rightY);
 	snapshot->analog[2] = NativeInput_AxisToByte(leftX);
 	snapshot->analog[3] = NativeInput_AxisToByte(leftY);
+#else
+	(void)slot;
+#endif
 
 }
 
 internal u16 NativeInput_ReadKeyboard(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	const struct NativeInputKeyboardMapping *mapping = &s_keyboardMapping;
 	u16 buttons = 0xffff;
 
@@ -621,16 +701,23 @@ internal u16 NativeInput_ReadKeyboard(void)
 	}
 
 	return buttons;
+#else
+	return 0xffff;
+#endif
 }
 
 internal s32 NativeInput_KeyboardSuppressed(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_keyboardState == NULL)
 	{
 		return 0;
 	}
 
 	return s_keyboardState[SDL_SCANCODE_RALT] || s_keyboardState[SDL_SCANCODE_LALT];
+#else
+	return 0;
+#endif
 }
 
 internal void NativeInput_ApplyKeyboard(s32 slot, u16 keyboardButtons)
@@ -735,10 +822,12 @@ internal void NativeInput_CloseController(s32 slot)
 	}
 
 	controller = &s_controllers[slot];
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (controller->controller != NULL)
 	{
 		SDL_CloseGamepad(controller->controller);
 	}
+#endif
 
 	controller->controller = NULL;
 	controller->instanceId = -1;
@@ -753,6 +842,7 @@ internal void NativeInput_CloseController(s32 slot)
 
 internal void NativeInput_OpenController(SDL_JoystickID instanceId, s32 slot)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	struct NativeInputController *controller;
 	SDL_Joystick *joystick;
 
@@ -783,10 +873,15 @@ internal void NativeInput_OpenController(SDL_JoystickID instanceId, s32 slot)
 	controller->analogEnabled = 1;
 	controller->switchingAnalog = 0;
 	NativeInput_MoveKeyboardOffControllerSlot(slot);
+#else
+	(void)instanceId;
+	(void)slot;
+#endif
 }
 
 internal void NativeInput_OpenKnownControllers(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_JoystickID *gamepads;
 	s32 count = 0;
 	s32 i;
@@ -802,6 +897,7 @@ internal void NativeInput_OpenKnownControllers(void)
 		}
 	}
 	SDL_free(gamepads);
+#endif
 }
 
 int Platform_InputInit(void)
@@ -826,11 +922,16 @@ int Platform_InputInit(void)
 	s_keyboardControllerSlot = NATIVE_INPUT_DEFAULT_KEYBOARD_SLOT;
 	s_lastActiveControllerSlot = -1;
 	s_installedSnapshotsActive = 0;
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	s_keyboardState = SDL_GetKeyboardState(NULL);
+#else
+	s_keyboardState = NULL;
+#endif
 #ifdef __vita__
 	s_vitaIsHandheld = sceKernelGetModel() == SCE_KERNEL_MODEL_VITA;
 #endif
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (SDL_InitSubSystem(SDL_INIT_GAMEPAD | SDL_INIT_HAPTIC) == 0)
 	{
 		fprintf(stderr, "[CTR Native] Failed to initialise SDL input subsystem: %s\n", SDL_GetError());
@@ -839,6 +940,7 @@ int Platform_InputInit(void)
 
 	SDL_AddGamepadMappingsFromFile("gamecontrollerdb.txt");
 	NativeInput_OpenKnownControllers();
+#endif
 
 	s_inputInitialized = 1;
 	return 1;
@@ -853,10 +955,12 @@ void Platform_InputShutdown(void)
 		NativeInput_CloseController(slot);
 	}
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_inputInitialized != 0)
 	{
 		SDL_QuitSubSystem(SDL_INIT_GAMEPAD | SDL_INIT_HAPTIC);
 	}
+#endif
 
 	s_inputInitialized = 0;
 	s_installedSnapshotsActive = 0;
@@ -916,8 +1020,9 @@ void Platform_InputUpdate(void)
 		return;
 	}
 
-#ifdef __vita__
+#if defined(__vita__) || defined(__PS3__) || defined(__CELLOS_LV2__)
 	keyboardButtons = 0xffff;
+	(void)keyboardButtons;
 #else
 	SDL_PumpEvents();
 	keyboardButtons = NativeInput_KeyboardSuppressed() ? 0xffff : NativeInput_ReadKeyboard();
@@ -927,7 +1032,7 @@ void Platform_InputUpdate(void)
 	{
 		NativeInput_ResetSnapshot(slot);
 		NativeInput_ApplyController(slot);
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		NativeInput_ApplyKeyboard(slot, keyboardButtons);
 #endif
 		adhocPads[slot] = s_controllers[slot].snapshot;
@@ -1219,5 +1324,10 @@ void Platform_InputPadVibrate(int port, unsigned char *table, int len)
 		freqHigh = 4096;
 	}
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_RumbleGamepad(controller->controller, freqLow, freqHigh, 200);
+#else
+	(void)freqHigh;
+	(void)freqLow;
+#endif
 }

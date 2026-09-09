@@ -7,6 +7,13 @@
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#else
+typedef void SDL_Mutex;
+typedef void SDL_Condition;
+typedef void SDL_Thread;
+#ifndef SDLCALL
+#define SDLCALL
+#endif
 #endif
 #include <limits.h>
 #include <stdio.h>
@@ -272,6 +279,7 @@ internal s32 NativeCD_ReadSectorsAt(s32 fileIndex, s32 firstSector, s32 sectors,
 	return fread(dst, 1, byteCount, s_nativeCdFiles[fileIndex].hostFile) == byteCount;
 }
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal int SDLCALL NativeCD_ReadWorkerThread(void *unused)
 {
 	(void)unused;
@@ -317,9 +325,11 @@ internal int SDLCALL NativeCD_ReadWorkerThread(void *unused)
 
 	return 0;
 }
+#endif
 
 internal s32 NativeCD_ReadWorkerInit(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	memset(&s_nativeCdReadWorker, 0, sizeof(s_nativeCdReadWorker));
 	s_nativeCdReadWorker.mutex = SDL_CreateMutex();
 	s_nativeCdReadWorker.condition = SDL_CreateCondition();
@@ -341,12 +351,16 @@ internal s32 NativeCD_ReadWorkerInit(void)
 	}
 
 	return 1;
+#else
+	return 0;
+#endif
 }
 
 void NativeCD_Shutdown(void)
 {
 	s32 i;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeCdReadWorker.mutex != NULL)
 	{
 		SDL_LockMutex(s_nativeCdReadWorker.mutex);
@@ -358,6 +372,7 @@ void NativeCD_Shutdown(void)
 		SDL_DestroyMutex(s_nativeCdReadWorker.mutex);
 		memset(&s_nativeCdReadWorker, 0, sizeof(s_nativeCdReadWorker));
 	}
+#endif
 
 	for (i = 0; i < s_nativeCdFileCount; i++)
 	{
@@ -378,6 +393,7 @@ void NativeCD_PumpCallbacks(void)
 	CdlCB callback = NULL;
 	b32 success = 0;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeCdReadWorker.mutex == NULL)
 	{
 		return;
@@ -397,6 +413,7 @@ void NativeCD_PumpCallbacks(void)
 	{
 		callback(success ? CdlComplete : CdlDiskError, NULL);
 	}
+#endif
 }
 
 internal void NativeCD_SetLastCom(int com)
@@ -480,16 +497,20 @@ CdlCB CdReadCallback(CdlCB func)
 {
 	CdlCB old;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeCdReadWorker.mutex != NULL)
 	{
 		SDL_LockMutex(s_nativeCdReadWorker.mutex);
 	}
+#endif
 	old = s_nativeCdReadCallback;
 	s_nativeCdReadCallback = func;
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeCdReadWorker.mutex != NULL)
 	{
 		SDL_UnlockMutex(s_nativeCdReadWorker.mutex);
 	}
+#endif
 	return old;
 }
 
@@ -522,15 +543,19 @@ int CdControl(uint8_t com, uint8_t *param, uint8_t *result)
 
 	if ((com == CdlSetloc) && (param != NULL))
 	{
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		if (s_nativeCdReadWorker.mutex != NULL)
 		{
 			SDL_LockMutex(s_nativeCdReadWorker.mutex);
 		}
+#endif
 		NativeCD_SetLoc((const CdlLOC *)param);
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		if (s_nativeCdReadWorker.mutex != NULL)
 		{
 			SDL_UnlockMutex(s_nativeCdReadWorker.mutex);
 		}
+#endif
 	}
 
 	if ((com == CdlSetmode) && (param != NULL))

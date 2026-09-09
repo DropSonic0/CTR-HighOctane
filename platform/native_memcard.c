@@ -11,6 +11,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#ifndef S_ISDIR
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#endif
 #endif
 #include <stdio.h>
 #include <string.h>

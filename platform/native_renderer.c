@@ -8,6 +8,29 @@
 #include "platform/native_renderer_types.h"
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#else
+typedef struct { int x, y, w, h; } SDL_Rect;
+typedef int SDL_WindowFlags;
+typedef u8 Uint8;
+typedef u16 Uint16;
+typedef s16 Sint16;
+typedef u32 Uint32;
+
+#define SDL_WINDOW_OPENGL 0
+#define SDL_WINDOW_RESIZABLE 0
+#define SDL_WINDOW_HIGH_PIXEL_DENSITY 0
+#define SDL_WINDOW_FULLSCREEN 0
+#define SDL_GL_CONTEXT_PROFILE_CORE 0
+#define SDL_HINT_WINDOW_ALLOW_TOPMOST "0"
+#define SDL_GL_CONTEXT_MAJOR_VERSION 0
+#define SDL_GL_CONTEXT_MINOR_VERSION 0
+#define SDL_GL_CONTEXT_PROFILE_MASK 0
+#define SDL_GL_DOUBLEBUFFER 0
+#define SDL_GL_STENCIL_SIZE 0
+
+#define SDL_memset memset
+#define SDL_memcpy memcpy
+#define SDL_SetError(...) ((void)0)
 #endif
 
 #include "platform/native_assets.h"
@@ -411,6 +434,7 @@ global_variable GLuint s_glVramFramebuffer;
 
 internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_WindowFlags windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 #ifndef __vita__
 	windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
@@ -456,6 +480,11 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 	}
 
 	return 1;
+#else
+	(void)windowName;
+	(void)fullscreen;
+	return 1;
+#endif
 }
 
 internal int NativeRenderer_InitialiseGLExt(void)
@@ -487,6 +516,7 @@ int NativeRenderer_InitialiseRender(char *windowName, int width, int height, int
 	g_windowHeight = height;
 	NativeRenderer_SetPresentationAspect(width, height);
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	// Due to debugging in fullscreen
 	SDL_SetHint(SDL_HINT_WINDOW_ALLOW_TOPMOST, "0");
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -507,6 +537,7 @@ int NativeRenderer_InitialiseRender(char *windowName, int width, int height, int
 		NATIVE_RENDERER_ERROR("%s\n", "Failed to Intialise GL extensions");
 		return 0;
 	}
+#endif
 
 	return 1;
 }
@@ -580,7 +611,11 @@ internal void NativeRenderer_ResolveGpuMeasurements(b32 waitForResults)
 
 void NativeRenderer_UpdateSwapIntervalState(int swapInterval)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_GL_SetSwapInterval(swapInterval);
+#else
+	(void)swapInterval;
+#endif
 }
 
 void NativeRenderer_BeginScene(void)
@@ -3780,7 +3815,7 @@ void NativeRenderer_SwapWindow(void)
 	{
 		SDL_GL_SwapWindow(g_window);
 	}
-#else
+#elif !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_GL_SwapWindow(g_window);
 #endif
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_SWAP_WINDOW);

@@ -7,6 +7,18 @@
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#else
+typedef u32 SDL_AudioDeviceID;
+typedef void SDL_AudioStream;
+typedef void SDL_Mutex;
+typedef void SDL_Condition;
+typedef void SDL_Thread;
+typedef int SDL_AtomicInt;
+#ifndef SDLCALL
+#define SDLCALL
+#endif
+#define SDL_SetAtomicInt(a, v) (*(a) = (v))
+#define SDL_GetAtomicInt(a) (*(a))
 #endif
 #if defined(__vita__)
 #include <psp2/io/fcntl.h>
@@ -547,23 +559,31 @@ internal int NativeAudio_ReadFileAt(struct NativeAudioReadFile *file, void *dst,
 
 internal b32 NativeAudio_OutputOpen(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	return s_audio.output.stream != NULL;
+#else
+	return 1;
+#endif
 }
 
 internal void NativeAudio_LockOutput(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_audio.output.stream != NULL)
 	{
 		SDL_LockAudioStream(s_audio.output.stream);
 	}
+#endif
 }
 
 internal void NativeAudio_UnlockOutput(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_audio.output.stream != NULL)
 	{
 		SDL_UnlockAudioStream(s_audio.output.stream);
 	}
+#endif
 }
 
 #if defined(__vita__)
@@ -2134,10 +2154,12 @@ internal void NativeAudio_ClearOutputQueueNoLock(void)
 	s_audio.output.scheduledReadFrame = 0;
 	s_audio.output.scheduledFrameCount = 0;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_audio.output.stream != NULL)
 	{
 		SDL_ClearAudioStream(s_audio.output.stream);
 	}
+#endif
 }
 
 internal int NativeAudio_OpenDevice(void);
@@ -2161,10 +2183,12 @@ internal void NativeAudio_SelectDriverHint(void)
 		SDL_SetHint(SDL_HINT_AUDIO_DRIVER, "pulseaudio,alsa,pipewire");
 	}
 #endif
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (SDL_GetHint(SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES) == NULL)
 	{
 		SDL_SetHint(SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES, "1024");
 	}
+#endif
 }
 
 internal int NativeAudio_BuildXAPath(char *path, size_t pathSize, int categoryID, int fileNumber)
@@ -2197,19 +2221,23 @@ internal int NativeAudio_GetXnfCache(struct NativeAudioByteBuffer *xnf)
 {
 	int loaded = 1;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex != NULL)
 	{
 		SDL_LockMutex(s_xaLoader.mutex);
 	}
+#endif
 	if (s_xaXnfCache.data == NULL)
 	{
 		loaded = NativeAudio_ReadFileBytes("XA/ENG.XNF", &s_xaXnfCache);
 	}
 	*xnf = s_xaXnfCache;
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex != NULL)
 	{
 		SDL_UnlockMutex(s_xaLoader.mutex);
 	}
+#endif
 
 	return loaded && (xnf->data != NULL);
 }
@@ -2287,10 +2315,12 @@ internal int NativeAudio_GetPalVoiceXnfCache(int languageFileIndex, struct Nativ
 	{
 		return 0;
 	}
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex != NULL)
 	{
 		SDL_LockMutex(s_xaLoader.mutex);
 	}
+#endif
 	if (!s_palVoiceXnfCacheAttempted[slot])
 	{
 		const char *code = NativeAudio_GetPalVoiceLanguageCode(languageFileIndex);
@@ -2306,10 +2336,12 @@ internal int NativeAudio_GetPalVoiceXnfCache(int languageFileIndex, struct Nativ
 		}
 	}
 	*xnf = s_palVoiceXnfCache[slot];
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex != NULL)
 	{
 		SDL_UnlockMutex(s_xaLoader.mutex);
 	}
+#endif
 	return xnf->data != NULL;
 }
 
@@ -2932,6 +2964,7 @@ internal void NativeAudio_MovePreparedXAStream(struct NativeAudioXaPreparedStrea
 	memset(src, 0, sizeof(*src));
 }
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal int SDLCALL NativeAudio_XaLoaderThread(void *unused)
 {
 	(void)unused;
@@ -3005,9 +3038,11 @@ internal int SDLCALL NativeAudio_XaLoaderThread(void *unused)
 
 	return 0;
 }
+#endif
 
 internal int NativeAudio_XaLoaderInit(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex != NULL)
 	{
 		return s_xaLoader.thread != NULL;
@@ -3034,11 +3069,15 @@ internal int NativeAudio_XaLoaderInit(void)
 	}
 
 	return 1;
+#else
+	return 0;
+#endif
 }
 
 internal void NativeAudio_CancelXARequest(void)
 {
 	SDL_SetAtomicInt(&s_xaPendingPlayback, 0);
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex == NULL)
 	{
 		return;
@@ -3049,10 +3088,12 @@ internal void NativeAudio_CancelXARequest(void)
 	s_xaLoader.requestPending = 0;
 	s_xaLoader.playWhenReady = 0;
 	SDL_UnlockMutex(s_xaLoader.mutex);
+#endif
 }
 
 internal int NativeAudio_QueueXATrack(int categoryID, int xaID, int playWhenReady, int volumeLeft, int volumeRight)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex == NULL)
 	{
 		return 0;
@@ -3124,10 +3165,19 @@ internal int NativeAudio_QueueXATrack(int categoryID, int xaID, int playWhenRead
 	SDL_SignalCondition(s_xaLoader.condition);
 	SDL_UnlockMutex(s_xaLoader.mutex);
 	return 1;
+#else
+	(void)categoryID;
+	(void)xaID;
+	(void)playWhenReady;
+	(void)volumeLeft;
+	(void)volumeRight;
+	return 0;
+#endif
 }
 
 internal void NativeAudio_XaLoaderSetPendingVolume(int volumeLeft, int volumeRight)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex == NULL)
 	{
 		return;
@@ -3140,10 +3190,15 @@ internal void NativeAudio_XaLoaderSetPendingVolume(int volumeLeft, int volumeRig
 		s_xaLoader.volumeRight = (s16)volumeRight;
 	}
 	SDL_UnlockMutex(s_xaLoader.mutex);
+#else
+	(void)volumeLeft;
+	(void)volumeRight;
+#endif
 }
 
 internal void NativeAudio_XaLoaderShutdown(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_xaLoader.mutex == NULL)
 	{
 		return;
@@ -3163,6 +3218,7 @@ internal void NativeAudio_XaLoaderShutdown(void)
 	SDL_DestroyCondition(s_xaLoader.condition);
 	SDL_DestroyMutex(s_xaLoader.mutex);
 	memset(&s_xaLoader, 0, sizeof(s_xaLoader));
+#endif
 }
 
 // Decode one already-resident compressed sector into the rolling PCM window.
@@ -3241,6 +3297,7 @@ internal int NativeAudio_GetQueuedFramesNoLock(void)
 	int queuedBytes;
 	int queuedFrames = s_audio.output.scheduledFrameCount;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_audio.output.stream != NULL)
 	{
 		queuedBytes = SDL_GetAudioStreamQueued(s_audio.output.stream);
@@ -3249,6 +3306,7 @@ internal int NativeAudio_GetQueuedFramesNoLock(void)
 			queuedFrames += queuedBytes / frameBytes;
 		}
 	}
+#endif
 
 	return queuedFrames;
 }
@@ -3371,6 +3429,7 @@ internal int NativeAudio_DrainRenderedFramesNoLock(s16 *out, int frameCount)
 	return framesDrained;
 }
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal void SDLCALL NativeAudio_StreamCallback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount)
 {
 	const int frameBytes = (int)sizeof(s16) * NATIVE_AUDIO_CHANNELS;
@@ -3433,6 +3492,7 @@ internal void SDLCALL NativeAudio_StreamCallback(void *userdata, SDL_AudioStream
 			framesNeeded -= chunkFrames;
 		}
 }
+#endif
 
 void NativeAudio_ClearOutputQueue(void)
 {
@@ -3933,6 +3993,7 @@ void NativeAudio_StepVBlank(void)
 
 internal int NativeAudio_OpenDevice(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_AudioSpec want;
 	SDL_AudioSpec srcSpec;
 	SDL_AudioSpec dstSpec;
@@ -4032,6 +4093,9 @@ internal int NativeAudio_OpenDevice(void)
 		}
 
 	return 1;
+#else
+	return 1;
+#endif
 }
 
 void NativeAudio_SetBackgroundMuted(int muted)
@@ -4055,20 +4119,24 @@ void NativeAudio_SetBackgroundMuted(int muted)
 
 void NativeAudio_Shutdown(void)
 {
+	int i;
+
 	NativeAudio_XaLoaderShutdown();
 	NativeAudio_FreeByteBuffer(&s_xaXnfCache);
-	for (int i = 0; i < NATIVE_AUDIO_PAL_VOICE_LANGUAGE_COUNT; i++)
+	for (i = 0; i < NATIVE_AUDIO_PAL_VOICE_LANGUAGE_COUNT; i++)
 	{
 		NativeAudio_FreeByteBuffer(&s_palVoiceXnfCache[i]);
 		s_palVoiceXnfCacheAttempted[i] = 0;
 	}
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_audio.output.stream != NULL)
 	{
 		SDL_DestroyAudioStream(s_audio.output.stream);
 		s_audio.output.stream = NULL;
 		s_audio.output.device = 0;
 	}
+#endif
 
 #if defined(__vita__)
 	if (s_audio.output.commandMutex != NULL)
@@ -4081,7 +4149,9 @@ void NativeAudio_Shutdown(void)
 #endif
 
 	NativeAudio_CloseXANoLock();
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+#endif
 }
 
 s32 NativeAudio_SpuInit(void)
@@ -4106,10 +4176,12 @@ s32 NativeAudio_SpuInit(void)
 	{
 		return 0;
 	}
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (!NativeAudio_XaLoaderInit() && (s_xaLoader.mutex == NULL))
 	{
 		fprintf(stderr, "[CTR Native] asynchronous XA loader unavailable: %s\n", SDL_GetError());
 	}
+#endif
 
 	s_audio.init = 1;
 	return 1;

@@ -321,6 +321,8 @@ int main(int argc, char *argv[])
 
 #ifdef __vita__
 	const char *sdlBasePath = "ux0:data/ctr";
+#elif defined(__PS3__) || defined(__CELLOS_LV2__)
+	const char *sdlBasePath = NULL;
 #else
 	const char *sdlBasePath = SDL_GetBasePath();
 #endif
@@ -339,11 +341,13 @@ int main(int argc, char *argv[])
 	printf("[CTR Native] Assets: %s\n", NativeAssets_GetAssetDir());
 	fflush(stdout);
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (chdir(NativeAssets_GetBaseDir()) != 0)
 	{
 		fprintf(stderr, "[CTR Native] Failed to enter base directory: %s\n", NativeAssets_GetBaseDir());
 		return NativeConsole_Return(1);
 	}
+#endif
 
 #ifndef __vita__
 	load_config();

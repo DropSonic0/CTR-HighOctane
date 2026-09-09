@@ -287,10 +287,12 @@ internal int NativeDiscImage_ReadSectorPayloads(u32 lba, u32 sectorCount, u32 pa
 		u32 i;
 		int result = 1;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		if (s_nativeDiscImageMutex != NULL)
 		{
 			SDL_LockMutex(s_nativeDiscImageMutex);
 		}
+#endif
 		if (!NativeDiscImage_EnsureRawSectorCached(lba))
 		{
 			result = 0;
@@ -317,10 +319,12 @@ internal int NativeDiscImage_ReadSectorPayloads(u32 lba, u32 sectorCount, u32 pa
 		}
 
 	batchDone:
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		if (s_nativeDiscImageMutex != NULL)
 		{
 			SDL_UnlockMutex(s_nativeDiscImageMutex);
 		}
+#endif
 		if (!result)
 		{
 			return 0;

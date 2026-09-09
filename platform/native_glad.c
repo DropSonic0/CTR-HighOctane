@@ -25,7 +25,7 @@
  * See THIRD_PARTY_NOTICES.md for copyright and license details.
  */
 
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <macros.h>
 
 #include <stdio.h>

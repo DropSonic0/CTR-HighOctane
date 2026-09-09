@@ -9,6 +9,10 @@
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
+#else
+#include <sys/sys_time.h>
+#define SDL_GetPerformanceCounter() ((u64)sys_time_get_system_time())
+#define SDL_GetPerformanceFrequency() (1000000ull)
 #endif
 
 #include <errno.h>
@@ -134,7 +138,7 @@ internal f64 NativePerf_CounterToMs(u64 counterDelta)
 
 internal const char *NativePerf_BucketName(enum NativePerfBucket bucket)
 {
-	if ((bucket < 0) || (bucket >= NATIVE_PERF_BUCKET_COUNT))
+	if (((int)bucket < 0) || (bucket >= NATIVE_PERF_BUCKET_COUNT))
 	{
 		return "unknown_ms";
 	}
@@ -629,7 +633,7 @@ void NativePerf_EndFrame(const struct NativePerfFrameInfo *info)
 
 void NativePerf_BeginScope(enum NativePerfBucket bucket)
 {
-	if (!s_enabled || !s_frameOpen || (bucket < 0) || (bucket >= NATIVE_PERF_BUCKET_COUNT))
+	if (!s_enabled || !s_frameOpen || ((int)bucket < 0) || (bucket >= NATIVE_PERF_BUCKET_COUNT))
 	{
 		return;
 	}
@@ -642,7 +646,7 @@ void NativePerf_BeginScope(enum NativePerfBucket bucket)
 
 void NativePerf_EndScope(enum NativePerfBucket bucket)
 {
-	if (!s_enabled || !s_frameOpen || (bucket < 0) || (bucket >= NATIVE_PERF_BUCKET_COUNT))
+	if (!s_enabled || !s_frameOpen || ((int)bucket < 0) || (bucket >= NATIVE_PERF_BUCKET_COUNT))
 	{
 		return;
 	}

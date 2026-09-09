@@ -21,6 +21,39 @@
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#else
+typedef void SDL_Window;
+typedef void SDL_Surface;
+#define SDL_WINDOW_FULLSCREEN 0
+#define SDL_PIXELFORMAT_BGRA8888 0
+#define SDL_SCANCODE_F1 101
+#define SDL_SCANCODE_F2 102
+#define SDL_SCANCODE_F3 103
+#define SDL_SCANCODE_F4 104
+#define SDL_SCANCODE_F5 105
+#define SDL_SCANCODE_F6 106
+#define SDL_SCANCODE_F7 107
+#define SDL_SCANCODE_F8 108
+#define SDL_SCANCODE_F9 109
+#define SDL_SCANCODE_F10 110
+#define SDL_SCANCODE_F11 111
+#define SDL_SCANCODE_F12 112
+#define SDL_SCANCODE_UP 113
+#define SDL_SCANCODE_DOWN 114
+#define SDL_SCANCODE_LEFT 115
+#define SDL_SCANCODE_RIGHT 116
+#define SDL_SCANCODE_RETURN 117
+#define SDL_SCANCODE_RSHIFT 118
+#define SDL_SCANCODE_LSHIFT 119
+#define SDL_SCANCODE_RCTRL 120
+#define SDL_SCANCODE_LCTRL 121
+#define SDL_SCANCODE_RALT 122
+#define SDL_SCANCODE_LALT 123
+#define SDL_SCANCODE_SPACE 124
+#include <sys/sys_time.h>
+#include <sys/timer.h>
+#define SDL_GetPerformanceCounter() ((u64)sys_time_get_system_time())
+#define SDL_GetPerformanceFrequency() (1000000ull)
 #endif
 #include <stdbool.h>
 #include <stdio.h>
@@ -152,7 +185,7 @@ internal void Platform_GetWindowName(const char *appName, char *buffer, size_t b
 
 internal void Platform_HandleWindowResize(int width, int height)
 {
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if ((g_window != NULL) && SDL_GetWindowSizeInPixels(g_window, &width, &height))
 	{
 		// Use actual framebuffer pixels, not DPI-scaled logical window units.
@@ -168,6 +201,7 @@ internal void Platform_HandleWindowResize(int width, int height)
 
 internal void Platform_UpdateCursorVisibility(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (g_window == NULL)
 	{
 		return;
@@ -181,9 +215,10 @@ internal void Platform_UpdateCursorVisibility(void)
 	{
 		SDL_ShowCursor();
 	}
+#endif
 }
 
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 void Platform_SetBorderless(int enabled)
 {
 	enabled = (enabled != 0);
@@ -222,7 +257,7 @@ internal void Platform_HandleFullscreenToggle(void)
 	Platform_UpdateCursorVisibility();
 	NativeGpu_SyncBackend();
 	NativeRenderer_ResetDevice();
-#else
+#elif !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	Platform_SetBorderless(!gNativeBorderlessEnabled);
 #endif
 }
@@ -255,7 +290,7 @@ internal void Platform_UpdateHostAltKeyState(const s32 key, const s8 down)
 	}
 }
 
-#if defined(CTR_INTERNAL)
+#if defined(CTR_INTERNAL) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal void Platform_TakeScreenshot(void)
 {
 	u8 *pixels = (u8 *)malloc(g_windowWidth * g_windowHeight * 4);
@@ -282,7 +317,7 @@ internal void Platform_HandleKey(int key, char down)
 		SubmitName_UseKeyboard(key);
 	}
 
-#ifdef CTR_INTERNAL
+#if defined(CTR_INTERNAL) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (!down)
 	{
 		switch (key)
@@ -356,6 +391,7 @@ void Platform_Init(const char *title, int width, int height)
 	}
 #endif
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (SDL_Init(SDL_INIT_VIDEO) == 0)
 	{
 		Platform_LogError("[CTR Native] Failed to initialise SDL\n");
@@ -365,6 +401,7 @@ void Platform_Init(const char *title, int width, int height)
 		Platform_LogShutdown();
 		return;
 	}
+#endif
 
 	s_platformInitialized = 1;
 
@@ -452,14 +489,18 @@ void Platform_Shutdown(void)
 	NativeRenderer_FinishGpuMeasurements();
 #endif
 	NativeRenderer_Shutdown();
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (g_window != NULL)
 	{
 		SDL_DestroyWindow(g_window);
 		g_window = NULL;
 	}
 #endif
+#endif
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_Quit();
+#endif
 
 	Platform_LogShutdown();
 }
@@ -638,7 +679,7 @@ void Platform_PinTextureDisplay(unsigned int texture, int contentHeight, int dis
 
 void Platform_PollHostEvents(void)
 {
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	SDL_Event event;
 
 	while (SDL_PollEvent(&event))
@@ -758,8 +799,12 @@ int Platform_PollInput(void)
 
 int NikoGetEnterKey(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	const bool *kb = SDL_GetKeyboardState(NULL);
 	return (kb && kb[SDL_SCANCODE_RETURN]) ? 1 : 0;
+#else
+	return 0;
+#endif
 }
 
 // NOTE(aalhendi): VSyncCallback uses the PSX facade, but native owns the VBlank
@@ -854,7 +899,11 @@ internal void Native_WaitUntilVBlankTarget(void)
 			// yields the CPU instead of busy-waiting. Waking slightly late is safe:
 			// the vblank schedule is absolute, so no drift accumulates and the loop
 			// re-checks against the target.
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 			SDL_DelayPrecise(sleepUs * 1000ull);
+#else
+			sys_timer_usleep((useconds_t)sleepUs);
+#endif
 		}
 	}
 }
