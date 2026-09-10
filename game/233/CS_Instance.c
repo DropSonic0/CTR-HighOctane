@@ -35,7 +35,7 @@ void CS_Instance_GetFrameData(struct Instance *inst, int animIndex, u32 animFram
 		animFrame = 0;
 	}
 
-	numFrames = (s16)ptrAnim->numFrames;
+	numFrames = (s16)CTR_ReadU16LE(&ptrAnim->numFrames);
 	isOdd = 0;
 
 	if (numFrames < 0)
@@ -51,7 +51,7 @@ void CS_Instance_GetFrameData(struct Instance *inst, int animIndex, u32 animFram
 		animFrame = numFrames - 1;
 	}
 
-	framePos = (s16 *)((char *)ptrAnim + ptrAnim->frameSize * (int)animFrame + sizeof(struct ModelAnim));
+	framePos = (s16 *)((char *)ptrAnim + (int)CTR_ReadU16LE(&ptrAnim->frameSize) * (int)animFrame + sizeof(struct ModelAnim));
 
 	{
 		int boneOff = offset * CS_ANIM_BONE_AXIS_STRIDE + CS_ANIM_BONE_DATA_OFFSET;
@@ -67,7 +67,7 @@ void CS_Instance_GetFrameData(struct Instance *inst, int animIndex, u32 animFram
 
 	if (isOdd)
 	{
-		framePos = (s16 *)((char *)framePos + ptrAnim->frameSize);
+		framePos = (s16 *)((char *)framePos + (int)CTR_ReadU16LE(&ptrAnim->frameSize));
 		{
 			int boneOff = offset * CS_ANIM_BONE_AXIS_STRIDE + CS_ANIM_BONE_DATA_OFFSET;
 			bonePtr = (u8 *)framePos + boneOff;
@@ -86,9 +86,9 @@ void CS_Instance_GetFrameData(struct Instance *inst, int animIndex, u32 animFram
 	{
 		s16 instScale = inst->scale.x;
 
-		scaleX = ((((int)boneValueX + (int)framePos[0]) * instScale) >> FRACTIONAL_BITS) * (int)headers->scale.x >> FRACTIONAL_BITS;
-		scaleY = ((((int)boneValueY + (int)framePos[1]) * instScale) >> FRACTIONAL_BITS) * (int)headers->scale.y >> FRACTIONAL_BITS;
-		scaleZ = ((((int)boneValueZ + (int)framePos[2]) * instScale) >> FRACTIONAL_BITS) * (int)headers->scale.z >> FRACTIONAL_BITS;
+		scaleX = ((((int)boneValueX + (int)framePos[0]) * instScale) >> FRACTIONAL_BITS) * (int)(s16)CTR_ReadU16LE(&headers->scale.x) >> FRACTIONAL_BITS;
+		scaleY = ((((int)boneValueY + (int)framePos[1]) * instScale) >> FRACTIONAL_BITS) * (int)(s16)CTR_ReadU16LE(&headers->scale.y) >> FRACTIONAL_BITS;
+		scaleZ = ((((int)boneValueZ + (int)framePos[2]) * instScale) >> FRACTIONAL_BITS) * (int)(s16)CTR_ReadU16LE(&headers->scale.z) >> FRACTIONAL_BITS;
 	}
 
 	deltaDY = (int)boneValueY - (int)boneTargetY;
@@ -150,7 +150,7 @@ int CS_Instance_GetNumAnimFrames(struct Instance *modelInst, int animIndex, int 
 		return 0;
 	}
 
-	if (LOD >= model->numHeaders)
+	if (LOD >= (int)CTR_ReadU16LE(&model->numHeaders))
 	{
 		return 0;
 	}
@@ -161,7 +161,7 @@ int CS_Instance_GetNumAnimFrames(struct Instance *modelInst, int animIndex, int 
 		return 0;
 	}
 
-	if (animIndex >= (int)header->numAnimations)
+	if (animIndex >= (int)CTR_ReadU32LE(&header->numAnimations))
 	{
 		return 0;
 	}
@@ -177,7 +177,7 @@ int CS_Instance_GetNumAnimFrames(struct Instance *modelInst, int animIndex, int 
 		return 0;
 	}
 
-	return (anim->numFrames & CS_ANIM_FRAME_COUNT_MASK);
+	return ((int)CTR_ReadU16LE(&anim->numFrames) & CS_ANIM_FRAME_COUNT_MASK);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ac638-0x800ac694

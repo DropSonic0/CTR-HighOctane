@@ -2982,7 +2982,7 @@ void NativeRenderer_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 
 		for (int j = 0; j < w; j++)
 		{
-			*tmp++ = color;
+			CTR_WriteU16LE(tmp++, color);
 		}
 
 		dst += VRAM_WIDTH;
@@ -3180,10 +3180,20 @@ internal void NativeRenderer_SyncGpuVRAMToCPU(int x, int y, int w, int h)
 	for (int row = 0; row < readRect.h; row++)
 	{
 		const u8 *src = s_vitaVramTransferPixels + (size_t)row * readRect.w * 4;
-		u16 *dst = s_vram.cpuPixels + (size_t)(readRect.y + row) * VRAM_WIDTH + readRect.x;
+		u8 *dstBytes = (u8 *)(s_vram.cpuPixels + (size_t)(readRect.y + row) * VRAM_WIDTH + readRect.x);
 		for (int column = 0; column < readRect.w; column++)
 		{
-			dst[column] = (u16)(src[column * 4] | ((u16)src[column * 4 + 1] << 8));
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+			u8 r5 = src[column * 4 + 0] >> 3;
+			u8 g5 = src[column * 4 + 1] >> 3;
+			u8 b5 = src[column * 4 + 2] >> 3;
+			u16 px = (u16)r5 | ((u16)g5 << 5) | ((u16)b5 << 10) | ((src[column * 4 + 3] ? 1 : 0) << 15);
+			dstBytes[column * 2 + 0] = (u8)px;
+			dstBytes[column * 2 + 1] = (u8)(px >> 8);
+#else
+			dstBytes[column * 2 + 0] = src[column * 4 + 0];
+			dstBytes[column * 2 + 1] = src[column * 4 + 1];
+#endif
 		}
 	}
 #endif
@@ -3493,7 +3503,31 @@ void NativeRenderer_UpdateVRAM(void)
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, s_vram.texture);
-#if defined(__vita__) || defined(__PS3__) || defined(__CELLOS_LV2__)
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	for (s32 i = 0; i < rectCount; i++)
+	{
+		const RECT16 r = s_vram.cpuDirtyRects[i];
+		u8 *dst = s_vitaVramTransferPixels;
+		for (int y = 0; y < r.h; y++)
+		{
+			const u8 *srcBytes = (const u8 *)(s_vram.cpuPixels + (size_t)(r.y + y) * VRAM_WIDTH + r.x);
+			for (int x = 0; x < r.w; x++)
+			{
+				u8 b0 = srcBytes[x * 2 + 0];
+				u8 b1 = srcBytes[x * 2 + 1];
+				u16 px = (u16)b0 | ((u16)b1 << 8);
+				u8 r5 = (u8)(px & 0x1F);
+				u8 g5 = (u8)((px >> 5) & 0x1F);
+				u8 b5 = (u8)((px >> 10) & 0x1F);
+				*dst++ = (u8)((r5 << 3) | (r5 >> 2));
+				*dst++ = (u8)((g5 << 3) | (g5 >> 2));
+				*dst++ = (u8)((b5 << 3) | (b5 >> 2));
+				*dst++ = (px == 0) ? 0 : 255;
+			}
+		}
+		glTexSubImage2D(GL_TEXTURE_2D, 0, r.x, r.y, r.w, r.h, VRAM_FORMAT, GL_UNSIGNED_BYTE, s_vitaVramTransferPixels);
+	}
+#elif defined(__vita__)
 	// Expand each packed PSX word to the RGBA render-target representation.
 	// The shaders consume only .r/.g, which retain the low/high PSX bytes.
 	for (s32 i = 0; i < rectCount; i++)
@@ -3537,6 +3571,54 @@ void NativeRenderer_PresentVRAMRect(int displayX, int displayY, int displayW, in
 
 	NativeRenderer_UpdateVRAM();
 
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	glViewport(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrthof(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, s_vram.texture);
+
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_STENCIL_TEST);
+
+	float u0 = (float)displayX / 1024.0f;
+	float v0 = (float)displayY / 512.0f;
+	float u1 = (float)(displayX + displayW) / 1024.0f;
+	float v1 = (float)(displayY + displayH) / 512.0f;
+
+	float quadVerts[8];
+	float quadUVs[8];
+
+	quadVerts[0] = 0.0f; quadVerts[1] = 1.0f;
+	quadVerts[2] = 1.0f; quadVerts[3] = 1.0f;
+	quadVerts[4] = 0.0f; quadVerts[5] = 0.0f;
+	quadVerts[6] = 1.0f; quadVerts[7] = 0.0f;
+
+	quadUVs[0] = u0; quadUVs[1] = v0;
+	quadUVs[2] = u1; quadUVs[3] = v0;
+	quadUVs[4] = u0; quadUVs[5] = v1;
+	quadUVs[6] = u1; quadUVs[7] = v1;
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
+	glVertexPointer(2, GL_FLOAT, 0, quadVerts);
+	glTexCoordPointer(2, GL_FLOAT, 0, quadUVs);
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisable(GL_TEXTURE_2D);
+#else
 	NativeRenderer_SetViewPort(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -3555,6 +3637,7 @@ void NativeRenderer_PresentVRAMRect(int displayX, int displayY, int displayW, in
 
 	s_previousShader = (ShaderID)-1;
 	s_lastBoundTexture = (TextureID)-1;
+#endif
 }
 
 void NativeRenderer_PresentMainRenderTarget(void)
@@ -3564,6 +3647,39 @@ void NativeRenderer_PresentMainRenderTarget(void)
 		return;
 	}
 
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	glViewport(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrthof(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, s_mainRenderTarget.texture);
+
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_SCISSOR_TEST);
+	glDisable(GL_STENCIL_TEST);
+
+	static const float quadVerts[8] = { 0.0f, 1.0f,  1.0f, 1.0f,  0.0f, 0.0f,  1.0f, 0.0f };
+	static const float quadUVs[8]   = { 0.0f, 0.0f,  1.0f, 0.0f,  0.0f, 1.0f,  1.0f, 1.0f };
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
+	glVertexPointer(2, GL_FLOAT, 0, quadVerts);
+	glTexCoordPointer(2, GL_FLOAT, 0, quadUVs);
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisable(GL_TEXTURE_2D);
+#else
 	NativeRenderer_SetViewPort(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -3607,6 +3723,7 @@ void NativeRenderer_PresentMainRenderTarget(void)
 
 	s_previousShader = (ShaderID)-1;
 	s_lastBoundTexture = (TextureID)-1;
+#endif
 }
 
 internal TextureID NativeRenderer_CreateGhostReplayTexture(int width, int height, const u8 *pixels)

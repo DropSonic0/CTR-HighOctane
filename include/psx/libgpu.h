@@ -134,12 +134,12 @@ extern int (*GPU_printf)(const char *fmt, ...);
 #ifdef CTR_NATIVE
 static inline uint32_t CTR_GPU_ReadTagWord(const void *p)
 {
-	return CTR_ReadU32LE(p);
+	return *(const uint32_t *)p;
 }
 
 static inline void CTR_GPU_WriteTagWord(void *p, uint32_t word)
 {
-	CTR_WriteU32LE(p, word);
+	*(uint32_t *)p = word;
 }
 
 static inline void CTR_GPU_WriteTagCode(void *p, uint8_t code)
@@ -272,9 +272,15 @@ typedef struct _RECT16
 	short w, h; /* width and height */
 } RECT16;
 
+#if defined(__PS3__) || defined(__CELLOS_LV2__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#define DECLARE_P_ADDR_PTAG \
+	unsigned len : 8;       \
+	unsigned addr : 24;
+#else
 #define DECLARE_P_ADDR_PTAG \
 	unsigned addr : 24;     \
 	unsigned len : 8;
+#endif
 
 #define DECLARE_P_ADDR uint32_t tag;
 

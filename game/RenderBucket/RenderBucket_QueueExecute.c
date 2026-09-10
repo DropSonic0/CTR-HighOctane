@@ -602,12 +602,13 @@ static struct ModelAnim *RenderBucket_GetAnim(struct Instance *inst, struct Mode
 #ifdef CTR_NATIVE
 	// NOTE(aalhendi): Retail indexes this table directly when ptrAnimations is
 	// non-null; native keeps malformed/incomplete model data from trapping.
-	if (mh->numAnimations == 0)
+	u32 numAnimations = CTR_ReadU32LE(&mh->numAnimations);
+	if (numAnimations == 0)
 	{
 		return 0;
 	}
 
-	if (inst->animIndex >= mh->numAnimations)
+	if (inst->animIndex >= numAnimations)
 	{
 		return 0;
 	}
@@ -1287,7 +1288,7 @@ static struct ModelHeader *RenderBucket_SelectModelHeader(struct Instance *inst,
 #ifdef CTR_NATIVE
 	// NOTE(aalhendi): Retail trusts ModelHeader count and will walk raw model
 	// data; native keeps malformed host-side models from trapping.
-	if (inst->model->numHeaders <= 0)
+	if (CTR_ReadU16LE(&inst->model->numHeaders) <= 0)
 	{
 		return 0;
 	}
@@ -1305,10 +1306,10 @@ static struct ModelHeader *RenderBucket_SelectModelHeader(struct Instance *inst,
 	// NOTE(aalhendi): Retail keeps the low 32 bits of this product before dividing by GTE H.
 	projectedDistance = (int)(u32)((s64)(pb->rect.w >> 1) * viewDepth) / pb->distanceToScreen_PREV;
 	mh = inst->model->headers;
-	headersRemaining = inst->model->numHeaders;
+	headersRemaining = (int)CTR_ReadU16LE(&inst->model->numHeaders);
 	lodIndex = 0;
 
-	if (CTR_NATIVE_60FPS_ACTIVE && (inst->model->id == -1) && (inst->model->numHeaders == 4))
+	if (CTR_NATIVE_60FPS_ACTIVE && (MODEL_GET_ID(inst->model) == -1) && (CTR_ReadU16LE(&inst->model->numHeaders) == 4))
 	{
 		if (RenderBucket_MipsSub(projectedDistance, 0x1000) < 0)
 		{
@@ -1317,7 +1318,7 @@ static struct ModelHeader *RenderBucket_SelectModelHeader(struct Instance *inst,
 		}
 
 		mh = &inst->model->headers[3];
-		if (RenderBucket_MipsSub(projectedDistance, (u16)mh->maxDistanceLOD) < 0)
+		if (RenderBucket_MipsSub(projectedDistance, (u16)CTR_ReadU16LE(&mh->maxDistanceLOD)) < 0)
 		{
 			*lodIndexOut = 3;
 			return mh;
@@ -1332,7 +1333,7 @@ static struct ModelHeader *RenderBucket_SelectModelHeader(struct Instance *inst,
 	// comparison and walk as explicit C state.
 	for (;;)
 	{
-		if (RenderBucket_MipsSub(projectedDistance, (u16)mh->maxDistanceLOD) < 0)
+		if (RenderBucket_MipsSub(projectedDistance, (u16)CTR_ReadU16LE(&mh->maxDistanceLOD)) < 0)
 		{
 			*lodIndexOut = lodIndex;
 			return mh;
@@ -1431,13 +1432,17 @@ static void RenderBucket_BuildM3x3(struct Instance *inst, struct ModelHeader *mh
 	depthShift = (RenderBucket_MipsSub(viewDepth, 0x1000) < 0) ? 2 : 0;
 	scaleXYShift = 0x12 - depthShift;
 	scaleZShift = 2 - depthShift;
-	packedScaleXY = RenderBucket_ReadPackedWord(&mh->scale.x);
+	{
+		u16 sx = CTR_ReadU16LE(&mh->scale.x);
+		u16 sy = CTR_ReadU16LE(&mh->scale.y);
+		packedScaleXY = (u32)sx | ((u32)sy << 16);
+	}
 
 	CTC2((packedScaleXY << 16) >> scaleXYShift, 16);
 	CTC2(0, 17);
 	CTC2(packedScaleXY >> scaleXYShift, 18);
 	CTC2(0, 19);
-	CTC2((u16)mh->scale.z >> scaleZShift, 20);
+	CTC2((u16)CTR_ReadU16LE(&mh->scale.z) >> scaleZShift, 20);
 
 	scaleX = inst->scale.x;
 	scaleY = inst->scale.y;
@@ -1522,7 +1527,7 @@ static void RenderBucket_StoreViewMatrixForSplit(struct InstDrawPerPlayer *idpp)
 
 static int RenderBucket_NeedsCustomMatrix(u32 instFlags, const struct ModelHeader *mh)
 {
-	return ((instFlags & CUSTOM_MATRIX) != 0) || ((mh->flags & RB_MODEL_ALWAYS_POINT_NORTH) != 0);
+	return ((instFlags & CUSTOM_MATRIX) != 0) || ((CTR_ReadU16LE(&mh->flags) & RB_MODEL_ALWAYS_POINT_NORTH) != 0);
 }
 
 static void RenderBucket_BuildCustomMatrix(struct InstDrawPerPlayer *idpp, u32 instFlags, const struct RenderBucketMatrixState *matrixState,
@@ -2020,7 +2025,7 @@ static struct ModelFrame *RenderBucket_GetFrame(struct Instance *inst, struct Mo
 	{
 		return 0;
 	}
-	if (anim->numFrames == 0)
+	if (CTR_ReadU16LE(&anim->numFrames) == 0)
 	{
 		return 0;
 	}
@@ -2031,10 +2036,11 @@ static struct ModelFrame *RenderBucket_GetFrame(struct Instance *inst, struct Mo
 	// IDPP 0xd4. Native keeps those values as explicit return values.
 	*deltaArrayOut = (int)anim->ptrDeltaArray;
 	frameIndex = (u16)inst->animFrame;
-	lastFrame = (anim->numFrames & 0x7fff) - 1;
+	u16 animNumFrames = CTR_ReadU16LE(&anim->numFrames);
+	lastFrame = (animNumFrames & 0x7fff) - 1;
 	hasNextFrame = 0;
 
-	if ((s16)anim->numFrames < 0)
+	if ((s16)animNumFrames < 0)
 	{
 		*lastFrameAdvanceOut = lastFrame;
 		lastFrame >>= 1;
@@ -2063,7 +2069,7 @@ static struct ModelFrame *RenderBucket_GetFrame(struct Instance *inst, struct Mo
 	}
 
 	firstFrame = RenderBucket_ModelAnimFirstFrameBytes(anim);
-	frameSize = (u16)anim->frameSize;
+	frameSize = CTR_ReadU16LE(&anim->frameSize);
 	currentFrame = RenderBucket_ModelFrameAtByteOffset(firstFrame, RenderBucket_MipsMultuLo((u32)frameIndex, frameSize));
 
 	if (hasNextFrame != 0)
