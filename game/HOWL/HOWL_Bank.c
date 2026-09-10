@@ -71,9 +71,6 @@ int Bank_AssignSpuAddrs()
 	int ret;
 	int audioAllocPtr;
 
-	Platform_Log("[CTR Native] Bank_AssignSpuAddrs: stage=%d\n", sdata->bankLoadStage);
-	Platform_LogFlush();
-
 	// if Stage 4: Complete
 	if (sdata->bankLoadStage == 4)
 	{

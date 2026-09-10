@@ -907,11 +907,7 @@ internal void Native_WaitUntilVBlankTarget(void)
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 			SDL_DelayPrecise(sleepUs * 1000ull);
 #else
-			Platform_Log("[CTR Native] Native_WaitUntilVBlankTarget: sys_timer_usleep(%u) start...\n", (unsigned int)sleepUs);
-			Platform_LogFlush();
 			sys_timer_usleep((useconds_t)sleepUs);
-			Platform_Log("[CTR Native] Native_WaitUntilVBlankTarget: sys_timer_usleep done.\n");
-			Platform_LogFlush();
 #endif
 		}
 	}
@@ -919,25 +915,16 @@ internal void Native_WaitUntilVBlankTarget(void)
 
 internal void Native_EmitVBlank(void)
 {
-	Platform_Log("[CTR Native] Native_EmitVBlank: start...\n");
-	Platform_LogFlush();
-
 	NativeCD_PumpCallbacks();
 	NativeRCnt_EmitVBlank();
 
 	if (vsync_callback != NULL)
 	{
-		Platform_Log("[CTR Native] Native_EmitVBlank: calling vsync_callback...\n");
-		Platform_LogFlush();
 		vsync_callback();
-		Platform_Log("[CTR Native] Native_EmitVBlank: vsync_callback done.\n");
-		Platform_LogFlush();
 	}
 
 	NativeAudio_StepVBlank();
 	s_nativeVBlankCount++;
-	Platform_Log("[CTR Native] Native_EmitVBlank: s_nativeVBlankCount=%d finished.\n", s_nativeVBlankCount);
-	Platform_LogFlush();
 }
 
 internal int Native_CatchUpDueVBlanks(void)

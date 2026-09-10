@@ -8,6 +8,11 @@
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
 #else
+#include <cell/audio.h>
+#include <sys/event.h>
+#include <pthread.h>
+#include <sys/timer.h>
+
 typedef u32 SDL_AudioDeviceID;
 typedef void SDL_AudioStream;
 typedef void SDL_Mutex;
@@ -557,32 +562,114 @@ internal int NativeAudio_ReadFileAt(struct NativeAudioReadFile *file, void *dst,
 #endif
 }
 
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+#define CELL_AUDIO_BLOCKS 16
+#define CELL_AUDIO_CHANNELS 2
+#define CELL_AUDIO_BLOCK_SAMPLES 256
+
+typedef struct
+{
+	uint32_t audio_port;
+	volatile b32 quit_thread;
+	b32 port_open;
+	pthread_t thread;
+} Ps3AudioState;
+
+global_variable Ps3AudioState s_ps3Audio;
+global_variable pthread_mutex_t s_ps3AudioMutex = PTHREAD_MUTEX_INITIALIZER;
+
+void NativeAudio_LockOutput(void);
+void NativeAudio_UnlockOutput(void);
+internal int NativeAudio_DrainRenderedFramesNoLock(s16 *out, int frameCount);
+internal void NativeAudio_AddUnderrunFramesNoLock(int frameCount);
+internal int NativeAudio_RenderFramesNoLock(s16 *out, int frameCount);
+
+static inline void NativeAudio_ArrayToFloat(float *out, const s16 *in, size_t samples)
+{
+	size_t i;
+	for (i = 0; i < samples; i++) {
+		out[i] = (float)in[i] / 32768.0f;
+	}
+}
+
+internal void *NativeAudio_Ps3EventLoop(void *data)
+{
+	Ps3AudioState *ps3 = (Ps3AudioState *)data;
+	sys_event_queue_t id;
+	sys_ipc_key_t key;
+	sys_event_t event;
+	float out_tmp[CELL_AUDIO_BLOCK_SAMPLES * CELL_AUDIO_CHANNELS] __attribute__((aligned(16)));
+	s16 tmp[CELL_AUDIO_BLOCK_SAMPLES * CELL_AUDIO_CHANNELS];
+
+	cellAudioCreateNotifyEventQueue(&id, &key);
+	cellAudioSetNotifyEventQueue(key);
+
+	while (!ps3->quit_thread)
+	{
+		sys_event_queue_receive(id, &event, SYS_NO_TIMEOUT);
+
+		memset(tmp, 0, sizeof(tmp));
+
+		NativeAudio_LockOutput();
+		if (s_audio.output.deterministicRenderMode)
+		{
+			int framesReady = NativeAudio_DrainRenderedFramesNoLock(tmp, CELL_AUDIO_BLOCK_SAMPLES);
+			if (framesReady < CELL_AUDIO_BLOCK_SAMPLES)
+			{
+				memset(&tmp[framesReady * CELL_AUDIO_CHANNELS], 0, (size_t)(CELL_AUDIO_BLOCK_SAMPLES - framesReady) * CELL_AUDIO_CHANNELS * sizeof(s16));
+				NativeAudio_AddUnderrunFramesNoLock(CELL_AUDIO_BLOCK_SAMPLES - framesReady);
+			}
+		}
+		else
+		{
+			int framesReady = NativeAudio_RenderFramesNoLock(tmp, CELL_AUDIO_BLOCK_SAMPLES);
+			if (framesReady < CELL_AUDIO_BLOCK_SAMPLES)
+			{
+				memset(&tmp[framesReady * CELL_AUDIO_CHANNELS], 0, (size_t)(CELL_AUDIO_BLOCK_SAMPLES - framesReady) * CELL_AUDIO_CHANNELS * sizeof(s16));
+			}
+		}
+		NativeAudio_UnlockOutput();
+
+		NativeAudio_ArrayToFloat(out_tmp, tmp, CELL_AUDIO_BLOCK_SAMPLES * CELL_AUDIO_CHANNELS);
+		cellAudioAddData(ps3->audio_port, out_tmp, CELL_AUDIO_BLOCK_SAMPLES, 1.0);
+	}
+
+	cellAudioRemoveNotifyEventQueue(key);
+	pthread_exit(NULL);
+	return NULL;
+}
+#endif
+
 internal b32 NativeAudio_OutputOpen(void)
 {
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	return s_audio.output.stream != NULL;
 #else
-	return 1;
+	return s_ps3Audio.port_open;
 #endif
 }
 
-internal void NativeAudio_LockOutput(void)
+void NativeAudio_LockOutput(void)
 {
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_audio.output.stream != NULL)
 	{
 		SDL_LockAudioStream(s_audio.output.stream);
 	}
+#else
+	pthread_mutex_lock(&s_ps3AudioMutex);
 #endif
 }
 
-internal void NativeAudio_UnlockOutput(void)
+void NativeAudio_UnlockOutput(void)
 {
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_audio.output.stream != NULL)
 	{
 		SDL_UnlockAudioStream(s_audio.output.stream);
 	}
+#else
+	pthread_mutex_unlock(&s_ps3AudioMutex);
 #endif
 }
 
@@ -4094,6 +4181,50 @@ internal int NativeAudio_OpenDevice(void)
 
 	return 1;
 #else
+	CellAudioPortParam params;
+
+	if (s_ps3Audio.port_open)
+	{
+		return 1;
+	}
+
+	if (cellAudioInit() != CELL_OK)
+	{
+		return 0;
+	}
+
+	memset(&params, 0, sizeof(params));
+	params.nChannel = CELL_AUDIO_CHANNELS;
+	params.nBlock = CELL_AUDIO_BLOCKS;
+	params.attr = 0;
+
+	if (cellAudioPortOpen(&params, &s_ps3Audio.audio_port) != CELL_OK)
+	{
+		cellAudioQuit();
+		return 0;
+	}
+
+	s_ps3Audio.quit_thread = 0;
+
+	if (cellAudioPortStart(s_ps3Audio.audio_port) != CELL_OK)
+	{
+		cellAudioPortClose(s_ps3Audio.audio_port);
+		cellAudioQuit();
+		return 0;
+	}
+
+	s_ps3Audio.port_open = 1;
+
+	if (pthread_create(&s_ps3Audio.thread, NULL, NativeAudio_Ps3EventLoop, &s_ps3Audio) != 0)
+	{
+		cellAudioPortStop(s_ps3Audio.audio_port);
+		cellAudioPortClose(s_ps3Audio.audio_port);
+		cellAudioQuit();
+		s_ps3Audio.port_open = 0;
+		return 0;
+	}
+
+	printf("[CTR Native] PS3 Cell Audio stream initialized: port=%u\n", s_ps3Audio.audio_port);
 	return 1;
 #endif
 }
@@ -4135,6 +4266,17 @@ void NativeAudio_Shutdown(void)
 		SDL_DestroyAudioStream(s_audio.output.stream);
 		s_audio.output.stream = NULL;
 		s_audio.output.device = 0;
+	}
+#else
+	if (s_ps3Audio.port_open)
+	{
+		s_ps3Audio.quit_thread = 1;
+		pthread_join(s_ps3Audio.thread, NULL);
+
+		cellAudioPortStop(s_ps3Audio.audio_port);
+		cellAudioPortClose(s_ps3Audio.audio_port);
+		cellAudioQuit();
+		s_ps3Audio.port_open = 0;
 	}
 #endif
 

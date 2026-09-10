@@ -306,7 +306,9 @@ internal int Lm_H(s64 value, int sf)
 
 internal int GTE_RotTransPers(int idx, int lm)
 {
+	static int count = 0;
 	int h_over_sz3;
+	count++;
 
 	C2_MAC1 = A1(/*int44*/ (s64)((s64)C2_TRX << 12) + (C2_R11 * VX(idx)) + (C2_R12 * VY(idx)) + (C2_R13 * VZ(idx)));
 	C2_MAC2 = A2(/*int44*/ (s64)((s64)C2_TRY << 12) + (C2_R21 * VX(idx)) + (C2_R22 * VY(idx)) + (C2_R23 * VZ(idx)));
@@ -333,21 +335,35 @@ internal int GTE_RotTransPers(int idx, int lm)
 	C2_SX2 = screenX;
 	C2_SY2 = Lm_G2(F((s64)C2_OFY + ((s64)C2_IR2 * h_over_sz3)) >> 16);
 
+	if (count <= 10 || (count % 1000) == 0)
+	{
+		printf("[GTE_CORE] RotTransPers #%d: idx=%d, sz3=%d, sx2=%d, sy2=%d\n",
+			count, idx, C2_SZ3, C2_SX2, C2_SY2);
+	}
+
 	return h_over_sz3;
 }
 
 int GTE_operator(int op)
 {
+	static int count = 0;
 	int v;
 	int lm;
 	int cv;
 	int mx;
 	int h_over_sz3 = 0;
+	count++;
 
 	lm = GTE_LM(gteop(op));
 	m_sf = GTE_SF(gteop(op));
 
 	C2_FLAG = 0;
+
+	if (count <= 10 || (count % 1000) == 0)
+	{
+		printf("[GTE_CORE] GTE_operator #%d: op=0x%08x funct=0x%02x\n",
+			count, op, GTE_FUNCT(gteop(op)));
+	}
 
 	switch (GTE_FUNCT(gteop(op)))
 	{
