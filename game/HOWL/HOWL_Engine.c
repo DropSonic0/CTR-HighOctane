@@ -23,14 +23,14 @@ b32 EngineAudio_InitOnce(u32 soundID, u32 flags)
 
 	// check out of bounds
 	soundID = soundID & 0xffff;
-	if ((int)soundID >= sdata->ptrHowlHeader->numEngineFX)
+	if ((int)soundID >= (int)CTR_ReadU32LE(&sdata->ptrHowlHeader->numEngineFX))
 	{
 		return 0;
 	}
 
 	// check sound is loaded
 	ptrEngineFX = &sdata->howl_metaEngineFX[soundID];
-	if (sdata->howl_spuAddrs[ptrEngineFX->spuIndex].spuAddr == 0)
+	if (CTR_ReadU16LE(&sdata->howl_spuAddrs[CTR_ReadU16LE(&ptrEngineFX->spuIndex)].spuAddr) == 0)
 	{
 		return 0;
 	}
@@ -82,7 +82,7 @@ s16 EngineAudio_Recalculate(u32 soundID, u32 sfx)
 	}
 
 	soundID = soundID & 0xffff;
-	if (sdata->ptrHowlHeader->numEngineFX <= (int)soundID)
+	if ((int)CTR_ReadU32LE(&sdata->ptrHowlHeader->numEngineFX) <= (int)soundID)
 	{
 		return 0;
 	}
@@ -105,16 +105,18 @@ s16 EngineAudio_Recalculate(u32 soundID, u32 sfx)
 		volume = (splitScreenVolume << 2) >> 8;
 	}
 
+	s16 enginePitch = (s16)CTR_ReadU16LE(&ptrEngineFX->pitch);
+
 	// no distortion
 	if (distortion == HOWL_SFX_DISTORTION_NONE)
 	{
-		channelAttr.pitch = ptrEngineFX->pitch;
+		channelAttr.pitch = enginePitch;
 	}
 
 	// distortion
 	else
 	{
-		channelAttr.pitch = ptrEngineFX->pitch * data.distortConst_Engine[distortion] >> 0x10;
+		channelAttr.pitch = enginePitch * data.distortConst_Engine[distortion] >> 0x10;
 	}
 
 	Channel_SetVolume(&channelAttr, sdata->vol_FX * ptrEngineFX->volume * volume >> 10, LR);
@@ -608,7 +610,7 @@ void EngineAudio_Stop(u32 soundID)
 	}
 
 	soundID = soundID & 0xffff;
-	if (sdata->ptrHowlHeader->numEngineFX <= (int)soundID)
+	if ((int)CTR_ReadU32LE(&sdata->ptrHowlHeader->numEngineFX) <= (int)soundID)
 	{
 		return;
 	}

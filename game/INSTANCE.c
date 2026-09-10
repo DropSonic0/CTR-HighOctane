@@ -279,7 +279,7 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 			idpp[j].pushBuffer = &gGT->pushBuffer[j];
 		}
 
-		modelID = levInstDef->model->id;
+		modelID = MODEL_GET_ID(levInstDef->model);
 
 		// can be -1
 		if ((s16)modelID > 0)
@@ -366,7 +366,7 @@ void INSTANCE_LevDelayedLInBs(struct InstDef *instDef, int numInstances)
 {
 	for (int i = 0; i < numInstances; i++)
 	{
-		struct MetaDataMODEL *meta = COLL_LevModelMeta(instDef->model->id);
+		struct MetaDataMODEL *meta = COLL_LevModelMeta(MODEL_GET_ID(instDef->model));
 
 		if ((meta != NULL) && (meta->LInB != NULL))
 		{
@@ -390,7 +390,7 @@ b32 INSTANCE_Use60FpsAnimation(struct Instance *inst)
 		return false;
 	}
 
-	if (inst->model->id == DYNAMIC_FIREBALL)
+	if (MODEL_GET_ID(inst->model) == DYNAMIC_FIREBALL)
 	{
 		return false;
 	}

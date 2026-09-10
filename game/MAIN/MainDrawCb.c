@@ -20,6 +20,9 @@ void MainDrawCb_Vsync()
 {
 	struct GameTracker *gGT;
 
+	Platform_Log("[CTR Native] MainDrawCb_Vsync: start...\n");
+	Platform_LogFlush();
+
 	gGT = sdata->gGT;
 	gGT->frameTimer_VsyncCallback++;
 	if ((gGT->gameMode1 & PAUSE_ALL) == 0)
@@ -40,16 +43,27 @@ void MainDrawCb_Vsync()
 	if (sdata->criticalSectionCount == 0)
 #endif
 	{
+		Platform_Log("[CTR Native] MainDrawCb_Vsync: howl_PlayAudio_Update start...\n");
+		Platform_LogFlush();
 		howl_PlayAudio_Update();
+		Platform_Log("[CTR Native] MainDrawCb_Vsync: howl_PlayAudio_Update done.\n");
+		Platform_LogFlush();
 	}
 
 #ifdef CTR_NATIVE
 	// NOTE(aalhendi): Native owns host input and writes PSX-shaped pad
 	// snapshots before retail GAMEPAD_PollVsync consumes them.
+	Platform_Log("[CTR Native] MainDrawCb_Vsync: Platform_PollInput...\n");
+	Platform_LogFlush();
 	Platform_PollInput();
 #endif
 
+	Platform_Log("[CTR Native] MainDrawCb_Vsync: GAMEPAD_PollVsync...\n");
+	Platform_LogFlush();
 	GAMEPAD_PollVsync(sdata->gGamepads);
+
+	Platform_Log("[CTR Native] MainDrawCb_Vsync: finished!\n");
+	Platform_LogFlush();
 
 	return;
 }

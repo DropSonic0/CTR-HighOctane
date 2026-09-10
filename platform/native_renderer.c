@@ -2102,7 +2102,6 @@ int NativeRenderer_InitialisePSX(void)
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glGetIntegerv(GL_MAJOR_VERSION, &glMajor);
 	glGetIntegerv(GL_MINOR_VERSION, &glMinor);
-#endif
 	s_gpuTimerSupported = (glMajor > 3) || ((glMajor == 3) && (glMinor >= 3)) || SDL_GL_ExtensionSupported("GL_ARB_timer_query");
 	if (s_gpuTimerSupported)
 	{
@@ -2113,6 +2112,9 @@ int NativeRenderer_InitialisePSX(void)
 			s_gpuTimerQueries[i].id = queryIds[i];
 		}
 	}
+#else
+	s_gpuTimerSupported = false;
+#endif
 #endif
 
 	glDepthFunc(GL_LEQUAL);

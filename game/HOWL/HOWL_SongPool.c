@@ -3,7 +3,7 @@
 // Returns the CseqSongHeader for the given song ID from the parsed song data buffer.
 static struct CseqSongHeader *GetCseqSongHeader(u16 songID)
 {
-	return (struct CseqSongHeader *)&sdata->ptrCseqSongData[sdata->ptrCseqSongStartOffset[songID]];
+	return (struct CseqSongHeader *)&sdata->ptrCseqSongData[(s16)CTR_ReadU16LE(&sdata->ptrCseqSongStartOffset[songID])];
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a63c-0x8002a678
@@ -37,9 +37,9 @@ void SongPool_ChangeTempo(struct Song *song, s16 deltaBPM)
 {
 	struct CseqSongHeader *csh = GetCseqSongHeader(song->id);
 
-	song->bpm = (s16)CTR_MipsAddLo((u16)csh->bpm, deltaBPM);
+	song->bpm = (s16)CTR_MipsAddLo((u16)CTR_ReadU16LE(&csh->bpm), deltaBPM);
 
-	song->tempo = SongPool_CalculateTempo(60, song->tpqn, song->bpm);
+	song->tempo = SongPool_CalculateTempo(60, (s16)CTR_ReadU16LE(&csh->tpqn), song->bpm);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002a730-0x8002a9d8
@@ -71,8 +71,8 @@ void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, b32 boolLoopAtE
 		song->songSetActiveBits = songSetActiveBits;
 	}
 
-	song->tpqn = csh->tpqn;
-	song->bpm = (s16)CTR_MipsAddLo((u16)csh->bpm, deltaBPM);
+	song->tpqn = (s16)CTR_ReadU16LE(&csh->tpqn);
+	song->bpm = (s16)CTR_MipsAddLo((u16)CTR_ReadU16LE(&csh->bpm), deltaBPM);
 
 	song->tempo = SongPool_CalculateTempo(60, song->tpqn, song->bpm);
 
@@ -122,7 +122,7 @@ void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, b32 boolLoopAtE
 
 	for (i = 0; i < numSeqs; i++)
 	{
-		cnhCurr = (struct SongNoteHeader *)&cnhFirst[seqOffsetArr[i]];
+		cnhCurr = (struct SongNoteHeader *)&cnhFirst[CTR_ReadU16LE(&seqOffsetArr[i])];
 
 		seqCurr = SongPool_FindFreeChannel();
 		if (seqCurr == NULL)

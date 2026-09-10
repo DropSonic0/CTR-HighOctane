@@ -160,11 +160,17 @@ u32 main(void)
 		{
 		// Initialize Game (happens once)
 		case 0:
+			Platform_Log("[CTR Native] MainMain: Entering StateZero...\n");
+			Platform_LogFlush();
 			StateZero();
+			Platform_Log("[CTR Native] MainMain: Exited StateZero, mainGameState=%d\n", sdata->mainGameState);
+			Platform_LogFlush();
 			break;
 
 		// Happens on first frame that loading ends
 		case 1:
+			Platform_Log("[CTR Native] MainMain: State 1 (First frame after load complete)\n");
+			Platform_LogFlush();
 
 			ElimBG_Deactivate(gGT);
 
@@ -350,13 +356,23 @@ u32 main(void)
 				// if something is being loaded
 				else
 				{
-					sdata->Loading.stage = LOAD_TenStages(gGT, iVar8, sdata->ptrBigfile1);
+					int nextStage = LOAD_TenStages(gGT, iVar8, sdata->ptrBigfile1);
+					if (nextStage != iVar8)
+					{
+						Platform_Log("[CTR Native] MainMain: Loading.stage changed from %d to %d\n", iVar8, nextStage);
+						Platform_LogFlush();
+					}
+					sdata->Loading.stage = nextStage;
 
 					// If just finished loading stage 9
 					if (sdata->Loading.stage == LOAD_FINISHED)
 					{
+						Platform_Log("[CTR Native] MainMain: sdata->Loading.stage == LOAD_FINISHED (-2)\n");
+						Platform_LogFlush();
 						if ((gGT->levelID == MAIN_MENU_LEVEL) || (gGT->levelID == SCRAPBOOK))
 						{
+							Platform_Log("[CTR Native] MainMain: Loading VLC for MAIN_MENU or SCRAPBOOK...\n");
+							Platform_LogFlush();
 							MainLoadVLC();
 
 							// start loading VLC (scroll up to iVar8 == LOAD_VLC)
@@ -368,6 +384,8 @@ u32 main(void)
 						// loading is finished,
 						// initialize world and pools,
 						// remove LOADING... flag from gGT
+						Platform_Log("[CTR Native] MainMain: FinishLoading, setting stage=LOAD_IDLE, mainGameState=1\n");
+						Platform_LogFlush();
 						sdata->Loading.stage = LOAD_IDLE;
 						sdata->mainGameState = 1;
 						gGT->gameMode1 &= ~LOADING;

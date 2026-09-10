@@ -135,7 +135,11 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 					mArr[i] = (struct Model *)((char *)mArr[i] + 4);
 				}
 
-				gGT->modelPtr[mArr[i]->id] = mArr[i];
+				s16 modelID = MODEL_GET_ID(mArr[i]);
+				if (modelID >= 0 && (u16)modelID < len(gGT->modelPtr))
+				{
+					gGT->modelPtr[modelID] = mArr[i];
+				}
 			}
 		}
 
@@ -163,7 +167,7 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 				continue;
 			}
 
-			t = CS_Thread_Init(mArr[i]->id, mArr[i]->name, &initData, 0, t);
+			t = CS_Thread_Init(MODEL_GET_ID(mArr[i]), mArr[i]->name, &initData, 0, t);
 			if (t == NULL)
 			{
 				continue;

@@ -14,12 +14,17 @@ void LOAD_GlobalModelPtrs_MPK()
 			continue;
 		}
 
-		if (m->id == -1)
+		s16 modelID = MODEL_GET_ID(m);
+
+		if (modelID == -1)
 		{
 			continue;
 		}
 
-		gGT->modelPtr[m->id] = m;
+		if ((u16)modelID < len(gGT->modelPtr))
+		{
+			gGT->modelPtr[modelID] = m;
+		}
 	}
 
 	if (sdata->PLYROBJECTLIST != 0)

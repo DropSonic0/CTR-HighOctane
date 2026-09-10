@@ -201,6 +201,9 @@ void LOAD_VramFileCallback(struct LoadQueueSlot *lqs)
 
 	struct VramHeader *vh = (struct VramHeader *)vramBuf;
 
+	Platform_Log("[CTR Native] LOAD_VramFileCallback: vramBuf=%p\n", (void *)vramBuf);
+	Platform_LogFlush();
+
 	if (vramBuf != NULL)
 	{
 		u32 firstWord = CTR_ReadU32LE(vramBuf);
@@ -213,6 +216,8 @@ void LOAD_VramFileCallback(struct LoadQueueSlot *lqs)
 			rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
 			rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
 			rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
+			Platform_Log("[CTR Native] LOAD_VramFileCallback: LoadImage single TIM (%d,%d %dx%d)\n", rect.x, rect.y, rect.w, rect.h);
+			Platform_LogFlush();
 			LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
 		}
 		else
@@ -230,6 +235,8 @@ void LOAD_VramFileCallback(struct LoadQueueSlot *lqs)
 				rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
 				rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
 				rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
+				Platform_Log("[CTR Native] LOAD_VramFileCallback: LoadImage multi TIM (%d,%d %dx%d, size=%d)\n", rect.x, rect.y, rect.w, rect.h, size);
+				Platform_LogFlush();
 				LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
 
 				// goto next
@@ -243,6 +250,8 @@ void LOAD_VramFileCallback(struct LoadQueueSlot *lqs)
 
 	// LOAD_NextQueuedFile waits 3 vsync frames before releasing the queue.
 	sdata->frameFinishedVRAM = sdata->gGT->frameTimer_VsyncCallback;
+	Platform_Log("[CTR Native] LOAD_VramFileCallback: Finished!\n");
+	Platform_LogFlush();
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80031fdc-0x80032110.
@@ -250,6 +259,9 @@ void *LOAD_VramFile(void *bigfilePtr, int subfileIndex, void *ptrDestination, u3
 {
 	struct LoadQueueSlot lqs;
 	void *loadedFile;
+
+	Platform_Log("[CTR Native] LOAD_VramFile: subfileIndex=0x%x (%d), flags=%d\n", subfileIndex, subfileIndex, callbackOrFlags);
+	Platform_LogFlush();
 
 	if (ptrDestination == NULL)
 	{
@@ -270,7 +282,12 @@ void *LOAD_VramFile(void *bigfilePtr, int subfileIndex, void *ptrDestination, u3
 
 		LOAD_VramFileCallback(&lqs);
 
+		Platform_Log("[CTR Native] LOAD_VramFile (-1): VSync(2) begin...\n");
+		Platform_LogFlush();
 		VSync(2);
+		Platform_Log("[CTR Native] LOAD_VramFile (-1): VSync(2) done.\n");
+		Platform_LogFlush();
+
 		sdata->frameFinishedVRAM = 0;
 
 		if (ptrDestination == NULL)

@@ -56,6 +56,9 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 	// Used in stage 0, 4, 5, 6
 	b32 boolPlayMusicDuringLoading = (levelID == ADVENTURE_GARAGE) || (levelID == NAUGHTY_DOG_CRATE);
 
+	Platform_Log("[CTR Native] LOAD_TenStages: Executing stage %d (levelID=%d)...\n", loadingStage, levelID);
+	Platform_LogFlush();
+
 	switch (loadingStage)
 	{
 	case 0:
@@ -665,12 +668,17 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 					modelPtrArr[i] = m;
 				}
 
-				if (m->id == -1)
+				s16 modelID = MODEL_GET_ID(m);
+
+				if (modelID == -1)
 				{
 					continue;
 				}
 
-				gGT->modelPtr[m->id] = m;
+				if ((u16)modelID < len(gGT->modelPtr))
+				{
+					gGT->modelPtr[modelID] = m;
+				}
 			}
 
 			MEMPACK_SwapPacks(gGT->activeMempackIndex);
