@@ -577,6 +577,9 @@ typedef struct
 
 global_variable Ps3AudioState s_ps3Audio;
 global_variable pthread_mutex_t s_ps3AudioMutex = PTHREAD_MUTEX_INITIALIZER;
+global_variable u32 s_ps3ResamplePhase = 0;
+global_variable s16 s_ps3LastSampleLeft = 0;
+global_variable s16 s_ps3LastSampleRight = 0;
 
 void NativeAudio_LockOutput(void);
 void NativeAudio_UnlockOutput(void);
@@ -599,38 +602,101 @@ internal void *NativeAudio_Ps3EventLoop(void *data)
 	sys_ipc_key_t key;
 	sys_event_t event;
 	float out_tmp[CELL_AUDIO_BLOCK_SAMPLES * CELL_AUDIO_CHANNELS] __attribute__((aligned(16)));
-	s16 tmp[CELL_AUDIO_BLOCK_SAMPLES * CELL_AUDIO_CHANNELS];
+	s16 in_pcm[512 * CELL_AUDIO_CHANNELS];
+	s16 out_pcm[CELL_AUDIO_BLOCK_SAMPLES * CELL_AUDIO_CHANNELS];
 
 	cellAudioCreateNotifyEventQueue(&id, &key);
 	cellAudioSetNotifyEventQueue(key);
+
+	// 44100 / 48000 in 16.16 fixed point = 60211 (0xEA60)
+	const u32 step1616 = (44100u << 16) / 48000u;
+
+	s_ps3ResamplePhase = 0;
+	s_ps3LastSampleLeft = 0;
+	s_ps3LastSampleRight = 0;
+
+	// Pre-roll: send 4 silent blocks to flush Cell Audio DMA hardware buffers smoothly
+	memset(out_tmp, 0, sizeof(out_tmp));
+	for (int pre = 0; pre < 4; pre++)
+	{
+		cellAudioAddData(ps3->audio_port, out_tmp, CELL_AUDIO_BLOCK_SAMPLES, 1.0);
+	}
 
 	while (!ps3->quit_thread)
 	{
 		sys_event_queue_receive(id, &event, SYS_NO_TIMEOUT);
 
-		memset(tmp, 0, sizeof(tmp));
+		memset(out_pcm, 0, sizeof(out_pcm));
+		memset(in_pcm, 0, sizeof(in_pcm));
+
+		u32 startPhase = s_ps3ResamplePhase;
+		u32 maxPhase = startPhase + (CELL_AUDIO_BLOCK_SAMPLES - 1) * step1616;
+		u32 totalPhase = startPhase + CELL_AUDIO_BLOCK_SAMPLES * step1616;
+		int neededInputFrames = (int)(maxPhase >> 16) + 1;
+
+		if (neededInputFrames < 2)
+		{
+			neededInputFrames = 2;
+		}
+		if (neededInputFrames > 510)
+		{
+			neededInputFrames = 510;
+		}
 
 		NativeAudio_LockOutput();
 		if (s_audio.output.deterministicRenderMode)
 		{
-			int framesReady = NativeAudio_DrainRenderedFramesNoLock(tmp, CELL_AUDIO_BLOCK_SAMPLES);
-			if (framesReady < CELL_AUDIO_BLOCK_SAMPLES)
+			int framesReady = NativeAudio_DrainRenderedFramesNoLock(in_pcm, neededInputFrames);
+			if (framesReady < neededInputFrames)
 			{
-				memset(&tmp[framesReady * CELL_AUDIO_CHANNELS], 0, (size_t)(CELL_AUDIO_BLOCK_SAMPLES - framesReady) * CELL_AUDIO_CHANNELS * sizeof(s16));
-				NativeAudio_AddUnderrunFramesNoLock(CELL_AUDIO_BLOCK_SAMPLES - framesReady);
+				memset(&in_pcm[framesReady * CELL_AUDIO_CHANNELS], 0, (size_t)(neededInputFrames - framesReady) * CELL_AUDIO_CHANNELS * sizeof(s16));
+				NativeAudio_AddUnderrunFramesNoLock(neededInputFrames - framesReady);
 			}
 		}
 		else
 		{
-			int framesReady = NativeAudio_RenderFramesNoLock(tmp, CELL_AUDIO_BLOCK_SAMPLES);
-			if (framesReady < CELL_AUDIO_BLOCK_SAMPLES)
+			int framesReady = NativeAudio_RenderFramesNoLock(in_pcm, neededInputFrames);
+			if (framesReady < neededInputFrames)
 			{
-				memset(&tmp[framesReady * CELL_AUDIO_CHANNELS], 0, (size_t)(CELL_AUDIO_BLOCK_SAMPLES - framesReady) * CELL_AUDIO_CHANNELS * sizeof(s16));
+				memset(&in_pcm[framesReady * CELL_AUDIO_CHANNELS], 0, (size_t)(neededInputFrames - framesReady) * CELL_AUDIO_CHANNELS * sizeof(s16));
 			}
 		}
 		NativeAudio_UnlockOutput();
 
-		NativeAudio_ArrayToFloat(out_tmp, tmp, CELL_AUDIO_BLOCK_SAMPLES * CELL_AUDIO_CHANNELS);
+		// Resample 44.1kHz input to 48kHz output
+		u32 phase = startPhase;
+		for (int i = 0; i < CELL_AUDIO_BLOCK_SAMPLES; i++)
+		{
+			int frameIdx = (int)(phase >> 16);
+			u32 frac = phase & 0xffffu;
+
+			s16 sampleL0 = (frameIdx == 0) ? s_ps3LastSampleLeft : in_pcm[(frameIdx - 1) * 2];
+			s16 sampleR0 = (frameIdx == 0) ? s_ps3LastSampleRight : in_pcm[(frameIdx - 1) * 2 + 1];
+			s16 sampleL1 = in_pcm[frameIdx * 2];
+			s16 sampleR1 = in_pcm[frameIdx * 2 + 1];
+
+			int l = sampleL0 + (int)(((s32)(sampleL1 - sampleL0) * (s32)frac) >> 16);
+			int r = sampleR0 + (int)(((s32)(sampleR1 - sampleR0) * (s32)frac) >> 16);
+
+			out_pcm[i * 2] = (s16)l;
+			out_pcm[i * 2 + 1] = (s16)r;
+
+			phase += step1616;
+		}
+
+		if (neededInputFrames > 0)
+		{
+			s_ps3LastSampleLeft = in_pcm[(neededInputFrames - 1) * 2];
+			s_ps3LastSampleRight = in_pcm[(neededInputFrames - 1) * 2 + 1];
+		}
+		s_ps3ResamplePhase = totalPhase & 0xffffu;
+
+		// Convert to float for PS3 cellAudioAddData
+		for (size_t s = 0; s < CELL_AUDIO_BLOCK_SAMPLES * CELL_AUDIO_CHANNELS; s++)
+		{
+			out_tmp[s] = (float)out_pcm[s] / 32768.0f;
+		}
+
 		cellAudioAddData(ps3->audio_port, out_tmp, CELL_AUDIO_BLOCK_SAMPLES, 1.0);
 	}
 
@@ -2520,7 +2586,8 @@ internal int NativeAudio_LookupPalVoiceTrackInfo(int categoryID, int xaID, struc
 
 internal int NativeAudio_GetXASectorLayout(int byteCount, int *sectorSizeOut, int *sectorBaseOut, int *totalSectorsOut)
 {
-	int sectorSize;
+	int sectorSize = 0;
+	int sectorBase = 0;
 
 	if (byteCount <= 0)
 	{
@@ -2530,10 +2597,23 @@ internal int NativeAudio_GetXASectorLayout(int byteCount, int *sectorSizeOut, in
 	if ((byteCount % XA_FULL_SECTOR_SIZE) == 0)
 	{
 		sectorSize = XA_FULL_SECTOR_SIZE;
+		sectorBase = 16;
 	}
 	else if ((byteCount % XA_FORM2_SECTOR_SIZE) == 0)
 	{
 		sectorSize = XA_FORM2_SECTOR_SIZE;
+		sectorBase = 0;
+	}
+	else if ((byteCount % 2324) == 0)
+	{
+		sectorSize = 2324;
+		sectorBase = 0;
+	}
+	else if (byteCount >= XA_FORM2_SECTOR_SIZE)
+	{
+		// Default fallback for unaligned or padded XA files: Form 2 2336 sectors
+		sectorSize = XA_FORM2_SECTOR_SIZE;
+		sectorBase = 0;
 	}
 	else
 	{
@@ -2541,7 +2621,7 @@ internal int NativeAudio_GetXASectorLayout(int byteCount, int *sectorSizeOut, in
 	}
 
 	*sectorSizeOut = sectorSize;
-	*sectorBaseOut = (sectorSize == XA_FULL_SECTOR_SIZE) ? 16 : 0;
+	*sectorBaseOut = sectorBase;
 	*totalSectorsOut = byteCount / sectorSize;
 	return *totalSectorsOut > 0;
 }
@@ -2553,7 +2633,7 @@ internal int NativeAudio_IsXAAudioSector(const u8 *sector, int sectorBase, int c
 	int coding = header[3];
 	int bpsBits = (coding >> 4) & 0x03;
 
-	return ((subMode & 0x04) != 0) && (header[1] == channelFilter) && (bpsBits == 0);
+	return ((subMode & 0x04) != 0) && ((header[1] & 0x1f) == (channelFilter & 0x1f)) && (bpsBits == 0);
 }
 
 internal int NativeAudio_DecodeXA28Nibbles(const u8 *sector, int frameOff, int block, int nibble, int channel, struct NativeAudioXaDecodeState *state,
@@ -2724,6 +2804,7 @@ internal int NativeAudio_XaSourceOpenHostPath(const char *path, struct NativeAud
 		NativeAudio_XaSourceClose(src);
 		return 0;
 	}
+
 	src->kind = NATIVE_AUDIO_XA_SOURCE_HOST_FILE;
 	src->nextSector = -1;
 	return 1;
@@ -2739,7 +2820,10 @@ internal int NativeAudio_XaSourceOpen(const char *path, struct NativeAudioXaSour
 
 	if (NativeAssets_ResolvePath(path, resolved, sizeof(resolved)))
 	{
-		return NativeAudio_XaSourceOpenHostPath(resolved, src);
+		if (NativeAudio_XaSourceOpenHostPath(resolved, src))
+		{
+			return 1;
+		}
 	}
 
 	if (NativeDiscImage_FindFile(path, &src->discFile))
@@ -2815,7 +2899,7 @@ internal int NativeAudio_PrepareXAStream(struct NativeAudioXaSource *src, int ch
 		return 0;
 	}
 
-	sectorsToScan = maxSectors < src->totalSectors ? maxSectors : src->totalSectors;
+	sectorsToScan = src->totalSectors;
 
 	for (sector = 0; sector < sectorsToScan; sector++)
 	{
@@ -2872,6 +2956,11 @@ internal int NativeAudio_PrepareXAStream(struct NativeAudioXaSource *src, int ch
 
 		memcpy(&prepared->sectors[(size_t)audioSectors * (size_t)src->sectorSize], sectorBuf, (size_t)src->sectorSize);
 		audioSectors++;
+
+		if (audioSectors >= maxSectors)
+		{
+			break;
+		}
 	}
 
 	if (audioSectors <= 0)
@@ -2978,14 +3067,48 @@ internal void NativeAudio_XaStreamStartNoLock(struct NativeAudioXaPreparedStream
 	prepared->sectors = NULL;
 }
 
+internal int NativeAudio_TryPrepareXATrackByID(int categoryID, int trackID, struct NativeAudioXaPreparedStream *prepared)
+{
+	struct NativeAudioXaTrackInfo info;
+	struct NativeAudioXaSource source;
+	char path[512];
+
+	if (!NativeAudio_LookupXATrackInfo(categoryID, trackID, &info))
+	{
+		return 0;
+	}
+
+	if (!NativeAudio_BuildXAPath(path, sizeof(path), categoryID, info.fileNumber) ||
+	    !NativeAudio_XaSourceOpen(path, &source))
+	{
+		return 0;
+	}
+
+	if (!NativeAudio_PrepareXAStream(&source, info.channelFilter, info.numSectors, prepared))
+	{
+		NativeAudio_XaSourceClose(&source);
+		return 0;
+	}
+
+	NativeAudio_XaSourceClose(&source);
+	return 1;
+}
+
 internal int NativeAudio_PrepareXATrack(int categoryID, int xaID, struct NativeAudioXaPreparedStream *prepared)
 {
 	struct NativeAudioXaTrackInfo info;
 	struct NativeAudioXaSource source;
 	char path[512];
 	int palXaID = NativeAudio_ResolvePalVoiceXaID(categoryID, xaID);
+	struct NativeAudioXaPreparedStream primaryStream;
+	struct NativeAudioXaPreparedStream fallbackStream;
+	int primaryOk = 0;
+	int fallbackOk = 0;
 
 	memset(prepared, 0, sizeof(*prepared));
+	memset(&primaryStream, 0, sizeof(primaryStream));
+	memset(&fallbackStream, 0, sizeof(fallbackStream));
+
 	if ((palXaID >= 0) && NativeAudio_LookupPalVoiceTrackInfo(categoryID, palXaID, &info, path, sizeof(path)) &&
 	    NativeAudio_XaSourceOpenHostPath(path, &source))
 	{
@@ -3004,19 +3127,40 @@ internal int NativeAudio_PrepareXATrack(int categoryID, int xaID, struct NativeA
 		NativeAudio_XaPreparedStreamClose(prepared);
 	}
 
-	if (!NativeAudio_LookupXATrackInfo(categoryID, xaID, &info) ||
-	    !NativeAudio_BuildXAPath(path, sizeof(path), categoryID, info.fileNumber) || !NativeAudio_XaSourceOpen(path, &source))
+	primaryOk = NativeAudio_TryPrepareXATrackByID(categoryID, xaID, &primaryStream);
+
+	if ((palXaID >= 0) && (palXaID != xaID))
 	{
-		return 0;
-	}
-	if (!NativeAudio_PrepareXAStream(&source, info.channelFilter, info.numSectors, prepared))
-	{
-		NativeAudio_XaSourceClose(&source);
-		return 0;
+		fallbackOk = NativeAudio_TryPrepareXATrackByID(categoryID, palXaID, &fallbackStream);
 	}
 
-	NativeAudio_XaSourceClose(&source);
-	return 1;
+	if (primaryOk && fallbackOk)
+	{
+		if (fallbackStream.sectorCount > primaryStream.sectorCount)
+		{
+			*prepared = fallbackStream;
+			NativeAudio_XaPreparedStreamClose(&primaryStream);
+			return 1;
+		}
+		else
+		{
+			*prepared = primaryStream;
+			NativeAudio_XaPreparedStreamClose(&fallbackStream);
+			return 1;
+		}
+	}
+	else if (primaryOk)
+	{
+		*prepared = primaryStream;
+		return 1;
+	}
+	else if (fallbackOk)
+	{
+		*prepared = fallbackStream;
+		return 1;
+	}
+
+	return 0;
 }
 
 internal void NativeAudio_StartPreparedXATrackNoLock(struct NativeAudioXaPreparedStream *prepared, int categoryID, int xaID, int volumeLeft,

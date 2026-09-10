@@ -441,12 +441,65 @@ static void RenderBucket_WritePackedWord(void *dst, u32 value)
 
 static u32 RenderBucket_ReadMatrixWord(const MATRIX *m, u32 offset)
 {
-	return RenderBucket_ReadPackedWord((const u8 *)m + offset);
+	switch (offset)
+	{
+	case 0:
+		return CTR_PackS16Pair(m->m[0][0], m->m[0][1]);
+	case 4:
+		return CTR_PackS16Pair(m->m[0][2], m->m[1][0]);
+	case 8:
+		return CTR_PackS16Pair(m->m[1][1], m->m[1][2]);
+	case 12:
+		return CTR_PackS16Pair(m->m[2][0], m->m[2][1]);
+	case 16:
+		return (u32)(u16)m->m[2][2];
+	case 20:
+		return (u32)m->t[0];
+	case 24:
+		return (u32)m->t[1];
+	case 28:
+		return (u32)m->t[2];
+	default:
+		return RenderBucket_ReadPackedWord((const u8 *)m + offset);
+	}
 }
 
 static void RenderBucket_WriteMatrixWord(MATRIX *m, u32 offset, u32 value)
 {
-	RenderBucket_WritePackedWord((u8 *)m + offset, value);
+	switch (offset)
+	{
+	case 0:
+		m->m[0][0] = (s16)value;
+		m->m[0][1] = (s16)(value >> 16);
+		break;
+	case 4:
+		m->m[0][2] = (s16)value;
+		m->m[1][0] = (s16)(value >> 16);
+		break;
+	case 8:
+		m->m[1][1] = (s16)value;
+		m->m[1][2] = (s16)(value >> 16);
+		break;
+	case 12:
+		m->m[2][0] = (s16)value;
+		m->m[2][1] = (s16)(value >> 16);
+		break;
+	case 16:
+		m->m[2][2] = (s16)value;
+		break;
+	case 20:
+		m->t[0] = (s32)value;
+		break;
+	case 24:
+		m->t[1] = (s32)value;
+		break;
+	case 28:
+		m->t[2] = (s32)value;
+		break;
+	default:
+		RenderBucket_WritePackedWord((u8 *)m + offset, value);
+		break;
+	}
 }
 
 static u32 RenderBucket_ReadTextureWord(const struct TextureLayout *tex, u32 offset)

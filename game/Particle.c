@@ -1127,17 +1127,7 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 
 	PushBuffer_SetPsyqGeom(pb);
 
-	scratch->viewProjWords[0] = CTR_ReadU32LE(&pb->matrix_ViewProj.m[0][0]);
-	scratch->viewProjWords[1] = CTR_ReadU32LE(&pb->matrix_ViewProj.m[0][2]);
-	scratch->viewProjWords[2] = CTR_ReadU32LE(&pb->matrix_ViewProj.m[1][1]);
-	scratch->viewProjWords[3] = CTR_ReadU32LE(&pb->matrix_ViewProj.m[2][0]);
-	scratch->viewProjR33Low = CTR_ReadU16LE(&pb->matrix_ViewProj.m[2][2]);
-
-	CTC2(scratch->viewProjWords[0], 8);
-	CTC2(scratch->viewProjWords[1], 9);
-	CTC2(scratch->viewProjWords[2], 10);
-	CTC2(scratch->viewProjWords[3], 11);
-	CTC2(scratch->viewProjWords[4], 12);
+	gte_SetLightMatrix(&pb->matrix_ViewProj);
 
 	scratch->ot = pb->ptrOT;
 	cameraID = (s8)pb->cameraID;

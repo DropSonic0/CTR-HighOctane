@@ -49,6 +49,7 @@ static PSGLcontext *s_psglContext = NULL;
 
 #include <assert.h>
 #include <string.h>
+#include <stddef.h>
 
 #include "platform/native_glad.h"
 
@@ -742,12 +743,14 @@ void NativeRenderer_BeginScene(void)
 	NativeRenderer_SetDepthState(0, 1);
 
 	NativeRenderer_UpdateVRAM();
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (!NativeGpu_GetRenderDrawEnv()->isbg)
 	{
 		NativeRenderer_LoadRenderTargetFromVRAM(&s_mainRenderTarget, NativeGpu_GetRenderDispEnv()->disp.x, NativeGpu_GetRenderDispEnv()->disp.y,
 		                                        s_mainRenderTarget.logicalWidth, s_mainRenderTarget.logicalHeight);
 	}
 	else
+#endif
 	{
 		const GLboolean previousScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
 		glDisable(GL_SCISSOR_TEST);
@@ -761,7 +764,11 @@ void NativeRenderer_BeginScene(void)
 			glEnable(GL_SCISSOR_TEST);
 		}
 	}
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	NativeRenderer_SetViewPort(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
+#else
 	NativeRenderer_SetViewPort(0, 0, s_mainRenderTarget.width, s_mainRenderTarget.height);
+#endif
 
 	if (g_dbg_wireframeMode)
 	{
@@ -2207,6 +2214,13 @@ int NativeRenderer_InitialisePSX(void)
 
 internal void NativeRenderer_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar)
 {
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrthof(left, right, bottom, top, znear, zfar);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+#else
 	float a = 2.0f / (right - left);
 	float b = 2.0f / (top - bottom);
 	float c = 2.0f / (znear - zfar);
@@ -2220,6 +2234,7 @@ internal void NativeRenderer_Ortho2D(float left, float right, float bottom, floa
 	float ortho[16] = {a, 0, 0, 0, 0, b, 0, 0, 0, 0, c, 0, x, y, z, 1};
 
 	glUniformMatrix4fv(u_projectionLoc, 1, GL_FALSE, ortho);
+#endif
 }
 
 void NativeRenderer_SetupClipMode(const RECT16 *rect, const DISPENV *displayEnv, int enable)
@@ -2418,6 +2433,17 @@ void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat, int semiT
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
+
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	if (texture != 0 && texture != s_whiteTexture)
+	{
+		glEnable(GL_TEXTURE_2D);
+	}
+	else
+	{
+		glDisable(GL_TEXTURE_2D);
+	}
+#endif
 
 	s_lastBoundTexture = texture;
 }
@@ -3572,6 +3598,7 @@ void NativeRenderer_PresentVRAMRect(int displayX, int displayY, int displayW, in
 	NativeRenderer_UpdateVRAM();
 
 #if defined(__PS3__) || defined(__CELLOS_LV2__)
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glViewport(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
 
 	glMatrixMode(GL_PROJECTION);
@@ -3642,44 +3669,12 @@ void NativeRenderer_PresentVRAMRect(int displayX, int displayY, int displayW, in
 
 void NativeRenderer_PresentMainRenderTarget(void)
 {
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if ((s_mainRenderTarget.texture == 0) || (s_mainRenderTarget.width <= 0) || (s_mainRenderTarget.height <= 0))
 	{
 		return;
 	}
 
-#if defined(__PS3__) || defined(__CELLOS_LV2__)
-	glViewport(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrthof(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, s_mainRenderTarget.texture);
-
-	glDisable(GL_BLEND);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_SCISSOR_TEST);
-	glDisable(GL_STENCIL_TEST);
-
-	static const float quadVerts[8] = { 0.0f, 1.0f,  1.0f, 1.0f,  0.0f, 0.0f,  1.0f, 0.0f };
-	static const float quadUVs[8]   = { 0.0f, 0.0f,  1.0f, 0.0f,  0.0f, 1.0f,  1.0f, 1.0f };
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-
-	glVertexPointer(2, GL_FLOAT, 0, quadVerts);
-	glTexCoordPointer(2, GL_FLOAT, 0, quadUVs);
-
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisable(GL_TEXTURE_2D);
-#else
 	NativeRenderer_SetViewPort(s_presentViewport.x, s_presentViewport.y, s_presentViewport.w, s_presentViewport.h);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -4241,6 +4236,17 @@ GrVertex *NativeRenderer_AllocateVertexBuffer(int count)
 void NativeRenderer_DrawTriangles(int start_vertex, int triangles)
 {
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_RENDERER_DRAW_TRIANGLES);
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	if (s_boundVertexBuffer >= 0)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[s_boundVertexBuffer]);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
+		glVertexPointer(2, GL_SHORT, sizeof(GrVertex), (const GLvoid *)offsetof(GrVertex, x));
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(GrVertex), (const GLvoid *)offsetof(GrVertex, r));
+	}
+#endif
 	glDrawArrays(GL_TRIANGLES, start_vertex, triangles * 3);
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_RENDERER_DRAW_TRIANGLES);
 }

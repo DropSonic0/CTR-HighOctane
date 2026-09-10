@@ -160,18 +160,11 @@ u32 main(void)
 		{
 		// Initialize Game (happens once)
 		case 0:
-			Platform_Log("[CTR Native] MainMain: Entering StateZero...\n");
-			Platform_LogFlush();
 			StateZero();
-			Platform_Log("[CTR Native] MainMain: Exited StateZero, mainGameState=%d\n", sdata->mainGameState);
-			Platform_LogFlush();
 			break;
 
 		// Happens on first frame that loading ends
 		case 1:
-			Platform_Log("[CTR Native] MainMain: State 1 start...\n");
-			Platform_LogFlush();
-
 			ElimBG_Deactivate(gGT);
 
 			MainStats_RestartRaceCountLoss();
@@ -199,11 +192,7 @@ u32 main(void)
 			DropRain_Reset(gGT);
 			GAMEPROG_GetPtrHighScoreTrack();
 
-			Platform_Log("[CTR Native] MainMain: Calling MainInit_FinalizeInit...\n");
-			Platform_LogFlush();
 			MainInit_FinalizeInit(gGT);
-			Platform_Log("[CTR Native] MainMain: MainInit_FinalizeInit complete\n");
-			Platform_LogFlush();
 
 			GAMEPAD_GetNumConnected(gGS);
 
@@ -222,8 +211,6 @@ u32 main(void)
 
 			sdata->mainGameState = 3;
 			gGT->clockEffectEnabled &= 0xfffe;
-			Platform_Log("[CTR Native] MainMain: State 1 complete, transition to mainGameState=3!\n");
-			Platform_LogFlush();
 			break;
 
 		// Reset stage, reset music
@@ -332,23 +319,13 @@ u32 main(void)
 				// if something is being loaded
 				else
 				{
-					int nextStage = LOAD_TenStages(gGT, iVar8, sdata->ptrBigfile1);
-					if (nextStage != iVar8)
-					{
-						Platform_Log("[CTR Native] MainMain: Loading.stage changed from %d to %d\n", iVar8, nextStage);
-						Platform_LogFlush();
-					}
-					sdata->Loading.stage = nextStage;
+					sdata->Loading.stage = LOAD_TenStages(gGT, iVar8, sdata->ptrBigfile1);
 
 					// If just finished loading stage 9
 					if (sdata->Loading.stage == LOAD_FINISHED)
 					{
-						Platform_Log("[CTR Native] MainMain: sdata->Loading.stage == LOAD_FINISHED (-2)\n");
-						Platform_LogFlush();
 						if ((gGT->levelID == MAIN_MENU_LEVEL) || (gGT->levelID == SCRAPBOOK))
 						{
-							Platform_Log("[CTR Native] MainMain: Loading VLC for MAIN_MENU or SCRAPBOOK...\n");
-							Platform_LogFlush();
 							MainLoadVLC();
 
 							// start loading VLC (scroll up to iVar8 == LOAD_VLC)
@@ -360,8 +337,6 @@ u32 main(void)
 						// loading is finished,
 						// initialize world and pools,
 						// remove LOADING... flag from gGT
-						Platform_Log("[CTR Native] MainMain: FinishLoading, setting stage=LOAD_IDLE, mainGameState=1\n");
-						Platform_LogFlush();
 						sdata->Loading.stage = LOAD_IDLE;
 						sdata->mainGameState = 1;
 						gGT->gameMode1 &= ~LOADING;
@@ -629,12 +604,8 @@ void StateZero()
 #define MEMPACK_SIZE 0x200000 // 2mb
 
 	MEMPACK_Init(MEMPACK_SIZE);
-	Platform_Log("[CTR Native] StateZero: MEMPACK initialized\n");
-	Platform_LogFlush();
 
 	LOAD_InitCD();
-	Platform_Log("[CTR Native] StateZero: CD initialized\n");
-	Platform_LogFlush();
 
 	RaceFlag_SetFullyOffScreen();
 
@@ -704,18 +675,12 @@ void StateZero()
 #endif
 
 	// Get CD Position fo BIGFILE
-	Platform_Log("[CTR Native] StateZero: Reading BIGFILE...\n");
-	Platform_LogFlush();
 	sdata->ptrBigfile1 = LOAD_ReadDirectory(BIGPATH);
 
 	if (sdata->ptrBigfile1 == NULL)
 	{
-		Platform_LogError("[CTR Native] FATAL ERROR: LOAD_ReadDirectory failed for %s!\n", BIGPATH);
-		Platform_LogFlush();
 		return;
 	}
-	Platform_Log("[CTR Native] StateZero: BIGFILE read successfully\n");
-	Platform_LogFlush();
 
 // Defrag to save heap space,
 // required because MEMPACK_Init moves heap
@@ -739,16 +704,12 @@ void StateZero()
 #ifdef CTR_NATIVE
 	// Load PAL English on native so the boot language selector can use the
 	// localized language-name strings shared by the PAL language files.
-	Platform_Log("[CTR Native] StateZero: Loading LangFile (lang=%d)...\n", cfg_language);
-	Platform_LogFlush();
 	LOAD_LangFile((int)sdata->ptrBigfile1, cfg_language);
 #else
 	// English=1
 	// PAL SCES02105 calls it multiple times
 	LOAD_LangFile((int)sdata->ptrBigfile1, 1);
 #endif
-	Platform_Log("[CTR Native] StateZero: LangFile loaded\n");
-	Platform_LogFlush();
 
 	GAMEPROG_NewGame_OnBoot();
 	gGT->overlayIndex_null_notUsed = 0;
@@ -778,76 +739,54 @@ void StateZero()
 	DrawSync(0);
 
 	// Load Intro TIM for "SCEA Presents" from VRAM file
-	Platform_Log("[CTR Native] StateZero: Loading VRAM intro TIM...\n");
-	Platform_LogFlush();
 	LOAD_VramFile(sdata->ptrBigfile1, 0x1fd, NULL, &vramSize, -1);
 	MainInit_VRAMDisplay();
-	Platform_Log("[CTR Native] StateZero: VRAM intro TIM loaded\n");
-	Platform_LogFlush();
 
 	// \SOUNDS\KART.HWL;1
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c8e0-0x8003c928 for startup HOWL/music/XA setup.
-	Platform_Log("[CTR Native] StateZero: Initializing howl globals...\n");
-	Platform_LogFlush();
 	howl_InitGlobals(data.kartHwlPath);
-	Platform_Log("[CTR Native] StateZero: Howl globals initialized\n");
-	Platform_LogFlush();
 
 	VSyncCallback(MainDrawCb_Vsync);
 
-	Platform_Log("[CTR Native] StateZero: Calling Music_SetIntro...\n");
-	Platform_LogFlush();
 	Music_SetIntro();
-	Platform_Log("[CTR Native] StateZero: Music_SetIntro complete\n");
-	Platform_LogFlush();
 
-	Platform_Log("[CTR Native] StateZero: Calling CseqMusic_StopAll...\n");
-	Platform_LogFlush();
 	CseqMusic_StopAll();
 
-	Platform_Log("[CTR Native] StateZero: Calling CseqMusic_Start...\n");
-	Platform_LogFlush();
 	CseqMusic_Start(CSEQ_SONG_LEVEL, 0, NULL, 0, 0);
 
-	Platform_Log("[CTR Native] StateZero: Calling Music_Start...\n");
-	Platform_LogFlush();
 	Music_Start(0);
 
 	// "Start your engines, for Sony Computer..."
-	Platform_Log("[CTR Native] StateZero: Calling CDSYS_XAPlay...\n");
-	Platform_LogFlush();
 	CDSYS_XAPlay(CDSYS_XA_TYPE_EXTRA, 0x50);
 
-	Platform_Log("[CTR Native] StateZero: Entering XA wait loop...\n");
-	Platform_LogFlush();
-	while (sdata->XA_State != 0)
-	{
-		// WARNING: Read-only address (ram, 0x8008d888) is written
-		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c940-0x8003c948 for startup XA pause polling.
 #ifdef CTR_NATIVE
-		// NOTE(aalhendi): Retail hardware interrupts keep XA/audio moving while
-		// this loop spins. Native owns VBlank in VSync(), so pump it here.
+	int sceaFrames = 0;
+#define LOAD_NATIVE_SCEA_INTRO_MIN_FRAMES 210
+	while ((sdata->XA_State != 0) || ((gNativeBootSkipRequested == 0) && (sceaFrames < LOAD_NATIVE_SCEA_INTRO_MIN_FRAMES)))
+	{
 		VSync(0);
+		sceaFrames++;
 		if ((gNativeBootSkipRequested == 0) && (Platform_InputStartPressed() != 0))
 		{
 			gNativeBootSkipRequested = 1;
 			CDSYS_XAPauseRequest();
+			break;
 		}
-#endif
+		Platform_PresentVRAMDisplay();
 		CDSYS_XAPauseAtEnd();
 	}
-	Platform_Log("[CTR Native] StateZero: XA wait loop finished\n");
-	Platform_LogFlush();
+#else
+	while (sdata->XA_State != 0)
+	{
+		CDSYS_XAPauseAtEnd();
+	}
+#endif
 
 	DecalGlobal_Clear(gGT);
 
 	// This loads UI textures (shared.vrm)
 	// This includes traffic lights, font, and more
-	Platform_Log("[CTR Native] StateZero: Loading UI textures (shared.vrm)...\n");
-	Platform_LogFlush();
 	LOAD_VramFile(sdata->ptrBigfile1, 0x102, NULL, &vramSize, -1);
-	Platform_Log("[CTR Native] StateZero: UI textures loaded\n");
-	Platform_LogFlush();
 
 	sdata->mainGameState = 3;
 
@@ -857,6 +796,4 @@ void StateZero()
 	clockEffect = &gGT->clockEffectEnabled;
 	gGT->gameMode1 |= LOADING;
 	gGT->clockEffectEnabled = *clockEffect & 0xfffe;
-	Platform_Log("[CTR Native] StateZero: Complete!\n");
-	Platform_LogFlush();
 }

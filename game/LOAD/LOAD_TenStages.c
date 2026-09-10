@@ -86,14 +86,12 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 				MainInit_VRAMDisplay();
 
 #ifdef CTR_NATIVE
-				// NOTE(aalhendi): SCEA is already held by XA playback in MainMain. The copyright
-				// TIM has no XA, so keep it visible until the intro CSEQ reaches
-				// the point retail normally reaches while loading the ND crate.
-				// Present every wait tick so both host swapchain images are
-				// overwritten with copyright instead of briefly revealing SCEA.
-				while (((sdata->songPool[0].flags & 3) == 1) && (sdata->songPool[0].timeSpentPlaying < LOAD_NATIVE_NDBOX_INTRO_SONG_SYNC_TIME))
+				int copyrightFrames = 0;
+#define LOAD_NATIVE_COPYRIGHT_INTRO_MIN_FRAMES 210
+				while ((gNativeBootSkipRequested == 0) && (copyrightFrames < LOAD_NATIVE_COPYRIGHT_INTRO_MIN_FRAMES))
 				{
 					VSync(0);
+					copyrightFrames++;
 					if (Platform_InputStartPressed() != 0)
 					{
 						gNativeBootSkipRequested = 1;

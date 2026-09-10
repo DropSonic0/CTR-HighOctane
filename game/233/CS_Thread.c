@@ -422,11 +422,15 @@ afterCameraAndSkipChecks:
 		if (cs->frameOverrideRoot != 0)
 		{
 			frameData = &cs->frameOverrideRoot->data[animFrame];
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x00, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[0]));
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x04, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[2]));
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x08, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[4]));
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x0c, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[6]));
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x10, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[8]));
+			instance->matrix.m[0][0] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[0]);
+			instance->matrix.m[0][1] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[1]);
+			instance->matrix.m[0][2] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[2]);
+			instance->matrix.m[1][0] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[3]);
+			instance->matrix.m[1][1] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[4]);
+			instance->matrix.m[1][2] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[5]);
+			instance->matrix.m[2][0] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[6]);
+			instance->matrix.m[2][1] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[7]);
+			instance->matrix.m[2][2] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[8]);
 			instance->matrix.t[0] = frameData->offset[0];
 			instance->matrix.t[1] = frameData->offset[1];
 			instance->matrix.t[2] = frameData->offset[2];
