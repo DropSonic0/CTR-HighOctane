@@ -96,8 +96,9 @@ static void LevInstDef_TintSuperTurboGlow(struct mesh_info *mesh, const struct Q
 	const int maxY = trigger->bbox.max.y + expandY;
 	const int minZ = trigger->bbox.min.z - expandXZ;
 	const int maxZ = trigger->bbox.max.z + expandXZ;
+	const int numVertex = (int)CTR_ReadU32LE(&mesh->numVertex);
 
-	for (int vertexIndex = 0; vertexIndex < mesh->numVertex; vertexIndex++)
+	for (int vertexIndex = 0; vertexIndex < numVertex; vertexIndex++)
 	{
 		struct LevVertex *vertex = &mesh->ptrVertexArray[vertexIndex];
 		if ((vertex->pos.x < minX) || (vertex->pos.x > maxX) || (vertex->pos.y < minY) || (vertex->pos.y > maxY) ||
@@ -165,7 +166,7 @@ b32 LevInstDef_IsSuperTurboVisualQuad(const struct QuadBlock *quad)
 static void LevInstDef_FindTurboVisualQuads(struct mesh_info *mesh)
 {
 	const struct QuadBlock *quadBlocks = mesh->ptrQuadBlockArray;
-	const int numQuadBlocks = mesh->numQuadBlock;
+	const int numQuadBlocks = (int)CTR_ReadU32LE(&mesh->numQuadBlock);
 	memset(s_nativeTurboVisualBits, 0, sizeof(s_nativeTurboVisualBits));
 	memset(s_nativeSuperTurboVisualBits, 0, sizeof(s_nativeSuperTurboVisualBits));
 	s_nativeTurboQuadBase = quadBlocks;
@@ -341,7 +342,7 @@ void LevInstDef_UnPack(struct mesh_info *ptr_mesh_info)
 	struct InstDef **visInstSrc;
 	struct Level *level1;
 
-	numQuadBlock = ptr_mesh_info->numQuadBlock;
+	numQuadBlock = (int)CTR_ReadU32LE(&ptr_mesh_info->numQuadBlock);
 	ptrQuadBlockArray = ptr_mesh_info->ptrQuadBlockArray;
 
 #if defined(CTR_NATIVE)
@@ -393,7 +394,7 @@ void LevInstDef_RePack(struct mesh_info *ptr_mesh_info, b32 boolAdvHub)
 	struct Level *level1;
 	struct Thread *th;
 
-	numQuadBlock = ptr_mesh_info->numQuadBlock;
+	numQuadBlock = (int)CTR_ReadU32LE(&ptr_mesh_info->numQuadBlock);
 	ptrQuadBlockArray = ptr_mesh_info->ptrQuadBlockArray;
 
 	// loop through all quadblocks

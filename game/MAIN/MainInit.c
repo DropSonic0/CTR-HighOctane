@@ -538,9 +538,13 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 {
 	int i;
 	int numPlyr;
+	u32 clearColorRGBA;
 	struct Driver *d;
 	struct Level *lev1;
 	struct Instance *inst;
+
+	Platform_Log("[CTR Native] FinalizeInit: start...\n");
+	Platform_LogFlush();
 
 	// === Naughty Dog Bug ===
 	// Quitting a race while heldItem is warpball,
@@ -593,10 +597,14 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 #endif
 	// 0x1d7c
 	{
-		gGT->trackLength_x_numLaps_x_8 = lev1->ptr_restart_points[0].distToFinish * gGT->numLaps * 8;
+		gGT->trackLength_x_numLaps_x_8 = (s16)CTR_ReadU16LE(&lev1->ptr_restart_points[0].distToFinish) * gGT->numLaps * 8;
 	}
 
+	Platform_Log("[CTR Native] FinalizeInit: Calling MainInit_Drivers...\n");
+	Platform_LogFlush();
 	MainInit_Drivers(gGT);
+	Platform_Log("[CTR Native] FinalizeInit: MainInit_Drivers done\n");
+	Platform_LogFlush();
 
 	// assume 1P fov
 	numPlyr = 1;
@@ -624,7 +632,11 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 
 	if ((gGT->hudFlags & HUD_FLAG_INIT_UI_INSTANCES) != 0)
 	{
+		Platform_Log("[CTR Native] FinalizeInit: Calling UI_INSTANCE_InitAll...\n");
+		Platform_LogFlush();
 		UI_INSTANCE_InitAll();
+		Platform_Log("[CTR Native] FinalizeInit: UI_INSTANCE_InitAll done\n");
+		Platform_LogFlush();
 	}
 
 	gGT->unk1cac[4] = 2;
@@ -670,12 +682,20 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 	}
 
 	// copy InstDef to InstancePool
-	INSTANCE_LevInitAll(lev1->ptrInstDefs, lev1->numInstances);
+	Platform_Log("[CTR Native] FinalizeInit: Calling INSTANCE_LevInitAll...\n");
+	Platform_LogFlush();
+	INSTANCE_LevInitAll(lev1->ptrInstDefs, CTR_ReadU32LE(&lev1->numInstances));
+	Platform_Log("[CTR Native] FinalizeInit: INSTANCE_LevInitAll done\n");
+	Platform_LogFlush();
 
 	// Debug_ToggleNormalSpawn == normal spawn
 	if (gGT->Debug_ToggleNormalSpawn != 0)
 	{
+		Platform_Log("[CTR Native] FinalizeInit: Calling MainGameStart_Initialize...\n");
+		Platform_LogFlush();
 		MainGameStart_Initialize(gGT, 1);
+		Platform_Log("[CTR Native] FinalizeInit: MainGameStart_Initialize done\n");
+		Platform_LogFlush();
 
 		if (gNativeGhostReplayMode != 0)
 		{
@@ -694,17 +714,10 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 	// execute all camera thread update functions
 	ThTick_RunBucket(gGT->threadBuckets[CAMERA].thread);
 
-// dont write unused variables
-#if 0
-    // lev -> clearColor rgb
-    sdata->LevClearColorRGB[0] = (u32)(char *)(lev1->clearColorRGBA)[0];
-    sdata->LevClearColorRGB[1] = (u32)(char *)(lev1->clearColorRGBA)[1];
-    sdata->LevClearColorRGB[2] = (u32)(char *)(lev1->clearColorRGBA)[2];
-#endif
-
 	// Used in Coco Park, encoded as Blue
-	*(int *)&gGT->db[0].drawEnv.isbg = lev1->clearColorRGBA << 8;
-	*(int *)&gGT->db[1].drawEnv.isbg = lev1->clearColorRGBA << 8;
+	clearColorRGBA = CTR_ReadU32LE(&lev1->clearColorRGBA);
+	*(int *)&gGT->db[0].drawEnv.isbg = clearColorRGBA << 8;
+	*(int *)&gGT->db[1].drawEnv.isbg = clearColorRGBA << 8;
 
 	if ((gGT->numPlyrCurrGame == 1) && (lev1->clearColor[0].enable != 0) && (lev1->clearColor[1].enable != 0))
 	{
@@ -723,16 +736,28 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 	{
 		if (lev1->ptr_mesh_info != NULL)
 		{
+			Platform_Log("[CTR Native] FinalizeInit: Calling LevInstDef_UnPack...\n");
+			Platform_LogFlush();
 			LevInstDef_UnPack(lev1->ptr_mesh_info);
+			Platform_Log("[CTR Native] FinalizeInit: LevInstDef_UnPack done\n");
+			Platform_LogFlush();
 		}
 	}
 
+	Platform_Log("[CTR Native] FinalizeInit: Calling MainInit_VisMem...\n");
+	Platform_LogFlush();
 	MainInit_VisMem(gGT);
+	Platform_Log("[CTR Native] FinalizeInit: MainInit_VisMem done\n");
+	Platform_LogFlush();
 
 	MainInit_RainBuffer(gGT);
 
 	// animates water, 1P mode
-	AnimateWater1P(gGT->timer, lev1->numWaterVertices, lev1->ptr_water, lev1->ptr_tex_waterEnvMap, lev1->visOVertSrc);
+	Platform_Log("[CTR Native] FinalizeInit: Calling AnimateWater1P...\n");
+	Platform_LogFlush();
+	AnimateWater1P(gGT->timer, CTR_ReadU32LE(&lev1->numWaterVertices), lev1->ptr_water, lev1->ptr_tex_waterEnvMap, lev1->visOVertSrc);
+	Platform_Log("[CTR Native] FinalizeInit: AnimateWater1P done\n");
+	Platform_LogFlush();
 
 	gGT->pushBuffer_UI.fadeFromBlack_desiredResult = 0x1000;
 	gGT->pushBuffer_UI.fade_step = 0x200;
@@ -740,10 +765,10 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 	numPlyr = gGT->numPlyrCurrGame;
 
 	// stars
-	gGT->stars.numStars = (s16)(lev1->stars.numStars / numPlyr);
-	gGT->stars.spread = lev1->stars.spread;
-	gGT->stars.seed = lev1->stars.seed;
-	gGT->stars.distance = lev1->stars.distance;
+	gGT->stars.numStars = (s16)(CTR_ReadU16LE(&lev1->stars.numStars) / numPlyr);
+	gGT->stars.spread = (s16)CTR_ReadU16LE(&lev1->stars.spread);
+	gGT->stars.seed = (s16)CTR_ReadU16LE(&lev1->stars.seed);
+	gGT->stars.distance = (s16)CTR_ReadU16LE(&lev1->stars.distance);
 
 	// confetti
 	gGT->confetti.numParticles_currWord = 0;
@@ -755,10 +780,6 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 	{
 		gGT->winnerIndex[i] = 0;
 	}
-
-#if 0
-    BOTS_EmptyFunc();
-#endif
 
 	if ((gGT->gameMode1 & GAME_CUTSCENE) != 0)
 	{
@@ -781,6 +802,8 @@ void MainInit_FinalizeInit(struct GameTracker *gGT)
 	}
 
 	PickupBots_Init();
+	Platform_Log("[CTR Native] FinalizeInit: Complete!\n");
+	Platform_LogFlush();
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c1d4-0x8003c248.

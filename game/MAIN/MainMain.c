@@ -169,13 +169,12 @@ u32 main(void)
 
 		// Happens on first frame that loading ends
 		case 1:
-			Platform_Log("[CTR Native] MainMain: State 1 (First frame after load complete)\n");
+			Platform_Log("[CTR Native] MainMain: State 1 start...\n");
 			Platform_LogFlush();
 
 			ElimBG_Deactivate(gGT);
 
 			MainStats_RestartRaceCountLoss();
-			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c9f8-0x8003ca04 for load-complete voiceline reset.
 			Voiceline_ClearTimeStamp();
 
 			// Disable End-Of-Race menu
@@ -191,7 +190,7 @@ u32 main(void)
 
 			else
 			{
-				if (RaceFlag_IsFullyOnScreen())
+				if (RaceFlag_IsFullyOffScreen())
 				{
 					RaceFlag_BeginTransition(2);
 				}
@@ -199,55 +198,32 @@ u32 main(void)
 
 			DropRain_Reset(gGT);
 			GAMEPROG_GetPtrHighScoreTrack();
-			MainInit_FinalizeInit(gGT);
 
-#if defined(CTR_NATIVE)
-			if ((gGT->levelID == NAUGHTY_DOG_CRATE) && (gNativeBootSkipRequested != 0))
-			{
-				gNativeBootSkipRequested = 0;
-				RaceFlag_SetCanDraw(1);
-				CseqMusic_StopAll();
-				CDSYS_XAPauseRequest();
-				RaceFlag_SetDrawOrder(0);
-				gGT->renderFlags = RENDER_FLAG_CHECKERED_FLAG;
-				MainRaceTrack_RequestLoad(MAIN_MENU_LEVEL);
-			}
-#endif
+			Platform_Log("[CTR Native] MainMain: Calling MainInit_FinalizeInit...\n");
+			Platform_LogFlush();
+			MainInit_FinalizeInit(gGT);
+			Platform_Log("[CTR Native] MainMain: MainInit_FinalizeInit complete\n");
+			Platform_LogFlush();
 
 			GAMEPAD_GetNumConnected(gGS);
 
 			sdata->boolSoundPaused = 0;
-			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003caa4-0x8003cab4 for load-complete engine audio init.
 			VehBirth_EngineAudio_AllPlayers();
 
-			// 9 = intro cutscene
-			// 10 = traffic lights
-			// 11 = racing
-
-			// Arcade-Style track starts with intro cutscene
 			uVar12 = 9;
 
-				if (
-			    // If Level ID is less than 18, it's one of the race tracks
+			if (
 			    (gGT->levelID < NITRO_COURT) || (
-			                                        // Battle-Style track starts with traffic lights
 			                                        uVar12 = 10,
-			                                        // Level ID >= 18 and < 23
-			                                        // Battle tracks
 			                                        gGT->levelID - NITRO_COURT < 7))
-				{
-#if defined(__vita__)
-					if (!(NativeAdhoc_IsConnected() && (uVar12 == AUDIO_RACE_INTRO)))
-#endif
-					{
-						Audio_SetState_Safe(uVar12);
-					}
-				}
-#ifdef CTR_NATIVE
-				NativeAdhoc_NotifyLevelReady(gGT);
-#endif
-				sdata->mainGameState = 3;
+			{
+				Audio_SetState_Safe(uVar12);
+			}
+
+			sdata->mainGameState = 3;
 			gGT->clockEffectEnabled &= 0xfffe;
+			Platform_Log("[CTR Native] MainMain: State 1 complete, transition to mainGameState=3!\n");
+			Platform_LogFlush();
 			break;
 
 		// Reset stage, reset music

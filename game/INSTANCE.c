@@ -380,7 +380,7 @@ void INSTANCE_LevDelayedLInBs(struct InstDef *instDef, int numInstances)
 
 b32 INSTANCE_Use60FpsAnimation(struct Instance *inst)
 {
-	if (!CTR_NATIVE_60FPS_ACTIVE || (inst == NULL) || (inst->model == NULL) || (inst->model->numHeaders <= 0) || (inst->model->headers == NULL))
+	if (!CTR_NATIVE_60FPS_ACTIVE || (inst == NULL) || (inst->model == NULL) || (CTR_ReadU16LE(&inst->model->numHeaders) == 0) || (inst->model->headers == NULL))
 	{
 		return false;
 	}
@@ -420,7 +420,7 @@ u16 INSTANCE_GetNumAnimFrames(struct Instance *pInstance, int animIndex)
 	if (pModel = pInstance->model, pModel != NULL)
 	{
 		// if model got headers
-		if (pModel->numHeaders > 0)
+		if ((s16)CTR_ReadU16LE(&pModel->numHeaders) > 0)
 		{
 			// get first header ptr and validate
 			if (pHeader = pModel->headers, pHeader != NULL)
@@ -429,15 +429,16 @@ u16 INSTANCE_GetNumAnimFrames(struct Instance *pInstance, int animIndex)
 				if (pHeader->ptrAnimations != NULL)
 				{
 					// validate anim index param
-					if (animIndex < (int)pHeader->numAnimations)
+					if (animIndex < (int)CTR_ReadU32LE(&pHeader->numAnimations))
 					{
 						// get proper animation ptr and validate
 						if (pAnim = *(pHeader->ptrAnimations + animIndex), pAnim != NULL)
 						{
 							// we're finally there, get number of frames
 							// remember it's masked due to interp flag
-							u16 frameCount = pAnim->numFrames & 0x7fff;
-							if (INSTANCE_Use60FpsAnimation(pInstance) && ((pAnim->numFrames & 0x8000) == 0) && (frameCount != 0))
+							u16 animFrames = CTR_ReadU16LE(&pAnim->numFrames);
+							u16 frameCount = animFrames & 0x7fff;
+							if (INSTANCE_Use60FpsAnimation(pInstance) && ((animFrames & 0x8000) == 0) && (frameCount != 0))
 							{
 								frameCount = (u16)((frameCount << 1) - 1);
 							}
