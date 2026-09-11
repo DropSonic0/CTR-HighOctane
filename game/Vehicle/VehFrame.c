@@ -79,7 +79,7 @@ u32 VehFrameInst_GetNumAnimFrames(struct Instance *inst, int animIndex)
 	{
 		return 0;
 	}
-	if (inst->model->numHeaders <= 0)
+	if (CTR_ReadU16LE(&inst->model->numHeaders) == 0)
 	{
 		return 0;
 	}
@@ -90,7 +90,7 @@ u32 VehFrameInst_GetNumAnimFrames(struct Instance *inst, int animIndex)
 
 	struct ModelHeader *mh = inst->model->headers;
 
-	if (animIndex >= (int)mh->numAnimations)
+	if (animIndex >= (int)CTR_ReadU32LE(&mh->numAnimations))
 	{
 		return 0;
 	}
@@ -106,8 +106,9 @@ u32 VehFrameInst_GetNumAnimFrames(struct Instance *inst, int animIndex)
 		return 0;
 	}
 
-	u32 frameCount = anim->numFrames & VEH_FRAME_NUM_FRAMES_MASK;
-	if (INSTANCE_Use60FpsAnimation(inst) && ((anim->numFrames & 0x8000) == 0) && (frameCount != 0))
+	u16 animFrames = CTR_ReadU16LE(&anim->numFrames);
+	u32 frameCount = animFrames & VEH_FRAME_NUM_FRAMES_MASK;
+	if (INSTANCE_Use60FpsAnimation(inst) && ((animFrames & 0x8000) == 0) && (frameCount != 0))
 	{
 		frameCount = (frameCount << 1) - 1;
 	}

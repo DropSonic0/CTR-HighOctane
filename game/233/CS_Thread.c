@@ -621,7 +621,7 @@ processOpcode:
 	case CS_OPCODE_SET_VISIBLE_LOD:
 		if (instance != 0)
 		{
-			int numHeaders = (int)instance->model->numHeaders;
+			int numHeaders = (int)CTR_ReadU16LE(&instance->model->numHeaders);
 			if ((numHeaders != 0) && (modelHeader = instance->model->headers, modelHeader != 0))
 			{
 				lodIndex = opcodeMeta->arg1.i;
@@ -765,10 +765,10 @@ processOpcode:
 
 	case CS_OPCODE_LOAD_LEVEL_STARS:
 		numPlayers = gGT->numPlyrCurrGame;
-		gGT->stars.numStars = (s16)((int)gGT->level1->stars.numStars / (int)(u32)numPlayers);
-		gGT->stars.spread = gGT->level1->stars.spread;
-		gGT->stars.seed = gGT->level1->stars.seed;
-		gGT->stars.distance = gGT->level1->stars.distance;
+		gGT->stars.numStars = (s16)((int)CTR_ReadU16LE(&gGT->level1->stars.numStars) / (int)(u32)numPlayers);
+		gGT->stars.spread = (s16)CTR_ReadU16LE(&gGT->level1->stars.spread);
+		gGT->stars.seed = (s16)CTR_ReadU16LE(&gGT->level1->stars.seed);
+		gGT->stars.distance = (s16)CTR_ReadU16LE(&gGT->level1->stars.distance);
 		D233.boolLoadNextSwap = 0;
 		CS_ScriptCmd_OpcodeNext(cs);
 		goto finishOpcodeStep;
@@ -1554,6 +1554,17 @@ void CS_Thread_ThTick(struct Thread *t)
 	struct Instance *inst = t->inst;
 	struct Instance *parentInst;
 	struct Thread *parentThread;
+
+	static int s_csThLog = 0;
+	if (s_csThLog < 30)
+	{
+		Platform_Log("[CTR Native] CS_Thread_ThTick: thread=%s inst=%s (%p) opcode=%d\n",
+			t->name ? t->name : "null",
+			inst ? (inst->name ? inst->name : "unnamed") : "null",
+			(void*)inst, cs ? cs->metadataMeta->opcode : -1);
+		Platform_LogFlush();
+		s_csThLog++;
+	}
 
 	if (CS_Thread_UseOpcode(inst, cs))
 	{

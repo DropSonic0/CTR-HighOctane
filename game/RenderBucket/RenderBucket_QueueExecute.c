@@ -760,7 +760,7 @@ static void RenderBucket_LinkPrimRaw(uint32_t *otEntry, void *prim, u32 lenWord)
 {
 	// NOTE(aalhendi): Source-backs DrawInstPrim_Normal's retail OT tag write at
 	// 0x8006ae50-0x8006ae64.
-	RenderBucket_WritePackedWord(prim, CtrGpu_PackOTTag(*otEntry, lenWord));
+	CTR_GPU_WriteTagWord(prim, CtrGpu_PackOTTag(*otEntry, lenWord));
 	*otEntry = RenderBucket_OTAddress(prim);
 }
 
@@ -1975,9 +1975,7 @@ static int RenderBucket_BuildDepthRange(struct Instance *inst, struct ModelFrame
 
 static void RenderBucket_StoreInstanceAnimWord(struct Instance *inst, int frame)
 {
-	// NOTE(aalhendi): Retail QueueDraw uses `sw` at Instance+0x54, so this
-	// intentionally writes the full animFrame/vertSplit word.
-	RenderBucket_WritePackedWord((u8 *)inst + offsetof(struct Instance, animFrame), (u32)frame);
+	inst->animFrame = (s16)frame;
 }
 
 static void RenderBucket_AdvanceInstanceAnimWord(struct Instance *inst, int gameMode1, int playerIndex, int lastFrame, u32 *queuedFlags)

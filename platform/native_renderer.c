@@ -2126,11 +2126,7 @@ int NativeRenderer_InitialisePSX(void)
 
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_STENCIL_TEST);
-#if defined(__PS3__) || defined(__CELLOS_LV2__)
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0.0f);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-#elif !defined(__vita__)
+#ifndef __vita__
 	glBlendColor(0.5f, 0.5f, 0.5f, 0.25f);
 #endif
 
@@ -4020,11 +4016,6 @@ void NativeRenderer_SwapWindow(void)
 		SDL_GL_SwapWindow(g_window);
 	}
 #elif defined(__PS3__) || defined(__CELLOS_LV2__)
-	static u32 s_ps3SwapCount = 0;
-	if ((++s_ps3SwapCount % 30) == 0)
-	{
-		Platform_Log("[PS3] NativeRenderer_SwapWindow frame %u\n", s_ps3SwapCount);
-	}
 	psglSwap();
 #else
 	SDL_GL_SwapWindow(g_window);
@@ -4251,11 +4242,9 @@ void NativeRenderer_DrawTriangles(int start_vertex, int triangles)
 		glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[s_boundVertexBuffer]);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 		glVertexPointer(2, GL_SHORT, sizeof(GrVertex), (const GLvoid *)offsetof(GrVertex, x));
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(GrVertex), (const GLvoid *)offsetof(GrVertex, r));
-		glTexCoordPointer(2, GL_UNSIGNED_BYTE, sizeof(GrVertex), (const GLvoid *)offsetof(GrVertex, u));
 	}
 #endif
 	glDrawArrays(GL_TRIANGLES, start_vertex, triangles * 3);

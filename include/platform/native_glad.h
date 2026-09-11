@@ -32,6 +32,7 @@
 #if defined(__PS3__) || defined(__CELLOS_LV2__)
 #include <PSGL/psgl.h>
 #include <PSGL/psglu.h>
+#include <PSGL/report.h>
 #define gladLoadGL() 1
 #define GLAD_GL_KHR_debug 0
 

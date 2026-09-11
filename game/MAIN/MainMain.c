@@ -233,6 +233,16 @@ u32 main(void)
 		// Main Gameplay Update
 		// Makes up all normal interaction with the game
 		case 3:
+			{
+				static int s_mainCase3LogCount = 0;
+				if (s_mainCase3LogCount < 20 || (s_mainCase3LogCount % 60) == 0)
+				{
+					Platform_Log("[CTR Native] MainMain: case 3 frame %d (stage=%d gameMode1=0x%08x)\n",
+						s_mainCase3LogCount, sdata->Loading.stage, gGT->gameMode1);
+					Platform_LogFlush();
+				}
+				s_mainCase3LogCount++;
+			}
 
 			// if loading, or gameplay interrupted
 			if (sdata->Loading.stage != LOAD_IDLE)
@@ -324,7 +334,9 @@ u32 main(void)
 				// if something is being loaded
 				else
 				{
+					Platform_Log("[CTR Native] MainMain: calling LOAD_TenStages(stage=%d)...\n", iVar8); Platform_LogFlush();
 					sdata->Loading.stage = LOAD_TenStages(gGT, iVar8, sdata->ptrBigfile1);
+					Platform_Log("[CTR Native] MainMain: LOAD_TenStages returned stage=%d\n", sdata->Loading.stage); Platform_LogFlush();
 
 					// If just finished loading stage 9
 					if (sdata->Loading.stage == LOAD_FINISHED)
@@ -494,7 +506,15 @@ u32 main(void)
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 				NativePerf_BeginScope(NATIVE_PERF_BUCKET_GAME_LOGIC);
 #endif
+				static int s_logicCount = 0;
+				if (s_logicCount < 20 || (s_logicCount % 60) == 0) {
+					Platform_Log("[CTR Native] MainMain: calling MainFrame_GameLogic...\n"); Platform_LogFlush();
+				}
 				MainFrame_GameLogic(gGT, gGS);
+				if (s_logicCount < 20 || (s_logicCount % 60) == 0) {
+					Platform_Log("[CTR Native] MainMain: after MainFrame_GameLogic\n"); Platform_LogFlush();
+				}
+				s_logicCount++;
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 					NativePerf_EndScope(NATIVE_PERF_BUCKET_GAME_LOGIC);
 #endif
@@ -522,7 +542,15 @@ u32 main(void)
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 			NativePerf_BeginScope(NATIVE_PERF_BUCKET_RENDER_FRAME);
 #endif
+			static int s_renderCount = 0;
+			if (s_renderCount < 20 || (s_renderCount % 60) == 0) {
+				Platform_Log("[CTR Native] MainMain: calling MainFrame_RenderFrame...\n"); Platform_LogFlush();
+			}
 			MainFrame_RenderFrame(gGT, gGS);
+			if (s_renderCount < 20 || (s_renderCount % 60) == 0) {
+				Platform_Log("[CTR Native] MainMain: after MainFrame_RenderFrame\n"); Platform_LogFlush();
+			}
+			s_renderCount++;
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 			NativePerf_EndScope(NATIVE_PERF_BUCKET_RENDER_FRAME);
 #endif

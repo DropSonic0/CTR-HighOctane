@@ -21,7 +21,7 @@ static void MainInit_InitVisMemBspListNodes(struct VisMem *visMem, struct mesh_i
 			continue;
 		}
 
-		for (int bspIndex = 0; bspIndex < mesh->numBspNodes; bspIndex++)
+		for (int bspIndex = 0; bspIndex < (int)CTR_ReadU32LE(&mesh->numBspNodes); bspIndex++)
 		{
 			// NOTE(aalhendi): Native 226 reads the retained BSP pointer; RenderLists only rewrites the link word.
 			bspList[bspIndex].next = NULL;
