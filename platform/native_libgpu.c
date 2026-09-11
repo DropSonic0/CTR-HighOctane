@@ -74,6 +74,14 @@ internal void NativeLibGpu_BackendUpdateVRAMTask(void *arg)
 
 int ClearImage(RECT16 *rect, uint8_t r, uint8_t g, uint8_t b)
 {
+	if (rect != NULL)
+	{
+		if ((rect->x < 0) || (rect->y < 0) || (rect->x + rect->w > 1024) || (rect->y + rect->h > 512))
+		{
+			Platform_LogError("[CTR GPU] ClearImage out of bounds! rect=(%d,%d %dx%d)\n", rect->x, rect->y, rect->w, rect->h);
+		}
+	}
+
 #ifdef __vita__
 	NativeLibGpuClearTask task = {*rect, r, g, b};
 	NativeGpu_RunBackendTaskSync(NativeLibGpu_BackendClearTask, &task);
@@ -124,6 +132,14 @@ int DrawSync(int mode)
 
 int LoadImage(RECT16 *rect, void *p)
 {
+	if (rect != NULL)
+	{
+		if ((rect->x < 0) || (rect->y < 0) || (rect->x + rect->w > 1024) || (rect->y + rect->h > 512))
+		{
+			Platform_LogError("[CTR GPU] LoadImage out of bounds! rect=(%d,%d %dx%d)\n", rect->x, rect->y, rect->w, rect->h);
+		}
+	}
+
 #ifdef __vita__
 	NativeLibGpuVramTask task = {*rect, (u16 *)p, 0, 0};
 	NativeGpu_RunBackendTaskSync(NativeLibGpu_BackendLoadTask, &task);
@@ -146,6 +162,15 @@ int LoadImage2(RECT16 *rect, void *p)
 
 int MoveImage(RECT16 *rect, int x, int y)
 {
+	if (rect != NULL)
+	{
+		if ((rect->x < 0) || (rect->y < 0) || (rect->x + rect->w > 1024) || (rect->y + rect->h > 512) ||
+		    (x < 0) || (y < 0) || (x + rect->w > 1024) || (y + rect->h > 512))
+		{
+			Platform_LogError("[CTR GPU] MoveImage out of bounds! src=(%d,%d %dx%d) dst=(%d,%d)\n", rect->x, rect->y, rect->w, rect->h, x, y);
+		}
+	}
+
 #ifdef __vita__
 	NativeLibGpuVramTask task = {*rect, NULL, x, y};
 	NativeGpu_RunBackendTaskSync(NativeLibGpu_BackendMoveTask, &task);
@@ -157,6 +182,14 @@ int MoveImage(RECT16 *rect, int x, int y)
 
 int StoreImage(RECT16 *rect, uint32_t *p)
 {
+	if (rect != NULL)
+	{
+		if ((rect->x < 0) || (rect->y < 0) || (rect->x + rect->w > 1024) || (rect->y + rect->h > 512))
+		{
+			Platform_LogError("[CTR GPU] StoreImage out of bounds! rect=(%d,%d %dx%d)\n", rect->x, rect->y, rect->w, rect->h);
+		}
+	}
+
 #ifdef __vita__
 	NativeLibGpuVramTask task = {*rect, (u16 *)p, 0, 0};
 	NativeGpu_RunBackendTaskSync(NativeLibGpu_BackendReadTask, &task);

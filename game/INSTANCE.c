@@ -21,11 +21,14 @@ void INSTANCE_Birth(struct Instance *inst, struct Model *model, const char *name
 	else
 #endif
 	{
-		for (i = 0; i < 15; i++)
+		for (i = 0; (i < 15) && (name[i] != '\0'); i++)
 		{
 			inst->name[i] = name[i];
 		}
-		inst->name[15] = '\0';
+		for (; i < 16; i++)
+		{
+			inst->name[i] = '\0';
+		}
 	}
 
 	inst->depthBiasNormal = 0xfe;

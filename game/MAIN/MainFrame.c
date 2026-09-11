@@ -367,8 +367,7 @@ void MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepad
 					}
 				}
 
-				static int s_bucketLogCount = 0;
-				if (s_bucketLogCount < 30)
+				if (gGT->timer < 300)
 				{
 					Platform_Log("[CTR Native] MainFrame_GameLogic: ThTick_RunBucket(%d, thread=%p, name=%s)...\n",
 						iVar4, (void*)gGT->threadBuckets[iVar4].thread,
@@ -376,11 +375,10 @@ void MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepad
 					Platform_LogFlush();
 				}
 				ThTick_RunBucket(gGT->threadBuckets[iVar4].thread);
-				if (s_bucketLogCount < 30)
+				if (gGT->timer < 300)
 				{
 					Platform_Log("[CTR Native] MainFrame_GameLogic: ThTick_RunBucket(%d) done\n", iVar4);
 					Platform_LogFlush();
-					s_bucketLogCount++;
 				}
 			}
 		}

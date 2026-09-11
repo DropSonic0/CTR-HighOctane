@@ -34,6 +34,7 @@ typedef u32 Uint32;
 
 #define SDL_memset memset
 #define SDL_memcpy memcpy
+#define SDL_memmove memmove
 #define SDL_SetError(...) ((void)0)
 
 static PSGLdevice *s_psglDevice = NULL;
@@ -2988,8 +2989,32 @@ internal void NativeRenderer_MarkGpuVRAMNewer(int x, int y, int w, int h)
 
 void NativeRenderer_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 {
-	u16 *dst = s_vram.cpuPixels + x + y * VRAM_WIDTH;
-	const u16 color = NativeRenderer_PackRGB24ToPSX15(r, g, b);
+	if ((w <= 0) || (h <= 0))
+	{
+		return;
+	}
+
+	if ((x < 0) || (y < 0) || (x + w > VRAM_WIDTH) || (y + h > VRAM_HEIGHT))
+	{
+		NATIVE_RENDERER_ERROR("ClearVRAM rect out of bounds! x=%d y=%d w=%d h=%d (clamping to VRAM)\n", x, y, w, h);
+	}
+
+	if (x < 0)
+	{
+		w += x;
+		x = 0;
+	}
+
+	if (y < 0)
+	{
+		h += y;
+		y = 0;
+	}
+
+	if ((x >= VRAM_WIDTH) || (y >= VRAM_HEIGHT) || (w <= 0) || (h <= 0))
+	{
+		return;
+	}
 
 	if (x + w > VRAM_WIDTH)
 	{
@@ -3000,6 +3025,9 @@ void NativeRenderer_ClearVRAM(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 	{
 		h = VRAM_HEIGHT - y;
 	}
+
+	u16 *dst = s_vram.cpuPixels + x + y * VRAM_WIDTH;
+	const u16 color = NativeRenderer_PackRGB24ToPSX15(r, g, b);
 
 	// clear VRAM region with given color
 	for (int i = 0; i < h; i++)
@@ -3427,41 +3455,212 @@ void NativeRenderer_StoreFrameBuffer(int x, int y, int w, int h)
 
 void NativeRenderer_CopyVRAM(u16 *src, int x, int y, int w, int h, int dst_x, int dst_y)
 {
-	int stride = w;
+	if ((w <= 0) || (h <= 0))
+	{
+		return;
+	}
 
 	if (!src)
 	{
-		// NOTE(aalhendi): MoveImage reads exactly its PS1 VRAM source rectangle. Resolve only that
-		// GPU-authored region into the CPU mirror before copying it.
+		// VRAM-to-VRAM copy (MoveImage)
+		if ((x < 0) || (y < 0) || (x + w > VRAM_WIDTH) || (y + h > VRAM_HEIGHT) || (dst_x < 0) || (dst_y < 0) || (dst_x + w > VRAM_WIDTH) ||
+		    (dst_y + h > VRAM_HEIGHT))
+		{
+			NATIVE_RENDERER_ERROR("MoveImage VRAM rect out of bounds! x=%d y=%d w=%d h=%d -> dst_x=%d dst_y=%d (clamping to VRAM)\n", x, y, w, h, dst_x,
+			                      dst_y);
+		}
+
+		if (x < 0)
+		{
+			w += x;
+			dst_x -= x;
+			x = 0;
+		}
+
+		if (y < 0)
+		{
+			h += y;
+			dst_y -= y;
+			y = 0;
+		}
+
+		if (dst_x < 0)
+		{
+			w += dst_x;
+			x -= dst_x;
+			dst_x = 0;
+		}
+
+		if (dst_y < 0)
+		{
+			h += dst_y;
+			y -= dst_y;
+			dst_y = 0;
+		}
+
+		if ((x >= VRAM_WIDTH) || (y >= VRAM_HEIGHT) || (dst_x >= VRAM_WIDTH) || (dst_y >= VRAM_HEIGHT) || (w <= 0) || (h <= 0))
+		{
+			return;
+		}
+
+		if (x + w > VRAM_WIDTH)
+		{
+			w = VRAM_WIDTH - x;
+		}
+
+		if (y + h > VRAM_HEIGHT)
+		{
+			h = VRAM_HEIGHT - y;
+		}
+
+		if (dst_x + w > VRAM_WIDTH)
+		{
+			w = VRAM_WIDTH - dst_x;
+		}
+
+		if (dst_y + h > VRAM_HEIGHT)
+		{
+			h = VRAM_HEIGHT - dst_y;
+		}
+
+		if ((w <= 0) || (h <= 0))
+		{
+			return;
+		}
+
 		NativeRenderer_ResolveVRAMRead(x, y, w, h);
-		src = s_vram.cpuPixels;
-		stride = VRAM_WIDTH;
+		src = s_vram.cpuPixels + x + y * VRAM_WIDTH;
+		u16 *dst = s_vram.cpuPixels + dst_x + dst_y * VRAM_WIDTH;
+
+		for (int i = 0; i < h; i++)
+		{
+			memmove(dst, src, w * sizeof(u16));
+			dst += VRAM_WIDTH;
+			src += VRAM_WIDTH;
+		}
+
+		NativeRenderer_MarkVRAMDirty(dst_x, dst_y, w, h);
 	}
-
-	src += x + y * stride;
-
-	u16 *dst = s_vram.cpuPixels + dst_x + dst_y * VRAM_WIDTH;
-
-	for (int i = 0; i < h; i++)
+	else
 	{
-		SDL_memcpy(dst, src, w * sizeof(u16));
-		dst += VRAM_WIDTH;
-		src += stride;
-	}
+		// RAM-to-VRAM copy (LoadImage)
+		int stride = w;
 
-	NativeRenderer_MarkVRAMDirty(dst_x, dst_y, w, h);
+		if ((dst_x < 0) || (dst_y < 0) || (dst_x + w > VRAM_WIDTH) || (dst_y + h > VRAM_HEIGHT))
+		{
+			NATIVE_RENDERER_ERROR("LoadImage VRAM rect out of bounds! dst_x=%d dst_y=%d w=%d h=%d (clamping to VRAM)\n", dst_x, dst_y, w, h);
+		}
+
+		if (dst_x < 0)
+		{
+			x -= dst_x;
+			w += dst_x;
+			dst_x = 0;
+		}
+
+		if (dst_y < 0)
+		{
+			y -= dst_y;
+			h += dst_y;
+			dst_y = 0;
+		}
+
+		if ((dst_x >= VRAM_WIDTH) || (dst_y >= VRAM_HEIGHT) || (w <= 0) || (h <= 0))
+		{
+			return;
+		}
+
+		if (dst_x + w > VRAM_WIDTH)
+		{
+			w = VRAM_WIDTH - dst_x;
+		}
+
+		if (dst_y + h > VRAM_HEIGHT)
+		{
+			h = VRAM_HEIGHT - dst_y;
+		}
+
+		if ((w <= 0) || (h <= 0))
+		{
+			return;
+		}
+
+		src += x + y * stride;
+		u16 *dst = s_vram.cpuPixels + dst_x + dst_y * VRAM_WIDTH;
+
+		for (int i = 0; i < h; i++)
+		{
+			SDL_memcpy(dst, src, w * sizeof(u16));
+			dst += VRAM_WIDTH;
+			src += stride;
+		}
+
+		NativeRenderer_MarkVRAMDirty(dst_x, dst_y, w, h);
+	}
 }
 
 void NativeRenderer_ReadVRAM(u16 *dst, int x, int y, int dst_w, int dst_h)
 {
-	NativeRenderer_ResolveVRAMRead(x, y, dst_w, dst_h);
-
-	u16 *src = s_vram.cpuPixels + x + VRAM_WIDTH * y;
-
-	for (int i = 0; i < dst_h; i++)
+	if ((dst == NULL) || (dst_w <= 0) || (dst_h <= 0))
 	{
-		SDL_memcpy(dst, src, dst_w * sizeof(u16));
-		dst += dst_w;
+		return;
+	}
+
+	if ((x < 0) || (y < 0) || (x + dst_w > VRAM_WIDTH) || (y + dst_h > VRAM_HEIGHT))
+	{
+		NATIVE_RENDERER_ERROR("StoreImage VRAM rect out of bounds! x=%d y=%d w=%d h=%d (clamping to VRAM)\n", x, y, dst_w, dst_h);
+	}
+
+	int src_x = x;
+	int src_y = y;
+	int copy_w = dst_w;
+	int copy_h = dst_h;
+	int dst_x_offset = 0;
+	int dst_y_offset = 0;
+
+	if (src_x < 0)
+	{
+		dst_x_offset = -src_x;
+		copy_w += src_x;
+		src_x = 0;
+	}
+
+	if (src_y < 0)
+	{
+		dst_y_offset = -src_y;
+		copy_h += src_y;
+		src_y = 0;
+	}
+
+	if ((src_x >= VRAM_WIDTH) || (src_y >= VRAM_HEIGHT) || (copy_w <= 0) || (copy_h <= 0))
+	{
+		return;
+	}
+
+	if (src_x + copy_w > VRAM_WIDTH)
+	{
+		copy_w = VRAM_WIDTH - src_x;
+	}
+
+	if (src_y + copy_h > VRAM_HEIGHT)
+	{
+		copy_h = VRAM_HEIGHT - src_y;
+	}
+
+	if ((copy_w <= 0) || (copy_h <= 0))
+	{
+		return;
+	}
+
+	NativeRenderer_ResolveVRAMRead(src_x, src_y, copy_w, copy_h);
+
+	u16 *src = s_vram.cpuPixels + src_x + VRAM_WIDTH * src_y;
+	u16 *dst_ptr = dst + dst_x_offset + dst_y_offset * dst_w;
+
+	for (int i = 0; i < copy_h; i++)
+	{
+		SDL_memcpy(dst_ptr, src, copy_w * sizeof(u16));
+		dst_ptr += dst_w;
 		src += VRAM_WIDTH;
 	}
 }

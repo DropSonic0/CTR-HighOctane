@@ -2789,7 +2789,7 @@ static struct RenderBucketUncompressResult RenderBucket_DispatchUncompressAnimat
 	}
 }
 
-static uint32_t *RenderBucket_GetNormalOTEntry(int activeRange, int depthMac0)
+static uint32_t *RenderBucket_GetNormalOTEntry(struct RenderBucketDrawContext *ctx, int activeRange, int depthMac0)
 {
 	int depthBin = (int)((u32)depthMac0 >> 17);
 
@@ -2798,10 +2798,18 @@ static uint32_t *RenderBucket_GetNormalOTEntry(int activeRange, int depthMac0)
 		return 0;
 	}
 
-	// NOTE(aalhendi): Source-backs DrawInstPrim_Normal's active-range +
-	// (MAC0 >> 17) OT lookup at 0x8006ad88-0x8006ad98. Retail trusts QueueDraw's
-	// range producer here; native intentionally does not clamp to depthOffset
-	// because that would mask producer/consumer depth mismatches.
+	if (ctx != NULL && ctx->idpp != NULL)
+	{
+		if (depthBin < ctx->idpp->depthOffset[0])
+		{
+			depthBin = ctx->idpp->depthOffset[0];
+		}
+		else if (depthBin > ctx->idpp->depthOffset[1])
+		{
+			depthBin = ctx->idpp->depthOffset[1];
+		}
+	}
+
 	return (uint32_t *)activeRange + depthBin;
 }
 
@@ -3133,7 +3141,7 @@ static int RenderBucket_DrawInstPrim_NormalAtRange(struct RenderBucketDrawContex
 {
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8006ad88-0x8006ae74 body; native passes
 	// the retail scratch/register inputs as explicit context and depth state.
-	return RenderBucket_DrawInstPrim_NormalAtOTEntry(ctx, command, tex, RenderBucket_GetNormalOTEntry(activeRange, depthMac0));
+	return RenderBucket_DrawInstPrim_NormalAtOTEntry(ctx, command, tex, RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0));
 }
 
 static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDrawContext *ctx, u32 command, struct TextureLayout *tex, int activeRange,
@@ -3162,7 +3170,7 @@ static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDra
 		return 0;
 	}
 
-	otEntry = RenderBucket_GetNormalOTEntry(activeRange, depthMac0);
+	otEntry = RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0);
 	if (otEntry == 0)
 	{
 		return 0;
@@ -3173,7 +3181,8 @@ static int RenderBucket_DrawInstPrim_KeyRelicTokenAtRange(struct RenderBucketDra
 	// through RenderBucketDrawContext and the current projected GTE FIFO.
 	gte_nclip();
 	signedTest = MFC2_S(24) ^ ((s16)ctx->idpp->instFlags ^ (int)(command << 2));
-	if (signedTest < 0)
+	uint32_t *maxOtEntry = (uint32_t *)activeRange + ctx->idpp->depthOffset[1];
+	if (signedTest < 0 && otEntry < maxOtEntry)
 	{
 		otEntry++;
 	}
@@ -3302,7 +3311,7 @@ static int RenderBucket_DrawInstPrim_DepthFadeAtRange(struct RenderBucketDrawCon
 		return 0;
 	}
 
-	otEntry = RenderBucket_GetNormalOTEntry(activeRange, depthMac0);
+	otEntry = RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0);
 	if (otEntry == 0)
 	{
 		return 0;
@@ -3385,7 +3394,7 @@ static int RenderBucket_DrawInstPrim_LitTextureAtRange(struct RenderBucketDrawCo
 		return 0;
 	}
 
-	otEntry = RenderBucket_GetNormalOTEntry(activeRange, depthMac0);
+	otEntry = RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0);
 	if (otEntry == 0)
 	{
 		return 0;
@@ -3396,7 +3405,8 @@ static int RenderBucket_DrawInstPrim_LitTextureAtRange(struct RenderBucketDrawCo
 	// a textured FT3 with side-dependent code/tpage bits.
 	gte_nclip();
 	signedTest = MFC2_S(24) ^ ((s16)ctx->idpp->instFlags ^ (int)(command << 2));
-	if (signedTest < 0)
+	uint32_t *maxOtEntryLit = (uint32_t *)activeRange + ctx->idpp->depthOffset[1];
+	if (signedTest < 0 && otEntry < maxOtEntryLit)
 	{
 		otEntry++;
 	}
@@ -3495,7 +3505,7 @@ static int RenderBucket_DrawInstPrim_GhostAtRange(struct RenderBucketDrawContext
 	int alpha = ctx->idpp->alphaScale;
 	struct RenderBucketGhostMaskPacket *mask;
 
-	otEntry = RenderBucket_GetNormalOTEntry(activeRange, depthMac0);
+	otEntry = RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0);
 	if (otEntry == 0)
 	{
 		return 0;
@@ -3846,7 +3856,7 @@ static int RenderBucket_DrawSplitPrimitiveDepthFadeAtRange(struct RenderBucketDr
 		return 0;
 	}
 
-	otEntry = RenderBucket_GetNormalOTEntry(activeRange, depthMac0);
+	otEntry = RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0);
 	if (otEntry == 0)
 	{
 		return 0;
@@ -3898,7 +3908,7 @@ static int RenderBucket_DrawSplitPrimitiveGhostAtRange(struct RenderBucketDrawCo
 	int alpha = ctx->idpp->alphaScale;
 	struct RenderBucketGhostMaskPacket *mask;
 
-	otEntry = RenderBucket_GetNormalOTEntry(activeRange, depthMac0);
+	otEntry = RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0);
 	if (otEntry == 0)
 	{
 		return 0;
@@ -3995,7 +4005,7 @@ static int RenderBucket_DrawSplitPrimitiveKeyRelicTokenAtRange(struct RenderBuck
 		return 0;
 	}
 
-	otEntry = RenderBucket_GetNormalOTEntry(activeRange, depthMac0);
+	otEntry = RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0);
 	if (otEntry == 0)
 	{
 		return 0;
@@ -4004,7 +4014,8 @@ static int RenderBucket_DrawSplitPrimitiveKeyRelicTokenAtRange(struct RenderBuck
 	RenderBucket_LoadSplitProjectedRegs(v0, v1, v2);
 	gte_nclip();
 	signedTest = MFC2_S(24) ^ ((s16)ctx->idpp->instFlags ^ (int)(command << 2));
-	if (signedTest < 0)
+	uint32_t *maxOtEntrySplitKey = (uint32_t *)activeRange + ctx->idpp->depthOffset[1];
+	if (signedTest < 0 && otEntry < maxOtEntrySplitKey)
 	{
 		otEntry++;
 	}
@@ -4055,7 +4066,7 @@ static int RenderBucket_DrawSplitPrimitiveLitTextureAtRange(struct RenderBucketD
 		return 0;
 	}
 
-	otEntry = RenderBucket_GetNormalOTEntry(activeRange, depthMac0);
+	otEntry = RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0);
 	if (otEntry == 0)
 	{
 		return 0;
@@ -4064,7 +4075,8 @@ static int RenderBucket_DrawSplitPrimitiveLitTextureAtRange(struct RenderBucketD
 	RenderBucket_LoadSplitProjectedRegs(v0, v1, v2);
 	gte_nclip();
 	signedTest = MFC2_S(24) ^ ((s16)ctx->idpp->instFlags ^ (int)(command << 2));
-	if (signedTest < 0)
+	uint32_t *maxOtEntrySplitLit = (uint32_t *)activeRange + ctx->idpp->depthOffset[1];
+	if (signedTest < 0 && otEntry < maxOtEntrySplitLit)
 	{
 		otEntry++;
 	}
@@ -4145,7 +4157,7 @@ static int RenderBucket_DrawSplitPrimitiveAtRange(struct RenderBucketDrawContext
 		return RenderBucket_DrawSplitPrimitiveGhostAtRange(ctx, command, tex, activeRange, depthMac0, v0, v1, v2);
 	}
 
-	return RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(ctx, command, tex, RenderBucket_GetNormalOTEntry(activeRange, depthMac0), v0, v1, v2);
+	return RenderBucket_DrawSplitPrimitiveNormalAtOTEntry(ctx, command, tex, RenderBucket_GetNormalOTEntry(ctx, activeRange, depthMac0), v0, v1, v2);
 }
 
 static void RenderBucket_ProjectSplitVertex(struct RenderBucketDrawContext *ctx, struct RenderBucketSplitVertex *v)
