@@ -145,17 +145,10 @@ typedef union ColorCode
 {
 	struct
 	{
-#if defined(__PS3__) || defined(__CELLOS_LV2__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-		PrimCode code;
-		u8 b;
-		u8 g;
-		u8 r;
-#else
 		u8 r;
 		u8 g;
 		u8 b;
 		PrimCode code;
-#endif
 	};
 	u32 self;
 } ColorCode;
@@ -166,13 +159,8 @@ typedef union Point
 {
 	struct
 	{
-#if defined(__PS3__) || defined(__CELLOS_LV2__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-		s16 y;
-		s16 x;
-#else
 		s16 x;
 		s16 y;
-#endif
 	};
 	s32 self;
 } Point;
@@ -208,19 +196,19 @@ static inline Point MakePoint(s16 px, s16 py)
 #else
 #define MakeColorCode(red, green, blue, renderCode)         \
 	(ColorCode)                                             \
-{                                                       \
-	.r = red, .g = green, .b = blue, .code = renderCode \
-}
+	{                                                       \
+		.r = red, .g = green, .b = blue, .code = renderCode \
+	}
 #define MakeColor(red, green, blue)     \
 	(Color)                             \
-{                                   \
-	.r = red, .g = green, .b = blue \
-}
+	{                                   \
+		.r = red, .g = green, .b = blue \
+	}
 #define MakePoint(px, py) \
 	(Point)               \
-{                     \
-	.x = px, .y = py  \
-}
+	{                     \
+		.x = px, .y = py  \
+	}
 #endif
 
 typedef union UV
@@ -388,10 +376,6 @@ typedef struct PolyFT4
 	FTVertex v[VertexCount_Quad];
 } PolyFT4;
 
-#define setlen(p, _len)   (((Tag*)(p))->size = (_len))
-#define setaddr(p, _addr) (((Tag*)(p))->addr = ((u32)(_addr) & 0x00FFFFFF))
-#define getaddr(p)        (((Tag*)(p))->addr)
-
 #define fPolyCode colorCode.code
 #define gPolyCode v[0].color.code
 #define polyClut  v[0].clut
@@ -401,10 +385,10 @@ void GetPrimitiveMem(void **ppPrim, size_t primSize);
 void AddPrimitive(void *pPrim, void *pOt);
 
 #define GetPrimMem(p)                            \
-{                                            \
-	void *primMem;                           \
-	GetPrimitiveMem(&primMem, sizeof(*(p))); \
-	(p) = primMem;                           \
-}
+	{                                            \
+		void *primMem;                           \
+		GetPrimitiveMem(&primMem, sizeof(*(p))); \
+		(p) = primMem;                           \
+	}
 
 #endif
