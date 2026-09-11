@@ -134,12 +134,14 @@ extern int (*GPU_printf)(const char *fmt, ...);
 #ifdef CTR_NATIVE
 static inline uint32_t CTR_GPU_ReadTagWord(const void *p)
 {
-	return *(const uint32_t *)p;
+	uint32_t word;
+	memcpy(&word, p, sizeof(word));
+	return word;
 }
 
 static inline void CTR_GPU_WriteTagWord(void *p, uint32_t word)
 {
-	*(uint32_t *)p = word;
+	memcpy(p, &word, sizeof(word));
 }
 
 static inline void CTR_GPU_WriteTagCode(void *p, uint8_t code)
@@ -213,25 +215,25 @@ static inline void CTR_GPU_WriteTagAddrToken(void *p, uint32_t token)
 
 #define _get_mode(dfe, dtd, tpage)       ((0xe1000000) | ((dtd) ? 0x0200 : 0) | ((dfe) ? 0x0400 : 0) | ((tpage) & 0x9ff))
 
-#define setDrawTPage(p, dfe, dtd, tpage) setlen(p, 1), CTR_WriteU32LE(&((uint32_t *)(p))[1], _get_mode(dfe, dtd, tpage))
+#define setDrawTPage(p, dfe, dtd, tpage) setlen(p, 1), ((uint32_t *)(p))[1] = _get_mode(dfe, dtd, tpage)
 
 #define _get_tw(tw)                                                                                                                   \
 	(tw ? ((0xe2000000) | ((((tw)->y & 0xff) >> 3) << 15) | ((((tw)->x & 0xff) >> 3) << 10) | (((~((tw)->h - 1) & 0xff) >> 3) << 5) | \
 	       (((~((tw)->w - 1) & 0xff) >> 3)))                                                                                          \
 	    : 0)
 
-#define setTexWindow(p, tw) setlen(p, 2), CTR_WriteU32LE(&((uint32_t *)(p))[1], _get_tw(tw)), CTR_WriteU32LE(&((uint32_t *)(p))[2], 0)
+#define setTexWindow(p, tw) setlen(p, 2), ((uint32_t *)(p))[1] = _get_tw(tw), ((uint32_t *)(p))[2] = 0
 
 #define _get_len(rect)      (((RECT16)->w * (rect)->h + 1) / 2 + 4)
 
 #define setDrawLoad(pt, rect)                                                                                                            \
-	(_get_len(RECT16) <= 16) ? ((setlen(pt, _get_len(rect))), (CTR_WriteU32LE(&(pt)->code[0], 0xa0000000)), (CTR_WriteU32LE(&(pt)->code[1], *((uint32_t *)&(rect)->x))), \
-	                            (CTR_WriteU32LE(&(pt)->code[2], *((uint32_t *)&(rect)->w))), (CTR_WriteU32LE(&(pt)->p[_get_len(rect) - 4], 0x01000000)))                 \
+	(_get_len(RECT16) <= 16) ? ((setlen(pt, _get_len(rect))), ((pt)->code[0] = 0xa0000000), ((pt)->code[1] = *((uint32_t *)&(rect)->x)), \
+	                            ((pt)->code[2] = *((uint32_t *)&(rect)->w)), ((pt)->p[_get_len(rect) - 4] = 0x01000000))                 \
 	                         : ((setlen(pt, 0)))
 
-#define setDrawStp(p, pbw)                  setlen(p, 2), CTR_WriteU32LE(&((uint32_t *)p)[1], 0xe6000000 | (pbw ? 0x01 : 0)), CTR_WriteU32LE(&((uint32_t *)p)[2], 0)
+#define setDrawStp(p, pbw)                  setlen(p, 2), ((uint32_t *)p)[1] = 0xe6000000 | (pbw ? 0x01 : 0), ((uint32_t *)p)[2] = 0
 
-#define setDrawMode(p, dfe, dtd, tpage, tw) setlen(p, 2), CTR_WriteU32LE(&((uint32_t *)p)[1], _get_mode(dfe, dtd, tpage)), CTR_WriteU32LE(&((uint32_t *)p)[2], _get_tw((RECT16 *)tw))
+#define setDrawMode(p, dfe, dtd, tpage, tw) setlen(p, 2), ((uint32_t *)p)[1] = _get_mode(dfe, dtd, tpage), ((uint32_t *)p)[2] = _get_tw((RECT16 *)tw)
 
 
 /*	Primitive 	Lentgh		Code				*/
@@ -272,15 +274,9 @@ typedef struct _RECT16
 	short w, h; /* width and height */
 } RECT16;
 
-#if defined(__PS3__) || defined(__CELLOS_LV2__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-#define DECLARE_P_ADDR_PTAG \
-	unsigned len : 8;       \
-	unsigned addr : 24;
-#else
 #define DECLARE_P_ADDR_PTAG \
 	unsigned addr : 24;     \
 	unsigned len : 8;
-#endif
 
 #define DECLARE_P_ADDR uint32_t tag;
 

@@ -230,54 +230,49 @@ extern int doCOP2(int op);
 	}
 
 // load ctc2 8-11
-#define gte_SetLightMatrix(r0)                                                                                \
-	{                                                                                                         \
-		const MATRIX *_m = (const MATRIX *)(r0);                                                             \
-		CTC2((u32)(u16)_m->m[0][0] | ((u32)(u16)_m->m[0][1] << 16), 8);                                       \
-		CTC2((u32)(u16)_m->m[0][2] | ((u32)(u16)_m->m[1][0] << 16), 9);                                       \
-		CTC2((u32)(u16)_m->m[1][1] | ((u32)(u16)_m->m[1][2] << 16), 10);                                      \
-		CTC2((u32)(u16)_m->m[2][0] | ((u32)(u16)_m->m[2][1] << 16), 11);                                      \
-		CTC2((u32)(u16)_m->m[2][2], 12);                                                                      \
+#define gte_SetLightMatrix(r0)                      \
+	{                                               \
+		CTC2(CTR_ReadU32LE((char *)(r0)), 8);       \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 4), 9);   \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 8), 10);  \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 12), 11); \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 16), 12); \
 	}
 
 // load ctc2 16-20
-#define gte_SetColorMatrix(r0)                                                                                \
-	{                                                                                                         \
-		const MATRIX *_m = (const MATRIX *)(r0);                                                             \
-		CTC2((u32)(u16)_m->m[0][0] | ((u32)(u16)_m->m[0][1] << 16), 16);                                      \
-		CTC2((u32)(u16)_m->m[0][2] | ((u32)(u16)_m->m[1][0] << 16), 17);                                      \
-		CTC2((u32)(u16)_m->m[1][1] | ((u32)(u16)_m->m[1][2] << 16), 18);                                      \
-		CTC2((u32)(u16)_m->m[2][0] | ((u32)(u16)_m->m[2][1] << 16), 19);                                      \
-		CTC2((u32)(u16)_m->m[2][2], 20);                                                                      \
+#define gte_SetColorMatrix(r0)                      \
+	{                                               \
+		CTC2(CTR_ReadU32LE((char *)(r0)), 16);      \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 4), 17);  \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 8), 18);  \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 12), 19); \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 16), 20); \
 	}
 
 // load ctc2 0-4
-#define gte_SetRotMatrix(r0)                                                                                  \
-	{                                                                                                         \
-		const MATRIX *_m = (const MATRIX *)(r0);                                                             \
-		CTC2((u32)(u16)_m->m[0][0] | ((u32)(u16)_m->m[0][1] << 16), 0);                                       \
-		CTC2((u32)(u16)_m->m[0][2] | ((u32)(u16)_m->m[1][0] << 16), 1);                                       \
-		CTC2((u32)(u16)_m->m[1][1] | ((u32)(u16)_m->m[1][2] << 16), 2);                                       \
-		CTC2((u32)(u16)_m->m[2][0] | ((u32)(u16)_m->m[2][1] << 16), 3);                                       \
-		CTC2((u32)(u16)_m->m[2][2], 4);                                                                       \
+#define gte_SetRotMatrix(r0)                       \
+	{                                              \
+		CTC2(CTR_ReadU32LE((char *)(r0)), 0);      \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 4), 1);  \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 8), 2);  \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 12), 3); \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 16), 4); \
 	}
 
 // load ctc2 5-7
 #define gte_SetTransVector(r0)                           \
 	{                                                    \
-		const VECTOR *_v = (const VECTOR *)(r0);          \
-		CTC2_S(_v->vx, 5);                               \
-		CTC2_S(_v->vy, 6);                               \
-		CTC2_S(_v->vz, 7);                               \
+		CTC2_S((s32)CTR_ReadU32LE((char *)(r0) + 0), 5); \
+		CTC2_S((s32)CTR_ReadU32LE((char *)(r0) + 4), 6); \
+		CTC2_S((s32)CTR_ReadU32LE((char *)(r0) + 8), 7); \
 	}
 
 // load ctc2 5-7
-#define gte_SetTransMatrix(r0)                           \
-	{                                                    \
-		const MATRIX *_m = (const MATRIX *)(r0);          \
-		CTC2(_m->t[0], 5);                               \
-		CTC2(_m->t[1], 6);                               \
-		CTC2(_m->t[2], 7);                               \
+#define gte_SetTransMatrix(r0)                     \
+	{                                              \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 20), 5); \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 24), 6); \
+		CTC2(CTR_ReadU32LE((char *)(r0) + 28), 7); \
 	}
 
 // ctc2 8-12
@@ -762,61 +757,40 @@ extern int doCOP2(int op);
 // store cfc2 0-7
 #define gte_ReadRotMatrix(r0)                       \
 	{                                               \
-		MATRIX *_m = (MATRIX *)(r0);                \
-		u32 _r0 = CFC2(0);                          \
-		u32 _r1 = CFC2(1);                          \
-		u32 _r2 = CFC2(2);                          \
-		u32 _r3 = CFC2(3);                          \
-		u32 _r4 = CFC2(4);                          \
-		_m->m[0][0] = (s16)(_r0 & 0xffff);          \
-		_m->m[0][1] = (s16)(_r0 >> 16);             \
-		_m->m[0][2] = (s16)(_r1 & 0xffff);          \
-		_m->m[1][0] = (s16)(_r1 >> 16);             \
-		_m->m[1][1] = (s16)(_r2 & 0xffff);          \
-		_m->m[1][2] = (s16)(_r2 >> 16);             \
-		_m->m[2][0] = (s16)(_r3 & 0xffff);          \
-		_m->m[2][1] = (s16)(_r3 >> 16);             \
-		_m->m[2][2] = (s16)(_r4 & 0xffff);          \
+		CTR_WriteU32LE((char *)(r0), CFC2(0));      \
+		CTR_WriteU32LE((char *)(r0) + 4, CFC2(1));  \
+		CTR_WriteU32LE((char *)(r0) + 8, CFC2(2));  \
+		CTR_WriteU32LE((char *)(r0) + 12, CFC2(3)); \
+		CTR_WriteU32LE((char *)(r0) + 16, CFC2(4)); \
+		CTR_WriteU32LE((char *)(r0) + 20, CFC2(5)); \
+		CTR_WriteU32LE((char *)(r0) + 24, CFC2(6)); \
+		CTR_WriteU32LE((char *)(r0) + 28, CFC2(7)); \
 	}
 
 // cfc2 16-23
-#define gte_ReadColorMatrix(r0)                     \
-	{                                               \
-		MATRIX *_m = (MATRIX *)(r0);                \
-		u32 _r0 = CFC2(16);                         \
-		u32 _r1 = CFC2(17);                         \
-		u32 _r2 = CFC2(18);                         \
-		u32 _r3 = CFC2(19);                         \
-		u32 _r4 = CFC2(20);                         \
-		_m->m[0][0] = (s16)(_r0 & 0xffff);          \
-		_m->m[0][1] = (s16)(_r0 >> 16);             \
-		_m->m[0][2] = (s16)(_r1 & 0xffff);          \
-		_m->m[1][0] = (s16)(_r1 >> 16);             \
-		_m->m[1][1] = (s16)(_r2 & 0xffff);          \
-		_m->m[1][2] = (s16)(_r2 >> 16);             \
-		_m->m[2][0] = (s16)(_r3 & 0xffff);          \
-		_m->m[2][1] = (s16)(_r3 >> 16);             \
-		_m->m[2][2] = (s16)(_r4 & 0xffff);          \
+#define gte_ReadColorMatrix(r0)                      \
+	{                                                \
+		CTR_WriteU32LE((char *)(r0), CFC2(16));      \
+		CTR_WriteU32LE((char *)(r0) + 4, CFC2(17));  \
+		CTR_WriteU32LE((char *)(r0) + 8, CFC2(18));  \
+		CTR_WriteU32LE((char *)(r0) + 12, CFC2(19)); \
+		CTR_WriteU32LE((char *)(r0) + 16, CFC2(20)); \
+		CTR_WriteU32LE((char *)(r0) + 20, CFC2(21)); \
+		CTR_WriteU32LE((char *)(r0) + 24, CFC2(22)); \
+		CTR_WriteU32LE((char *)(r0) + 28, CFC2(23)); \
 	}
 
 // cfc2 8-15
-#define gte_ReadLightMatrix(r0)                     \
-	{                                               \
-		MATRIX *_m = (MATRIX *)(r0);                \
-		u32 _r0 = CFC2(8);                          \
-		u32 _r1 = CFC2(9);                          \
-		u32 _r2 = CFC2(10);                         \
-		u32 _r3 = CFC2(11);                         \
-		u32 _r4 = CFC2(12);                         \
-		_m->m[0][0] = (s16)(_r0 & 0xffff);          \
-		_m->m[0][1] = (s16)(_r0 >> 16);             \
-		_m->m[0][2] = (s16)(_r1 & 0xffff);          \
-		_m->m[1][0] = (s16)(_r1 >> 16);             \
-		_m->m[1][1] = (s16)(_r2 & 0xffff);          \
-		_m->m[1][2] = (s16)(_r2 >> 16);             \
-		_m->m[2][0] = (s16)(_r3 & 0xffff);          \
-		_m->m[2][1] = (s16)(_r3 >> 16);             \
-		_m->m[2][2] = (s16)(_r4 & 0xffff);          \
+#define gte_ReadLightMatrix(r0)                      \
+	{                                                \
+		CTR_WriteU32LE((char *)(r0), CFC2(8));       \
+		CTR_WriteU32LE((char *)(r0) + 4, CFC2(9));   \
+		CTR_WriteU32LE((char *)(r0) + 8, CFC2(10));  \
+		CTR_WriteU32LE((char *)(r0) + 12, CFC2(11)); \
+		CTR_WriteU32LE((char *)(r0) + 16, CFC2(12)); \
+		CTR_WriteU32LE((char *)(r0) + 20, CFC2(13)); \
+		CTR_WriteU32LE((char *)(r0) + 24, CFC2(14)); \
+		CTR_WriteU32LE((char *)(r0) + 28, CFC2(15)); \
 	}
 
 // swc2 31
