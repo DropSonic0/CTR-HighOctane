@@ -1,8 +1,8 @@
 /*
- * Derived from REDRIVER2/PsyCross MIT source:
- * externals/PsyCross/src/render/PsyX_render.cpp
- * See THIRD_PARTY_NOTICES.md for copyright and license details.
- */
+* Derived from REDRIVER2/PsyCross MIT source:
+* externals/PsyCross/src/render/PsyX_render.cpp
+* See THIRD_PARTY_NOTICES.md for copyright and license details.
+*/
 
 #include <macros.h>
 #include "platform/native_renderer_types.h"
@@ -132,7 +132,7 @@ global_variable int s_previousScissorY = 0;
 global_variable int s_previousScissorW = 0;
 global_variable int s_previousScissorH = 0;
 global_variable int s_previousOffscreenState = 0;
-global_variable RECT16 s_previousOffscreen = {0, 0, 0, 0};
+global_variable RECT16 s_previousOffscreen = { 0, 0, 0, 0 };
 
 global_variable ShaderID s_previousShader = (ShaderID)-1;
 
@@ -144,7 +144,7 @@ internal void NativeRenderer_InvalidateScissorRectCache(void)
 internal void NativeRenderer_SetScissorRectCached(int x, int y, int width, int height)
 {
 	if (s_previousScissorRectValid && s_previousScissorX == x && s_previousScissorY == y && s_previousScissorW == width &&
-	    s_previousScissorH == height)
+		s_previousScissorH == height)
 	{
 		return;
 	}
@@ -390,7 +390,7 @@ extern int gNativeAntiAliasingEnabled;
 
 global_variable int s_presentAspectW = 4;
 global_variable int s_presentAspectH = 3;
-global_variable SDL_Rect s_presentViewport = {0, 0, 0, 0};
+global_variable SDL_Rect s_presentViewport = { 0, 0, 0, 0 };
 
 int g_dbg_wireframeMode = 0;
 int g_dbg_texturelessMode = 0;
@@ -461,8 +461,8 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 
 	memset(&params, 0, sizeof(params));
 	params.enable = PSGL_DEVICE_PARAMETERS_COLOR_FORMAT | PSGL_DEVICE_PARAMETERS_DEPTH_FORMAT |
-	                PSGL_DEVICE_PARAMETERS_MULTISAMPLING_MODE | PSGL_DEVICE_PARAMETERS_BUFFERING_MODE |
-	                PSGL_DEVICE_PARAMETERS_RESC_ADJUST_ASPECT_RATIO | PSGL_DEVICE_PARAMETERS_RESC_RATIO_MODE;
+		PSGL_DEVICE_PARAMETERS_MULTISAMPLING_MODE | PSGL_DEVICE_PARAMETERS_BUFFERING_MODE |
+		PSGL_DEVICE_PARAMETERS_RESC_ADJUST_ASPECT_RATIO | PSGL_DEVICE_PARAMETERS_RESC_RATIO_MODE;
 	params.bufferingMode = PSGL_BUFFERING_MODE_TRIPLE;
 	params.colorFormat = GL_ARGB_SCE;
 	params.depthFormat = GL_NONE;
@@ -747,7 +747,7 @@ void NativeRenderer_BeginScene(void)
 	if (!NativeGpu_GetRenderDrawEnv()->isbg)
 	{
 		NativeRenderer_LoadRenderTargetFromVRAM(&s_mainRenderTarget, NativeGpu_GetRenderDispEnv()->disp.x, NativeGpu_GetRenderDispEnv()->disp.y,
-		                                        s_mainRenderTarget.logicalWidth, s_mainRenderTarget.logicalHeight);
+			s_mainRenderTarget.logicalWidth, s_mainRenderTarget.logicalHeight);
 	}
 	else
 #endif
@@ -1407,111 +1407,111 @@ internal void NativeRenderer_DestroyPSXShaders(void)
 #define GPU_FRAGMENT_SAMPLE_SHADER(bit)                                                                                                               \
 	GPU_FETCH_VRAM_FUNC                                                                                                                               \
 	GPU_SAMPLE_TEXTURE_##bit##BIT_FUNC                                                                                                                \
-	    GPU_PSX_COLOR_UNIFORM                                                                                                                         \
-	    "#ifndef VITA_NEAREST_ONLY\n\tuniform int bilinearFilter;\n#endif\n"                                                                                 \
-	    GPU_SEMI_TRANS_UNIFORM                                                                                                                        \
-	    "	uniform float psxDrawMaskSet;\n"                                                                                                            \
-	    "	uniform float psxTextureOutputStp;\n"                                                                                                       \
-	    "	float sampledStp = 0.0;\n"                                                                                                                  \
-	    GPU_PSX_COLOR_DECODE GPU_STP_PASS_FUNC "#ifndef VITA_NEAREST_ONLY\n\tvec4 bilinearTextureSample(vec2 P) {\n"                          \
-	    "		vec2 _frac = fract(P);\n"                                                                                                                   \
-	    "		vec2 pixel = floor(P);\n"                                                                                                                  \
-	    "		vec2 C11 = samplePSX(pixel);\n"                                                                                                            \
-	    "		vec2 C21 = samplePSX(pixel + vec2(1.0, 0.0));\n"                                                                                           \
-	    "		vec2 C12 = samplePSX(pixel + vec2(0.0, 1.0));\n"                                                                                           \
-	    "		vec2 C22 = samplePSX(pixel + vec2(1.0, 1.0));\n"                                                                                           \
-	    "		float v11 = texelVisible(C11);\n"                                                                                                          \
-	    "		float v21 = texelVisible(C21);\n"                                                                                                          \
-	    "		float v12 = texelVisible(C12);\n"                                                                                                          \
-	    "		float v22 = texelVisible(C22);\n"                                                                                                          \
-	    "		float s11 = v11 * stpWeight(C11);\n"                                                                                                       \
-	    "		float s21 = v21 * stpWeight(C21);\n"                                                                                                       \
-	    "		float s12 = v12 * stpWeight(C12);\n"                                                                                                       \
-	    "		float s22 = v22 * stpWeight(C22);\n"                                                                                                       \
-	    "		float n11 = v11 - s11;\n"                                                                                                                  \
-	    "		float n21 = v21 - s21;\n"                                                                                                                  \
-	    "		float n12 = v12 - s12;\n"                                                                                                                  \
-	    "		float n22 = v22 - s22;\n"                                                                                                                  \
-	    "		float ax1 = mix(v11, v21, _frac.x);\n"                                                                                                      \
-	    "		float ax2 = mix(v12, v22, _frac.x);\n"                                                                                                      \
-	    "		float axm = mix(ax1, ax2, _frac.y);\n"                                                                                                      \
-	    "		float sx1 = mix(s11, s21, _frac.x);\n"                                                                                                      \
-	    "		float sx2 = mix(s12, s22, _frac.x);\n"                                                                                                      \
-	    "		float stp = mix(sx1, sx2, _frac.y);\n"                                                                                                      \
-	    "		float nx1 = mix(n11, n21, _frac.x);\n"                                                                                                      \
-	    "		float nx2 = mix(n12, n22, _frac.x);\n"                                                                                                      \
-	    "		float nonStp = mix(nx1, nx2, _frac.y);\n"                                                                                                   \
-	    "		vec2 rg = mix(mix(C11, C21, _frac.x), mix(C12, C22, _frac.x), _frac.y);\n"                                                                    \
-	    "		float stpClass = step(nonStp, stp);\n"                                                                                                    \
-	    "		sampledStp = stpClass;\n"                                                                                                                  \
-	    "		if(discardForSemiTransPass(axm, stpClass)) { discard; }\n"                                                                                 \
-	    "		vec4 x1 = mix(decodePSX(C11), decodePSX(C21), _frac.x);\n"                                                                              \
-	    "		vec4 x2 = mix(decodePSX(C12), decodePSX(C22), _frac.x);\n"                                                                              \
-	    "		vec4 t = mix(x1, x2, _frac.y);\n"                                                                                                           \
-	    "		return t;\n"                                                                                                                               \
-	    "	}\n#endif\n"                                                                                                                                \
-	    "	vec4 nearestTextureSample(vec2 P) {\n"                                                                                                      \
-	    "		vec2 rg = samplePSX(P);\n"                                                                                                                 \
-	    "#ifdef PSX_FULLY_OPAQUE\n"                                                                                                                      \
-	    "		sampledStp = stpWeight(rg);\n"                                                                                                            \
-	    "#else\n"                                                                                                                                       \
-	    "		float visible = texelVisible(rg);\n"                                                                                                       \
-	    "		sampledStp = visible * stpWeight(rg);\n"                                                                                                   \
-	    "		if(discardForSemiTransPass(visible, sampledStp)) { discard; }\n"                                                                         \
-	    "#endif\n"                                                                                                                                      \
-	    "		vec4 t = decodePSX(rg);\n"                                                                                                                 \
-	    "		return t;\n"                                                                                                                               \
-	    "	}\n"                                                                                                                                        \
-	    "	void main() {\n"                                                                                                                            \
-	    GPU_TEXTURE_SAMPLE_MAIN                                                                                                                         \
-	    GPU_PSX_FRAGMENT_OUTPUT                                                                                                                         \
-	    GPU_PSX_BLEND_APPLY                                                                                                                            \
-	    "	}\n"
+	GPU_PSX_COLOR_UNIFORM                                                                                                                         \
+	"#ifndef VITA_NEAREST_ONLY\n\tuniform int bilinearFilter;\n#endif\n"                                                                                 \
+	GPU_SEMI_TRANS_UNIFORM                                                                                                                        \
+	"	uniform float psxDrawMaskSet;\n"                                                                                                            \
+	"	uniform float psxTextureOutputStp;\n"                                                                                                       \
+	"	float sampledStp = 0.0;\n"                                                                                                                  \
+	GPU_PSX_COLOR_DECODE GPU_STP_PASS_FUNC "#ifndef VITA_NEAREST_ONLY\n\tvec4 bilinearTextureSample(vec2 P) {\n"                          \
+	"		vec2 _frac = fract(P);\n"                                                                                                                   \
+	"		vec2 pixel = floor(P);\n"                                                                                                                  \
+	"		vec2 C11 = samplePSX(pixel);\n"                                                                                                            \
+	"		vec2 C21 = samplePSX(pixel + vec2(1.0, 0.0));\n"                                                                                           \
+	"		vec2 C12 = samplePSX(pixel + vec2(0.0, 1.0));\n"                                                                                           \
+	"		vec2 C22 = samplePSX(pixel + vec2(1.0, 1.0));\n"                                                                                           \
+	"		float v11 = texelVisible(C11);\n"                                                                                                          \
+	"		float v21 = texelVisible(C21);\n"                                                                                                          \
+	"		float v12 = texelVisible(C12);\n"                                                                                                          \
+	"		float v22 = texelVisible(C22);\n"                                                                                                          \
+	"		float s11 = v11 * stpWeight(C11);\n"                                                                                                       \
+	"		float s21 = v21 * stpWeight(C21);\n"                                                                                                       \
+	"		float s12 = v12 * stpWeight(C12);\n"                                                                                                       \
+	"		float s22 = v22 * stpWeight(C22);\n"                                                                                                       \
+	"		float n11 = v11 - s11;\n"                                                                                                                  \
+	"		float n21 = v21 - s21;\n"                                                                                                                  \
+	"		float n12 = v12 - s12;\n"                                                                                                                  \
+	"		float n22 = v22 - s22;\n"                                                                                                                  \
+	"		float ax1 = mix(v11, v21, _frac.x);\n"                                                                                                      \
+	"		float ax2 = mix(v12, v22, _frac.x);\n"                                                                                                      \
+	"		float axm = mix(ax1, ax2, _frac.y);\n"                                                                                                      \
+	"		float sx1 = mix(s11, s21, _frac.x);\n"                                                                                                      \
+	"		float sx2 = mix(s12, s22, _frac.x);\n"                                                                                                      \
+	"		float stp = mix(sx1, sx2, _frac.y);\n"                                                                                                      \
+	"		float nx1 = mix(n11, n21, _frac.x);\n"                                                                                                      \
+	"		float nx2 = mix(n12, n22, _frac.x);\n"                                                                                                      \
+	"		float nonStp = mix(nx1, nx2, _frac.y);\n"                                                                                                   \
+	"		vec2 rg = mix(mix(C11, C21, _frac.x), mix(C12, C22, _frac.x), _frac.y);\n"                                                                    \
+	"		float stpClass = step(nonStp, stp);\n"                                                                                                    \
+	"		sampledStp = stpClass;\n"                                                                                                                  \
+	"		if(discardForSemiTransPass(axm, stpClass)) { discard; }\n"                                                                                 \
+	"		vec4 x1 = mix(decodePSX(C11), decodePSX(C21), _frac.x);\n"                                                                              \
+	"		vec4 x2 = mix(decodePSX(C12), decodePSX(C22), _frac.x);\n"                                                                              \
+	"		vec4 t = mix(x1, x2, _frac.y);\n"                                                                                                           \
+	"		return t;\n"                                                                                                                               \
+	"	}\n#endif\n"                                                                                                                                \
+	"	vec4 nearestTextureSample(vec2 P) {\n"                                                                                                      \
+	"		vec2 rg = samplePSX(P);\n"                                                                                                                 \
+	"#ifdef PSX_FULLY_OPAQUE\n"                                                                                                                      \
+	"		sampledStp = stpWeight(rg);\n"                                                                                                            \
+	"#else\n"                                                                                                                                       \
+	"		float visible = texelVisible(rg);\n"                                                                                                       \
+	"		sampledStp = visible * stpWeight(rg);\n"                                                                                                   \
+	"		if(discardForSemiTransPass(visible, sampledStp)) { discard; }\n"                                                                         \
+	"#endif\n"                                                                                                                                      \
+	"		vec4 t = decodePSX(rg);\n"                                                                                                                 \
+	"		return t;\n"                                                                                                                               \
+	"	}\n"                                                                                                                                        \
+	"	void main() {\n"                                                                                                                            \
+	GPU_TEXTURE_SAMPLE_MAIN                                                                                                                         \
+	GPU_PSX_FRAGMENT_OUTPUT                                                                                                                         \
+	GPU_PSX_BLEND_APPLY                                                                                                                            \
+	"	}\n"
 
 #ifdef __vita__
 global_variable const char *gte_shader_cached_p4 =
-    "\tuniform sampler2D s_texture;\n"
-    "\tuniform float psxDrawMaskSet;\n"
-    "\tuniform float psxTextureOutputStp;\n"
-    "\tfloat sampledStp = 0.0;\n"
-    "\tbool discardCachedP4(float visible, float stpClass) {\n"
-    "\t\tif (visible < 0.5) { return true; }\n"
-    "#ifdef PSX_PASS_NON_STP\n\t\tif (stpClass >= 0.5) { return true; }\n#endif\n"
-    "#ifdef PSX_PASS_STP\n\t\tif (stpClass < 0.5) { return true; }\n#endif\n"
-    "\t\treturn false;\n"
-    "\t}\n"
-    "\tvec4 nearestTextureSample(vec2 P) {\n"
-    "\t\tvec2 texel = floor(P + vec2(0.5));\n"
-    "\t\tvec4 t = texture2D(s_texture, (texel + vec2(0.5)) * (1.0 / 256.0));\n"
-    "\t\tfloat visible = step(0.25, t.a);\n"
-    "\t\tsampledStp = step(0.75, t.a);\n"
-    "\t\tif (discardCachedP4(visible, sampledStp)) { discard; }\n"
-    "\t\tt.a = 1.0;\n"
-    "\t\treturn t;\n"
-    "\t}\n"
-    "\tvoid main() {\n"
-    "\t\tvec4 color = nearestTextureSample(v_texcoord.xy);\n"
-    GPU_PSX_FRAGMENT_OUTPUT
-    GPU_PSX_BLEND_APPLY
-    "\t}\n";
+"\tuniform sampler2D s_texture;\n"
+"\tuniform float psxDrawMaskSet;\n"
+"\tuniform float psxTextureOutputStp;\n"
+"\tfloat sampledStp = 0.0;\n"
+"\tbool discardCachedP4(float visible, float stpClass) {\n"
+"\t\tif (visible < 0.5) { return true; }\n"
+"#ifdef PSX_PASS_NON_STP\n\t\tif (stpClass >= 0.5) { return true; }\n#endif\n"
+"#ifdef PSX_PASS_STP\n\t\tif (stpClass < 0.5) { return true; }\n#endif\n"
+"\t\treturn false;\n"
+"\t}\n"
+"\tvec4 nearestTextureSample(vec2 P) {\n"
+"\t\tvec2 texel = floor(P + vec2(0.5));\n"
+"\t\tvec4 t = texture2D(s_texture, (texel + vec2(0.5)) * (1.0 / 256.0));\n"
+"\t\tfloat visible = step(0.25, t.a);\n"
+"\t\tsampledStp = step(0.75, t.a);\n"
+"\t\tif (discardCachedP4(visible, sampledStp)) { discard; }\n"
+"\t\tt.a = 1.0;\n"
+"\t\treturn t;\n"
+"\t}\n"
+"\tvoid main() {\n"
+"\t\tvec4 color = nearestTextureSample(v_texcoord.xy);\n"
+GPU_PSX_FRAGMENT_OUTPUT
+GPU_PSX_BLEND_APPLY
+"\t}\n";
 #endif
 
 global_variable const char *gpu_shader_common = "	centroid varying vec4 v_texcoord;\n"
-                                                "	varying vec4 v_color;\n"
-                                                "	varying vec4 v_page_clut;\n"
-                                                "	varying vec2 v_ditherCoord;\n"
-                                                "	varying float v_z;\n";
+"	varying vec4 v_color;\n"
+"	varying vec4 v_page_clut;\n"
+"	varying vec2 v_ditherCoord;\n"
+"	varying float v_z;\n";
 
 const char *gte_shader_4 = GPU_FRAGMENT_SAMPLE_SHADER(4);
 const char *gte_shader_8 = GPU_FRAGMENT_SAMPLE_SHADER(8);
 const char *gte_shader_16 = GPU_FRAGMENT_SAMPLE_SHADER(16);
 #ifdef __vita__
 const char *gte_shader_untextured = "\tuniform float psxDrawMaskSet;\n"
-                                    "\tvoid main() {\n"
-                                    "\t\tgl_FragColor.rgb = v_color.rgb * (248.0 / 255.0);\n"
-                                    "\t\tgl_FragColor.a = psxDrawMaskSet;\n"
-                                    GPU_PSX_BLEND_APPLY
-                                    "\t}\n";
+"\tvoid main() {\n"
+"\t\tgl_FragColor.rgb = v_color.rgb * (248.0 / 255.0);\n"
+"\t\tgl_FragColor.a = psxDrawMaskSet;\n"
+GPU_PSX_BLEND_APPLY
+"\t}\n";
 
 #define GPU_RGBA_FRAGMENT_OUTPUT                                    \
 	"		gl_FragColor.rgb = color.rgb * v_color.rgb;\n"             \
@@ -1523,14 +1523,14 @@ const char *gte_shader_untextured = "\tuniform float psxDrawMaskSet;\n"
 #endif
 
 const char *gte_shader_32_rgba = "	uniform sampler2D s_texture;\n"
-                                 "	uniform float psxDrawMaskSet;\n"
-                                 "	uniform vec2 texelSize;\n"
-                                 "	void main() {\n"
-                                 "		vec2 tc = v_texcoord.xy * texelSize + texelSize * 0.5;\n"
-                                 "		vec4 color = texture2D(s_texture, tc);\n"
-                                 GPU_RGBA_FRAGMENT_OUTPUT
-                                 GPU_PSX_BLEND_APPLY
-                                 "	}\n";
+"	uniform float psxDrawMaskSet;\n"
+"	uniform vec2 texelSize;\n"
+"	void main() {\n"
+"		vec2 tc = v_texcoord.xy * texelSize + texelSize * 0.5;\n"
+"		vec4 color = texture2D(s_texture, tc);\n"
+GPU_RGBA_FRAGMENT_OUTPUT
+GPU_PSX_BLEND_APPLY
+"	}\n";
 
 #ifdef __vita__
 #define GTE_ORDER_DEPTH_ATTRIBUTE   "\tattribute float a_orderDepth;\n"
@@ -1561,10 +1561,10 @@ const char *gte_shader_32_rgba = "	uniform sampler2D s_texture;\n"
 #define GTE_VERTEX_SHADER                                                                                          \
 	"	attribute vec4 a_position;\n"                                                                                \
 	"	attribute vec4 a_texcoord; // uv, color multiplier, dither\n"                                                \
-		"	attribute vec4 a_color;\n"                                                                                   \
-		"	attribute vec4 a_extra; // texcoord.xy ofs, unused.xy\n"                                                     \
-		GTE_ORDER_DEPTH_ATTRIBUTE                                                                                         \
-		"	uniform mat4 Projection;\n"                                                                                  \
+	"	attribute vec4 a_color;\n"                                                                                   \
+	"	attribute vec4 a_extra; // texcoord.xy ofs, unused.xy\n"                                                     \
+	GTE_ORDER_DEPTH_ATTRIBUTE                                                                                         \
+	"	uniform mat4 Projection;\n"                                                                                  \
 	"	const vec2 c_UVFudge = vec2(0.00025, 0.00025);\n"                                                            \
 	"	void main() {\n"                                                                                             \
 	"		v_ditherCoord = a_position.xy;\n"                                                                           \
@@ -1622,24 +1622,24 @@ internal int NativeRenderer_Shader_CheckProgramStatus(GLuint program)
 internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxShader, const char *fragmentDefines)
 {
 	const char *GLSL_HEADER_VERT = "	#version 140\n"
-	                               "	precision lowp  int;\n"
-	                               "	precision highp float;\n"
+		"	precision lowp  int;\n"
+		"	precision highp float;\n"
 #ifndef __vita__								   
-	                               "	#define varying   out\n"
-	                               "	#define attribute in\n"
-	                               "	#define texture2D texture\n"
+		"	#define varying   out\n"
+		"	#define attribute in\n"
+		"	#define texture2D texture\n"
 #endif
-								   ;
+		;
 
 	const char *GLSL_HEADER_FRAG = "	#version 140\n"
-	                               "	precision lowp  int;\n"
-	                               "	precision highp float;\n"
+		"	precision lowp  int;\n"
+		"	precision highp float;\n"
 #ifndef __vita__
-	                               "	#define varying     in\n"
-	                               "	#define texture2D   texture\n"
-	                               "	out vec4 fragColor;\n"
+		"	#define varying     in\n"
+		"	#define texture2D   texture\n"
+		"	out vec4 fragColor;\n"
 #endif
-								   ;
+		;
 
 	char extra_vs_defines[1024];
 	char extra_fs_defines[1024];
@@ -1660,14 +1660,14 @@ internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxSh
 		strcat(extra_fs_defines, "#define BILINEAR_FILTER\n");
 	}
 
-	const char *vs_list_psx[] = {GLSL_HEADER_VERT, extra_vs_defines, gpu_shader_common, GTE_VERTEX_SHADER};
-	const char *fs_list_psx[] = {GLSL_HEADER_FRAG, extra_fs_defines, gpu_shader_common, GPU_DITHERING, source};
+	const char *vs_list_psx[] = { GLSL_HEADER_VERT, extra_vs_defines, gpu_shader_common, GTE_VERTEX_SHADER };
+	const char *fs_list_psx[] = { GLSL_HEADER_FRAG, extra_fs_defines, gpu_shader_common, GPU_DITHERING, source };
 	const char *vs_list_src[] = {
-	    GLSL_HEADER_VERT,
-	    extra_vs_defines,
-	    source,
+		GLSL_HEADER_VERT,
+		extra_vs_defines,
+		source,
 	};
-	const char *fs_list_src[] = {GLSL_HEADER_FRAG, extra_fs_defines, source};
+	const char *fs_list_src[] = { GLSL_HEADER_FRAG, extra_fs_defines, source };
 
 	const char **vs_list = isPsxShader ? vs_list_psx : vs_list_src;
 	const char **fs_list = isPsxShader ? fs_list_psx : fs_list_src;
@@ -1816,23 +1816,23 @@ internal void NativeRenderer_InitialisePSXShaders(void)
 {
 #ifdef __vita__
 	local_persist const char *variantDefines[NATIVE_PSX_SHADER_VARIANT_COUNT] = {
-	    "",
-	    "#define PSX_BLEND_AVERAGE\n",
-	    "#define PSX_BLEND_QUARTER\n",
-	    "#define PSX_PASS_NON_STP\n",
-	    "#define PSX_PASS_STP\n",
-	    "#define PSX_PASS_STP\n#define PSX_BLEND_AVERAGE\n",
-	    "#define PSX_PASS_STP\n#define PSX_BLEND_QUARTER\n",
-	    "#define PSX_MIXED_AVERAGE\n",
-	    "#define PSX_MIXED_ADD\n",
-	    "#define PSX_MIXED_QUARTER\n",
+		"",
+		"#define PSX_BLEND_AVERAGE\n",
+		"#define PSX_BLEND_QUARTER\n",
+		"#define PSX_PASS_NON_STP\n",
+		"#define PSX_PASS_STP\n",
+		"#define PSX_PASS_STP\n#define PSX_BLEND_AVERAGE\n",
+		"#define PSX_PASS_STP\n#define PSX_BLEND_QUARTER\n",
+		"#define PSX_MIXED_AVERAGE\n",
+		"#define PSX_MIXED_ADD\n",
+		"#define PSX_MIXED_QUARTER\n",
 	};
 	local_persist const char *fullyOpaqueVariantDefines[3] = {
-	    "#define PSX_FULLY_OPAQUE\n",
-	    "#define PSX_FULLY_OPAQUE\n#define PSX_BLEND_AVERAGE\n",
-	    "#define PSX_FULLY_OPAQUE\n#define PSX_BLEND_QUARTER\n",
+		"#define PSX_FULLY_OPAQUE\n",
+		"#define PSX_FULLY_OPAQUE\n#define PSX_BLEND_AVERAGE\n",
+		"#define PSX_FULLY_OPAQUE\n#define PSX_BLEND_QUARTER\n",
 	};
-	const char *sources[4] = {gte_shader_4, gte_shader_8, gte_shader_16, gte_shader_32_rgba};
+	const char *sources[4] = { gte_shader_4, gte_shader_8, gte_shader_16, gte_shader_32_rgba };
 
 	for (int format = TF_4_BIT; format <= TF_32_BIT_RGBA; format++)
 	{
@@ -1851,7 +1851,7 @@ internal void NativeRenderer_InitialisePSXShaders(void)
 		for (int variant = 0; variant < 3; variant++)
 		{
 			NativeRenderer_CompilePSXShader(&s_gteFullyOpaqueShaderVariants[format][variant], sources[format],
-			                                fullyOpaqueVariantDefines[variant]);
+				fullyOpaqueVariantDefines[variant]);
 		}
 	}
 	for (int variant = 0; variant < 3; variant++)
@@ -1871,160 +1871,160 @@ internal void NativeRenderer_InitialisePSXShaders(void)
 
 #ifdef __vita__
 global_variable const char *ctr_pack_shader = "#ifdef VERTEX\n"
-                                              "attribute vec2 a_position;\n"
-                                              "varying vec2 v_uv;\n"
-                                              "uniform int flipY;\n"
-                                              "void main() {\n"
-                                              "    v_uv = a_position * 0.5 + 0.5;\n"
-                                              "    if (flipY != 0) { v_uv.y = 1.0 - v_uv.y; }\n"
-                                              "    gl_Position = vec4(a_position, 0.0, 1.0);\n"
-                                              "}\n"
-                                              "#endif\n"
-                                              "#ifdef FRAGMENT\n"
-                                              "varying vec2 v_uv;\n"
-                                              "uniform sampler2D s_src;\n"
-                                              "void main() {\n"
-                                              "    vec4 c = texture2D(s_src, v_uv);\n"
-                                              "    vec3 color5 = floor(c.rgb * (255.0 / 8.0) + 0.001);\n"
-                                              "    float lowByte = color5.r + mod(color5.g, 8.0) * 32.0;\n"
-                                              "    float highByte = floor(color5.g / 8.0) + color5.b * 4.0 + step(0.5, c.a) * 128.0;\n"
-                                              "    gl_FragColor = vec4(lowByte, highByte, 0.0, 0.0) / 255.0;\n"
-                                              "}\n"
-                                              "#endif\n";
+"attribute vec2 a_position;\n"
+"varying vec2 v_uv;\n"
+"uniform int flipY;\n"
+"void main() {\n"
+"    v_uv = a_position * 0.5 + 0.5;\n"
+"    if (flipY != 0) { v_uv.y = 1.0 - v_uv.y; }\n"
+"    gl_Position = vec4(a_position, 0.0, 1.0);\n"
+"}\n"
+"#endif\n"
+"#ifdef FRAGMENT\n"
+"varying vec2 v_uv;\n"
+"uniform sampler2D s_src;\n"
+"void main() {\n"
+"    vec4 c = texture2D(s_src, v_uv);\n"
+"    vec3 color5 = floor(c.rgb * (255.0 / 8.0) + 0.001);\n"
+"    float lowByte = color5.r + mod(color5.g, 8.0) * 32.0;\n"
+"    float highByte = floor(color5.g / 8.0) + color5.b * 4.0 + step(0.5, c.a) * 128.0;\n"
+"    gl_FragColor = vec4(lowByte, highByte, 0.0, 0.0) / 255.0;\n"
+"}\n"
+"#endif\n";
 
 global_variable const char *ctr_present_vram_shader = "#ifdef VERTEX\n"
-                                                      "attribute vec2 a_position;\n"
-                                                      "varying vec2 v_uv;\n"
-                                                      "uniform vec4 sourceRect;\n"
-                                                      "void main() {\n"
-                                                      "    vec2 screenUV = a_position * 0.5 + 0.5;\n"
-                                                      "    vec2 sourcePixel = sourceRect.xy + vec2(screenUV.x, 1.0 - screenUV.y) * sourceRect.zw;\n"
-                                                      "    v_uv = sourcePixel / vec2(1024.0, 512.0);\n"
-                                                      "    gl_Position = vec4(a_position, 0.0, 1.0);\n"
-                                                      "}\n"
-                                                      "#endif\n"
-                                                      "#ifdef FRAGMENT\n"
-                                                      "varying vec2 v_uv;\n"
-                                                      "uniform sampler2D s_texture;\n"
-                                                      "uniform sampler2D s_presentLut;\n"
-                                                      "const vec2 c_LUTTexel = vec2(1.0 / 256.0, 1.0 / 256.0);\n"
-                                                      "void main() {\n"
-                                                      "    vec2 packedRg = texture2D(s_texture, v_uv).rg;\n"
-                                                      "    gl_FragColor = texture2D(s_presentLut, packedRg - c_LUTTexel * 0.0001);\n"
-                                                      "}\n"
-                                                      "#endif\n";
+"attribute vec2 a_position;\n"
+"varying vec2 v_uv;\n"
+"uniform vec4 sourceRect;\n"
+"void main() {\n"
+"    vec2 screenUV = a_position * 0.5 + 0.5;\n"
+"    vec2 sourcePixel = sourceRect.xy + vec2(screenUV.x, 1.0 - screenUV.y) * sourceRect.zw;\n"
+"    v_uv = sourcePixel / vec2(1024.0, 512.0);\n"
+"    gl_Position = vec4(a_position, 0.0, 1.0);\n"
+"}\n"
+"#endif\n"
+"#ifdef FRAGMENT\n"
+"varying vec2 v_uv;\n"
+"uniform sampler2D s_texture;\n"
+"uniform sampler2D s_presentLut;\n"
+"const vec2 c_LUTTexel = vec2(1.0 / 256.0, 1.0 / 256.0);\n"
+"void main() {\n"
+"    vec2 packedRg = texture2D(s_texture, v_uv).rg;\n"
+"    gl_FragColor = texture2D(s_presentLut, packedRg - c_LUTTexel * 0.0001);\n"
+"}\n"
+"#endif\n";
 #else
 // NOTE(aalhendi): GPU VRAM pack. Samples an RGBA render texture and writes PS1
 // 5:5:5:1 pixels into RG8 VRAM, low byte in R and high byte in G. NEAREST
 // sampling and integer channel shifts preserve the packed PS1 pixel value.
 global_variable const char *ctr_pack_shader = "#ifdef VERTEX\n"
-                                              "attribute vec2 a_position;\n"
-                                              "varying vec2 v_uv;\n"
-                                              "uniform int flipY;\n"
-                                              "void main() {\n"
-                                              "	v_uv = a_position * 0.5 + 0.5;\n"
-                                              "	if (flipY != 0) { v_uv.y = 1.0 - v_uv.y; }\n"
-                                              "	gl_Position = vec4(a_position, 0.0, 1.0);\n"
-                                              "}\n"
-                                              "#endif\n"
-                                              "#ifdef FRAGMENT\n"
-                                              "varying vec2 v_uv;\n"
-                                              "uniform sampler2D s_src;\n"
-                                              "void main() {\n"
-                                              "	ivec4 c = ivec4(texture2D(s_src, v_uv) * 255.0 + 0.5);\n"
-                                              "	int px16 = (c.r >> 3) | ((c.g >> 3) << 5) | ((c.b >> 3) << 10) | ((c.a >> 7) << 15);\n"
-                                              "	gl_FragColor = vec4(float(px16 & 0xFF) / 255.0, float((px16 >> 8) & 0xFF) / 255.0, 0.0, 0.0);\n"
-                                              "}\n"
-                                              "#endif\n";
+"attribute vec2 a_position;\n"
+"varying vec2 v_uv;\n"
+"uniform int flipY;\n"
+"void main() {\n"
+"	v_uv = a_position * 0.5 + 0.5;\n"
+"	if (flipY != 0) { v_uv.y = 1.0 - v_uv.y; }\n"
+"	gl_Position = vec4(a_position, 0.0, 1.0);\n"
+"}\n"
+"#endif\n"
+"#ifdef FRAGMENT\n"
+"varying vec2 v_uv;\n"
+"uniform sampler2D s_src;\n"
+"void main() {\n"
+"	ivec4 c = ivec4(texture2D(s_src, v_uv) * 255.0 + 0.5);\n"
+"	int px16 = (c.r >> 3) | ((c.g >> 3) << 5) | ((c.b >> 3) << 10) | ((c.a >> 7) << 15);\n"
+"	gl_FragColor = vec4(float(px16 & 0xFF) / 255.0, float((px16 >> 8) & 0xFF) / 255.0, 0.0, 0.0);\n"
+"}\n"
+"#endif\n";
 
 // NOTE(aalhendi): Expand packed VRAM without losing bit 15. Internal render
 // targets carry that PS1 STP/mask bit in alpha so packing them is lossless.
 global_variable const char *ctr_present_vram_shader = "#ifdef VERTEX\n"
-                                                      "attribute vec2 a_position;\n"
-                                                      "varying vec2 v_uv;\n"
-                                                      "uniform vec4 sourceRect;\n"
-                                                      "void main() {\n"
-                                                      "\tvec2 screenUV = a_position * 0.5 + 0.5;\n"
-                                                      "\tvec2 sourcePixel = sourceRect.xy + vec2(screenUV.x, 1.0 - screenUV.y) * sourceRect.zw;\n"
-                                                      "\tv_uv = sourcePixel / vec2(1024.0, 512.0);\n"
-                                                      "\tgl_Position = vec4(a_position, 0.0, 1.0);\n"
-                                                      "}\n"
-                                                      "#endif\n"
-                                                      "#ifdef FRAGMENT\n"
-                                                      "varying vec2 v_uv;\n"
-                                                      "uniform sampler2D s_texture;\n"
-                                                      "void main() {\n"
-                                                      "\tivec2 packedBytes = ivec2(texture2D(s_texture, v_uv).rg * 255.0 + 0.5);\n"
-                                                      "\tint pixel = packedBytes.r | (packedBytes.g << 8);\n"
-                                                      "\tivec3 color5 = ivec3(pixel & 31, (pixel >> 5) & 31, (pixel >> 10) & 31);\n"
-                                                      "\tivec3 color8 = (color5 << 3) | (color5 >> 2);\n"
-                                                      "\tfloat stp = float((pixel >> 15) & 1);\n"
-                                                      "\tgl_FragColor = vec4(vec3(color8) / 255.0, stp);\n"
-                                                      "}\n"
-                                                      "#endif\n";
+"attribute vec2 a_position;\n"
+"varying vec2 v_uv;\n"
+"uniform vec4 sourceRect;\n"
+"void main() {\n"
+"\tvec2 screenUV = a_position * 0.5 + 0.5;\n"
+"\tvec2 sourcePixel = sourceRect.xy + vec2(screenUV.x, 1.0 - screenUV.y) * sourceRect.zw;\n"
+"\tv_uv = sourcePixel / vec2(1024.0, 512.0);\n"
+"\tgl_Position = vec4(a_position, 0.0, 1.0);\n"
+"}\n"
+"#endif\n"
+"#ifdef FRAGMENT\n"
+"varying vec2 v_uv;\n"
+"uniform sampler2D s_texture;\n"
+"void main() {\n"
+"\tivec2 packedBytes = ivec2(texture2D(s_texture, v_uv).rg * 255.0 + 0.5);\n"
+"\tint pixel = packedBytes.r | (packedBytes.g << 8);\n"
+"\tivec3 color5 = ivec3(pixel & 31, (pixel >> 5) & 31, (pixel >> 10) & 31);\n"
+"\tivec3 color8 = (color5 << 3) | (color5 >> 2);\n"
+"\tfloat stp = float((pixel >> 15) & 1);\n"
+"\tgl_FragColor = vec4(vec3(color8) / 255.0, stp);\n"
+"}\n"
+"#endif\n";
 #endif
 
 #ifdef __vita__
 global_variable const char *ctr_present_rgba_shader = "#ifdef VERTEX\n"
-                                                       "attribute vec2 a_position;\n"
-                                                       "varying vec2 v_uv;\n"
-                                                       "void main() {\n"
-                                                       "    v_uv = a_position * 0.5 + 0.5;\n"
-                                                       "    gl_Position = vec4(a_position, 0.0, 1.0);\n"
-                                                       "}\n"
-                                                       "#endif\n"
-                                                       "#ifdef FRAGMENT\n"
-                                                       "varying vec2 v_uv;\n"
-                                                       "uniform sampler2D s_src;\n"
-	                                                   "uniform float flipY;\n"
-                                                       "void main() {\n"
-	                                                   "    gl_FragColor = texture2D(s_src, vec2(v_uv.x, mix(v_uv.y, 1.0 - v_uv.y, flipY)));\n"
-                                                       "}\n"
-                                                       "#endif\n";
+"attribute vec2 a_position;\n"
+"varying vec2 v_uv;\n"
+"void main() {\n"
+"    v_uv = a_position * 0.5 + 0.5;\n"
+"    gl_Position = vec4(a_position, 0.0, 1.0);\n"
+"}\n"
+"#endif\n"
+"#ifdef FRAGMENT\n"
+"varying vec2 v_uv;\n"
+"uniform sampler2D s_src;\n"
+"uniform float flipY;\n"
+"void main() {\n"
+"    gl_FragColor = texture2D(s_src, vec2(v_uv.x, mix(v_uv.y, 1.0 - v_uv.y, flipY)));\n"
+"}\n"
+"#endif\n";
 #else
 global_variable const char *ctr_present_rgba_shader = "#ifdef VERTEX\n"
-                                                       "attribute vec2 a_position;\n"
-                                                       "varying vec2 v_uv;\n"
-                                                       "void main() {\n"
-                                                       "    v_uv = a_position * 0.5 + 0.5;\n"
-                                                       "    gl_Position = vec4(a_position, 0.0, 1.0);\n"
-                                                       "}\n"
-                                                       "#endif\n"
-                                                       "#ifdef FRAGMENT\n"
-                                                       "varying vec2 v_uv;\n"
-                                                       "uniform sampler2D s_src;\n"
-                                                       "uniform float flipY;\n"
-                                                       "uniform vec2 texelSize;\n"
-                                                       "uniform int fxaaEnabled;\n"
-                                                       "float fxaaLuma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }\n"
-                                                       "vec4 fxaaSample(vec2 uv) {\n"
-                                                       "    vec4 center = texture2D(s_src, uv);\n"
-                                                       "    vec3 nw = texture2D(s_src, uv + texelSize * vec2(-1.0, -1.0)).rgb;\n"
-                                                       "    vec3 ne = texture2D(s_src, uv + texelSize * vec2( 1.0, -1.0)).rgb;\n"
-                                                       "    vec3 sw = texture2D(s_src, uv + texelSize * vec2(-1.0,  1.0)).rgb;\n"
-                                                       "    vec3 se = texture2D(s_src, uv + texelSize * vec2( 1.0,  1.0)).rgb;\n"
-                                                       "    float lNW = fxaaLuma(nw), lNE = fxaaLuma(ne), lSW = fxaaLuma(sw), lSE = fxaaLuma(se), lM = fxaaLuma(center.rgb);\n"
-                                                       "    float lMin = min(lM, min(min(lNW, lNE), min(lSW, lSE)));\n"
-                                                       "    float lMax = max(lM, max(max(lNW, lNE), max(lSW, lSE)));\n"
-                                                       "    vec2 dir = vec2(-((lNW + lNE) - (lSW + lSE)), (lNW + lSW) - (lNE + lSE));\n"
-                                                       "    float reduce = max((lNW + lNE + lSW + lSE) * 0.0078125, 0.0009765625);\n"
-                                                       "    float invMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + reduce);\n"
-                                                       "    dir = clamp(dir * invMin, vec2(-8.0), vec2(8.0)) * texelSize;\n"
-                                                       "    vec3 a = 0.5 * (texture2D(s_src, uv + dir * (1.0 / 3.0 - 0.5)).rgb + texture2D(s_src, uv + dir * (2.0 / 3.0 - 0.5)).rgb);\n"
-                                                       "    vec3 b = a * 0.5 + 0.25 * (texture2D(s_src, uv + dir * -0.5).rgb + texture2D(s_src, uv + dir * 0.5).rgb);\n"
-                                                       "    float lB = fxaaLuma(b);\n"
-                                                       "    return vec4((lB < lMin || lB > lMax) ? a : b, center.a);\n"
-                                                       "}\n"
-                                                       "void main() {\n"
-                                                       "    vec2 uv = vec2(v_uv.x, mix(v_uv.y, 1.0 - v_uv.y, flipY));\n"
-                                                       "    gl_FragColor = (fxaaEnabled != 0) ? fxaaSample(uv) : texture2D(s_src, uv);\n"
-                                                       "}\n"
-                                                       "#endif\n";
+"attribute vec2 a_position;\n"
+"varying vec2 v_uv;\n"
+"void main() {\n"
+"    v_uv = a_position * 0.5 + 0.5;\n"
+"    gl_Position = vec4(a_position, 0.0, 1.0);\n"
+"}\n"
+"#endif\n"
+"#ifdef FRAGMENT\n"
+"varying vec2 v_uv;\n"
+"uniform sampler2D s_src;\n"
+"uniform float flipY;\n"
+"uniform vec2 texelSize;\n"
+"uniform int fxaaEnabled;\n"
+"float fxaaLuma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }\n"
+"vec4 fxaaSample(vec2 uv) {\n"
+"    vec4 center = texture2D(s_src, uv);\n"
+"    vec3 nw = texture2D(s_src, uv + texelSize * vec2(-1.0, -1.0)).rgb;\n"
+"    vec3 ne = texture2D(s_src, uv + texelSize * vec2( 1.0, -1.0)).rgb;\n"
+"    vec3 sw = texture2D(s_src, uv + texelSize * vec2(-1.0,  1.0)).rgb;\n"
+"    vec3 se = texture2D(s_src, uv + texelSize * vec2( 1.0,  1.0)).rgb;\n"
+"    float lNW = fxaaLuma(nw), lNE = fxaaLuma(ne), lSW = fxaaLuma(sw), lSE = fxaaLuma(se), lM = fxaaLuma(center.rgb);\n"
+"    float lMin = min(lM, min(min(lNW, lNE), min(lSW, lSE)));\n"
+"    float lMax = max(lM, max(max(lNW, lNE), max(lSW, lSE)));\n"
+"    vec2 dir = vec2(-((lNW + lNE) - (lSW + lSE)), (lNW + lSW) - (lNE + lSE));\n"
+"    float reduce = max((lNW + lNE + lSW + lSE) * 0.0078125, 0.0009765625);\n"
+"    float invMin = 1.0 / (min(abs(dir.x), abs(dir.y)) + reduce);\n"
+"    dir = clamp(dir * invMin, vec2(-8.0), vec2(8.0)) * texelSize;\n"
+"    vec3 a = 0.5 * (texture2D(s_src, uv + dir * (1.0 / 3.0 - 0.5)).rgb + texture2D(s_src, uv + dir * (2.0 / 3.0 - 0.5)).rgb);\n"
+"    vec3 b = a * 0.5 + 0.25 * (texture2D(s_src, uv + dir * -0.5).rgb + texture2D(s_src, uv + dir * 0.5).rgb);\n"
+"    float lB = fxaaLuma(b);\n"
+"    return vec4((lB < lMin || lB > lMax) ? a : b, center.a);\n"
+"}\n"
+"void main() {\n"
+"    vec2 uv = vec2(v_uv.x, mix(v_uv.y, 1.0 - v_uv.y, flipY));\n"
+"    gl_FragColor = (fxaaEnabled != 0) ? fxaaSample(uv) : texture2D(s_src, uv);\n"
+"}\n"
+"#endif\n";
 #endif
 
 internal void NativeRenderer_InitVRAMPipelines(void)
 {
-	local_persist const float quad[12] = {-1.f, -1.f, -1.f, 1.f, 1.f, 1.f, -1.f, -1.f, 1.f, 1.f, 1.f, -1.f};
+	local_persist const float quad[12] = { -1.f, -1.f, -1.f, 1.f, 1.f, 1.f, -1.f, -1.f, 1.f, 1.f, 1.f, -1.f };
 
 	s_packShader = NativeRenderer_Shader_Compile(ctr_pack_shader, false, NULL);
 	glUseProgram(s_packShader);
@@ -2126,7 +2126,11 @@ int NativeRenderer_InitialisePSX(void)
 
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_STENCIL_TEST);
-#ifndef __vita__
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+#elif !defined(__vita__)
 	glBlendColor(0.5f, 0.5f, 0.5f, 0.25f);
 #endif
 
@@ -2185,7 +2189,7 @@ int NativeRenderer_InitialisePSX(void)
 			// replaces this pointer with mapped scratch storage, without a copy.
 			glBufferData(GL_ARRAY_BUFFER, sizeof(GrVertex), NULL, GL_STREAM_DRAW);
 #else
-			glBufferData(GL_ARRAY_BUFFER, sizeof(GrVertex) * MAX_VERTEX_BUFFER_SIZE, NULL, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(GrVertex)* MAX_VERTEX_BUFFER_SIZE, NULL, GL_DYNAMIC_DRAW);
 #endif
 			glEnableVertexAttribArray(a_position);
 			glEnableVertexAttribArray(a_texcoord);
@@ -2231,7 +2235,7 @@ internal void NativeRenderer_Ortho2D(float left, float right, float bottom, floa
 	// -1..1
 	float z = (znear + zfar) / (znear - zfar);
 
-	float ortho[16] = {a, 0, 0, 0, 0, b, 0, 0, 0, 0, c, 0, x, y, z, 1};
+	float ortho[16] = { a, 0, 0, 0, 0, b, 0, 0, 0, 0, c, 0, x, y, z, 1 };
 
 	glUniformMatrix4fv(u_projectionLoc, 1, GL_FALSE, ortho);
 #endif
@@ -2259,7 +2263,7 @@ void NativeRenderer_SetupClipMode(const RECT16 *rect, const DISPENV *displayEnv,
 
 	// [A] isinterlaced dirty hack for widescreen
 	const bool scissorOn = enable && (displayEnv->isinter || (rect->x - displayEnv->disp.x > 0 || rect->y - displayEnv->disp.y > 0 ||
-	                                                          rect->w < displayEnv->disp.w || rect->h < displayEnv->disp.h));
+		rect->w < displayEnv->disp.w || rect->h < displayEnv->disp.h));
 
 	NativeRenderer_SetScissorState(scissorOn);
 
@@ -2313,7 +2317,7 @@ internal void NativeRenderer_SetShader(const ShaderID shader)
 
 
 void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat, int semiTransPass, BlendMode blendMode, int textured, int superTurboTint,
-                               int textureFullyOpaque, int cachedP4)
+	int textureFullyOpaque, int cachedP4)
 {
 #ifdef __vita__
 	(void)superTurboTint;
@@ -2324,27 +2328,27 @@ void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat, int semiT
 	}
 	else if (semiTransPass == 2)
 	{
-		variant = blendMode == BM_AVERAGE         ? NATIVE_PSX_SHADER_STP_AVERAGE
-		          : blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_STP_QUARTER
-		                                               : NATIVE_PSX_SHADER_STP;
+		variant = blendMode == BM_AVERAGE ? NATIVE_PSX_SHADER_STP_AVERAGE
+			: blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_STP_QUARTER
+			: NATIVE_PSX_SHADER_STP;
 	}
 	else if (semiTransPass == 3)
 	{
-		variant = blendMode == BM_AVERAGE              ? NATIVE_PSX_SHADER_MIXED_AVERAGE
-		          : blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_MIXED_QUARTER
-		                                               : NATIVE_PSX_SHADER_MIXED_ADD;
+		variant = blendMode == BM_AVERAGE ? NATIVE_PSX_SHADER_MIXED_AVERAGE
+			: blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_MIXED_QUARTER
+			: NATIVE_PSX_SHADER_MIXED_ADD;
 	}
 	else
 	{
-		variant = blendMode == BM_AVERAGE         ? NATIVE_PSX_SHADER_OPAQUE_AVERAGE
-		          : blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_OPAQUE_QUARTER
-		                                               : NATIVE_PSX_SHADER_OPAQUE;
+		variant = blendMode == BM_AVERAGE ? NATIVE_PSX_SHADER_OPAQUE_AVERAGE
+			: blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_OPAQUE_QUARTER
+			: NATIVE_PSX_SHADER_OPAQUE;
 	}
 	if (texFormat == TF_32_BIT_RGBA && variant >= NATIVE_PSX_SHADER_NON_STP)
 	{
-		variant = blendMode == BM_AVERAGE         ? NATIVE_PSX_SHADER_OPAQUE_AVERAGE
-		          : blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_OPAQUE_QUARTER
-		                                               : NATIVE_PSX_SHADER_OPAQUE;
+		variant = blendMode == BM_AVERAGE ? NATIVE_PSX_SHADER_OPAQUE_AVERAGE
+			: blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_OPAQUE_QUARTER
+			: NATIVE_PSX_SHADER_OPAQUE;
 	}
 	if (texFormat < TF_4_BIT || texFormat > TF_32_BIT_RGBA)
 	{
@@ -2361,9 +2365,9 @@ void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat, int semiT
 	}
 	else if (textureFullyOpaque && texFormat <= TF_8_BIT)
 	{
-		const int opaqueVariant = blendMode == BM_AVERAGE              ? NATIVE_PSX_SHADER_OPAQUE_AVERAGE
-		                          : blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_OPAQUE_QUARTER
-		                                                               : NATIVE_PSX_SHADER_OPAQUE;
+		const int opaqueVariant = blendMode == BM_AVERAGE ? NATIVE_PSX_SHADER_OPAQUE_AVERAGE
+			: blendMode == BM_ADD_QUATER_SOURCE ? NATIVE_PSX_SHADER_OPAQUE_QUARTER
+			: NATIVE_PSX_SHADER_OPAQUE;
 		shader = &s_gteFullyOpaqueShaderVariants[texFormat][opaqueVariant];
 	}
 	else
@@ -2455,7 +2459,7 @@ void NativeRenderer_SetOverrideTextureSize(int width, int height)
 		return;
 	}
 
-	float vec[] = {1.0f / (float)width, 1.0f / (float)height};
+	float vec[] = { 1.0f / (float)width, 1.0f / (float)height };
 	glUniform2fv(u_texelSizeLoc, 1, vec);
 }
 
@@ -2688,7 +2692,7 @@ internal void NativeRenderer_UpdateP4Buffer(struct NativeP4CacheEntry *entry, in
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, entry->texture[bufferIndex]);
 	glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_PALETTE4_RGBA8_OES, TPAGE_WIDTH, TPAGE_HEIGHT, 0,
-	                       NATIVE_P4_UPLOAD_BYTES, s_p4UploadData);
+		NATIVE_P4_UPLOAD_BYTES, s_p4UploadData);
 	s_lastBoundTexture = (TextureID)-1;
 	entry->bufferPageVersion[bufferIndex] = entry->pageVersion;
 	entry->bufferPaletteVersion[bufferIndex] = entry->paletteVersion;
@@ -2736,8 +2740,8 @@ TextureID NativeRenderer_GetCachedP4Texture(int page, int clut, int superTurboTi
 	}
 
 	if (entry != NULL && entry->texture[entry->activeBuffer] != 0 &&
-	    entry->bufferPageVersion[entry->activeBuffer] == entry->pageVersion &&
-	    entry->bufferPaletteVersion[entry->activeBuffer] == entry->paletteVersion)
+		entry->bufferPageVersion[entry->activeBuffer] == entry->pageVersion &&
+		entry->bufferPaletteVersion[entry->activeBuffer] == entry->paletteVersion)
 	{
 		entry->lastUse = ++s_p4CacheUseCounter;
 		entry->lastUseFrame = s_p4FrameSerial;
@@ -2745,7 +2749,7 @@ TextureID NativeRenderer_GetCachedP4Texture(int page, int clut, int superTurboTi
 	}
 
 	if (NativeRenderer_HasGpuNewerVRAMTiles(pageRect.x, pageRect.y, pageRect.w, pageRect.h) ||
-	    NativeRenderer_HasGpuNewerVRAMTiles(clutRect.x, clutRect.y, clutRect.w, clutRect.h))
+		NativeRenderer_HasGpuNewerVRAMTiles(clutRect.x, clutRect.y, clutRect.w, clutRect.h))
 	{
 		return (0);
 	}
@@ -2763,7 +2767,7 @@ TextureID NativeRenderer_GetCachedP4Texture(int page, int clut, int superTurboTi
 				}
 			}
 			else if ((candidate->lastUseFrame + 2u < s_p4FrameSerial) &&
-			         (replacement == NULL || (replacement->occupied && candidate->lastUse < replacement->lastUse)))
+				(replacement == NULL || (replacement->occupied && candidate->lastUse < replacement->lastUse)))
 			{
 				replacement = candidate;
 			}
@@ -3114,7 +3118,7 @@ void NativeRenderer_SaveVRAM(const char *outputFileName, int x, int y, int width
 		return;
 	}
 
-	u8 TGAheader[12] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	u8 TGAheader[12] = { 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	u8 header[6];
 	header[0] = (width % 256);
 	header[1] = (width / 256);
@@ -3193,7 +3197,7 @@ internal void NativeRenderer_SyncGpuVRAMToCPU(int x, int y, int w, int h)
 	glPixelStorei(GL_PACK_ROW_LENGTH, VRAM_WIDTH);
 	glPixelStorei(GL_PACK_ALIGNMENT, sizeof(u16));
 	glReadPixels(readRect.x, readRect.y, readRect.w, readRect.h, VRAM_FORMAT, GL_UNSIGNED_BYTE,
-	             s_vram.cpuPixels + (size_t)readRect.y * VRAM_WIDTH + readRect.x);
+		s_vram.cpuPixels + (size_t)readRect.y * VRAM_WIDTH + readRect.x);
 #else
 	// READBACKS_SPEEDHACK deliberately omits vitaGL's implicit scene finish.
 	// CPU consumers such as the pause-screen compressor access the returned
@@ -3266,7 +3270,7 @@ internal void NativeRenderer_FlushOffscreenToVRAM(void)
 	// NOTE(aalhendi): Native offscreen draws produce RGBA pixels. Pack them into
 	// the persistent 5:5:5:1 VRAM texture instead of reading them through the CPU.
 	NativeRenderer_GpuPackTextureToVRAM(s_offscreenRenderTarget.texture, s_previousOffscreen.x, s_previousOffscreen.y, s_previousOffscreen.w,
-	                                    s_previousOffscreen.h, true);
+		s_previousOffscreen.h, true);
 }
 
 internal void NativeRenderer_SetScissorState(int enable)
@@ -3487,7 +3491,7 @@ int NativeRenderer_CaptureVRAMState(void *dst, int dstSize)
 
 int NativeRenderer_RestoreVRAMState(const void *src, int srcSize)
 {
-	local_persist const RECT16 zeroRect = {0, 0, 0, 0};
+	local_persist const RECT16 zeroRect = { 0, 0, 0, 0 };
 
 	if ((src == NULL) || (srcSize < (int)sizeof(s_vram.cpuPixels)))
 	{
@@ -3745,7 +3749,7 @@ internal b32 NativeRenderer_LoadGhostReplayOverlay(void)
 	if (s_ghostReplayOverlayLoadAttempted)
 	{
 		return (s_ghostReplayVitaTexture != 0) && (s_ghostReplayHighlightTexture != 0) &&
-		       (s_ghostReplayShoulderTexture[0] != 0) && (s_ghostReplayShoulderTexture[1] != 0);
+			(s_ghostReplayShoulderTexture[0] != 0) && (s_ghostReplayShoulderTexture[1] != 0);
 	}
 	s_ghostReplayOverlayLoadAttempted = true;
 
@@ -3771,7 +3775,7 @@ internal b32 NativeRenderer_LoadGhostReplayOverlay(void)
 	s_ghostReplayVitaWidth = (int)image.width;
 	s_ghostReplayVitaHeight = (int)image.height;
 #else
-	struct NativeAssetsByteBuffer overlayBytes = {0};
+	struct NativeAssetsByteBuffer overlayBytes = { 0 };
 	int imageWidth = 0;
 	int imageHeight = 0;
 	int imageChannels = 0;
@@ -3808,7 +3812,7 @@ internal b32 NativeRenderer_LoadGhostReplayOverlay(void)
 	}
 	s_ghostReplayHighlightTexture = NativeRenderer_CreateGhostReplayTexture(32, 32, highlight);
 
-	const int shoulderImageX[2] = {16, 237};
+	const int shoulderImageX[2] = { 16, 237 };
 	for (int side = 0; side < 2; side++)
 	{
 		for (int y = 0; y < 16; y++)
@@ -3839,7 +3843,7 @@ internal b32 NativeRenderer_LoadGhostReplayOverlay(void)
 #endif
 
 	return (s_ghostReplayVitaTexture != 0) && (s_ghostReplayHighlightTexture != 0) &&
-	       (s_ghostReplayShoulderTexture[0] != 0) && (s_ghostReplayShoulderTexture[1] != 0);
+		(s_ghostReplayShoulderTexture[0] != 0) && (s_ghostReplayShoulderTexture[1] != 0);
 }
 
 internal void NativeRenderer_DrawGhostReplayQuad(TextureID texture, int x, int y, int width, int height)
@@ -3865,7 +3869,7 @@ internal void NativeRenderer_DrawGhostReplayQuad(TextureID texture, int x, int y
 }
 
 internal void NativeRenderer_DrawGhostReplayHighlight(int overlayX, int overlayY, int overlayW, int overlayH,
-	                                                   int imageX, int imageY, int width, int height)
+	int imageX, int imageY, int width, int height)
 {
 	const int centerX = overlayX + (imageX * overlayW) / s_ghostReplayVitaWidth;
 	const int centerY = overlayY + overlayH - (imageY * overlayH) / s_ghostReplayVitaHeight;
@@ -3875,7 +3879,7 @@ internal void NativeRenderer_DrawGhostReplayHighlight(int overlayX, int overlayY
 }
 
 internal void NativeRenderer_DrawGhostReplayImageRegion(TextureID texture, int overlayX, int overlayY, int overlayW, int overlayH,
-	                                                     int imageX, int imageY, int imageW, int imageH)
+	int imageX, int imageY, int imageW, int imageH)
 {
 	const int x = overlayX + (imageX * overlayW) / s_ghostReplayVitaWidth;
 	const int y = overlayY + overlayH - ((imageY + imageH) * overlayH) / s_ghostReplayVitaHeight;
@@ -4016,6 +4020,11 @@ void NativeRenderer_SwapWindow(void)
 		SDL_GL_SwapWindow(g_window);
 	}
 #elif defined(__PS3__) || defined(__CELLOS_LV2__)
+	static u32 s_ps3SwapCount = 0;
+	if ((++s_ps3SwapCount % 30) == 0)
+	{
+		Platform_Log("[PS3] NativeRenderer_SwapWindow frame %u\n", s_ps3SwapCount);
+	}
 	psglSwap();
 #else
 	SDL_GL_SwapWindow(g_window);
@@ -4242,9 +4251,11 @@ void NativeRenderer_DrawTriangles(int start_vertex, int triangles)
 		glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[s_boundVertexBuffer]);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 		glVertexPointer(2, GL_SHORT, sizeof(GrVertex), (const GLvoid *)offsetof(GrVertex, x));
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(GrVertex), (const GLvoid *)offsetof(GrVertex, r));
+		glTexCoordPointer(2, GL_UNSIGNED_BYTE, sizeof(GrVertex), (const GLvoid *)offsetof(GrVertex, u));
 	}
 #endif
 	glDrawArrays(GL_TRIANGLES, start_vertex, triangles * 3);

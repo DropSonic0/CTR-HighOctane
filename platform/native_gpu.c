@@ -2563,6 +2563,15 @@ internal void NativeGpu_DrawPreparedFrame(GrVertex *vertices, GPUDrawSplit *spli
 	s_gpuDrawSplits = splits;
 	s_gpuDrawVertexCount = vertexCount;
 	s_gpuDrawSplitCount = splitCount;
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	static int ps3GpuFrameCount = 0;
+	ps3GpuFrameCount++;
+	if (ps3GpuFrameCount <= 300 || (ps3GpuFrameCount % 60) == 0)
+	{
+		Platform_Log("[PS3 GPU] DrawPreparedFrame #%d: verts=%d splits=%d\n",
+			ps3GpuFrameCount, vertexCount, splitCount);
+	}
+#endif
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_DRAW_ALL_SPLITS);
 	// CPU-originated LoadImage, MoveImage, and fill commands are GPU-visible
 	// before the next draw batch, matching PS1 command ordering.

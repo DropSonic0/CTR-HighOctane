@@ -193,11 +193,14 @@ u32 main(void)
 			GAMEPROG_GetPtrHighScoreTrack();
 
 			MainInit_FinalizeInit(gGT);
+			Platform_Log("[CTR Native] MainMain: after FinalizeInit\n"); Platform_LogFlush();
 
 			GAMEPAD_GetNumConnected(gGS);
+			Platform_Log("[CTR Native] MainMain: after GAMEPAD_GetNumConnected\n"); Platform_LogFlush();
 
 			sdata->boolSoundPaused = 0;
 			VehBirth_EngineAudio_AllPlayers();
+			Platform_Log("[CTR Native] MainMain: after VehBirth_EngineAudio_AllPlayers\n"); Platform_LogFlush();
 
 			uVar12 = 9;
 
@@ -208,8 +211,10 @@ u32 main(void)
 			{
 				Audio_SetState_Safe(uVar12);
 			}
+			Platform_Log("[CTR Native] MainMain: after Audio_SetState_Safe\n"); Platform_LogFlush();
 
 			sdata->mainGameState = 3;
+			Platform_Log("[CTR Native] MainMain: mainGameState set to 3\n"); Platform_LogFlush();
 			gGT->clockEffectEnabled &= 0xfffe;
 			break;
 

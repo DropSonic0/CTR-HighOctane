@@ -525,8 +525,16 @@ int Platform_BeginScene(void)
 		return 0;
 	}
 
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	static u32 s_ps3BeginSceneCount = 0;
+	if ((++s_ps3BeginSceneCount % 30) == 0)
+	{
+		Platform_Log("[PS3] Platform_BeginScene frame %u\n", s_ps3BeginSceneCount);
+	}
+#endif
+
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_PLATFORM_BEGIN_SCENE);
-	
+
 #ifndef __vita__
 	// NOTE(aalhendi): CTR already throttles through the retail VSync/draw-sync
 	// path. Do not add a second SDL swap wait; some GL drivers charge that wait
@@ -609,7 +617,16 @@ void Platform_EndFrame(void)
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_PLATFORM_END_FRAME);
 	if (!NativeGpu_SubmitFrontendFrame())
 	{
-		Platform_EndScene();
+		if (s_platformBeginScene)
+		{
+			Platform_EndScene();
+		}
+		else
+		{
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+			NativeRenderer_SwapWindow();
+#endif
+		}
 	}
 	Platform_CalcFPS();
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_PLATFORM_END_FRAME);
@@ -724,68 +741,68 @@ void Platform_PollHostEvents(void)
 		case SDL_EVENT_KEY_DOWN:
 		case SDL_EVENT_KEY_UP:
 		{
-			int key = event.key.scancode;
-			char down = (event.type == SDL_EVENT_KEY_UP) ? 0 : 1;
+								 int key = event.key.scancode;
+								 char down = (event.type == SDL_EVENT_KEY_UP) ? 0 : 1;
 
-			Platform_UpdateHostAltKeyState(key, down);
+								 Platform_UpdateHostAltKeyState(key, down);
 
-			if (key == SDL_SCANCODE_F11)
-			{
-				if ((down != 0) && (event.key.repeat == 0))
-				{
-					Platform_HandleFullscreenToggle();
-				}
-				break;
-			}
+								 if (key == SDL_SCANCODE_F11)
+								 {
+									 if ((down != 0) && (event.key.repeat == 0))
+									 {
+										 Platform_HandleFullscreenToggle();
+									 }
+									 break;
+								 }
 
-			if (key == SDL_SCANCODE_RETURN)
-			{
-				if ((s_hostAltKeyState != 0) && (down != 0) && (event.key.repeat == 0))
-				{
-					Platform_HandleFullscreenToggle();
-				}
-				break;
-			}
+								 if (key == SDL_SCANCODE_RETURN)
+								 {
+									 if ((s_hostAltKeyState != 0) && (down != 0) && (event.key.repeat == 0))
+									 {
+										 Platform_HandleFullscreenToggle();
+									 }
+									 break;
+								 }
 
-			if (key == SDL_SCANCODE_RSHIFT)
-			{
-				key = SDL_SCANCODE_LSHIFT;
-			}
-			else if (key == SDL_SCANCODE_RCTRL)
-			{
-				key = SDL_SCANCODE_LCTRL;
-			}
-			else if (key == SDL_SCANCODE_RALT)
-			{
-				key = SDL_SCANCODE_LALT;
-			}
+								 if (key == SDL_SCANCODE_RSHIFT)
+								 {
+									 key = SDL_SCANCODE_LSHIFT;
+								 }
+								 else if (key == SDL_SCANCODE_RCTRL)
+								 {
+									 key = SDL_SCANCODE_LCTRL;
+								 }
+								 else if (key == SDL_SCANCODE_RALT)
+								 {
+									 key = SDL_SCANCODE_LALT;
+								 }
 
-			if ((key == SDL_SCANCODE_F4) && (down == 0))
-			{
+								 if ((key == SDL_SCANCODE_F4) && (down == 0))
+								 {
 #ifdef CTR_INTERNAL
-				Platform_LogWarn("[CTR Native] Keyboard assigned to player %d\n", Platform_InputCycleKeyboardController());
+									 Platform_LogWarn("[CTR Native] Keyboard assigned to player %d\n", Platform_InputCycleKeyboardController());
 #endif
-				break;
-			}
+									 break;
+								 }
 
-			if ((key == SDL_SCANCODE_F6) && (down == 0))
-			{
+								 if ((key == SDL_SCANCODE_F6) && (down == 0))
+								 {
 #ifdef CTR_INTERNAL
-				int player = Platform_InputCycleGamepadController();
-				if (player == 0)
-				{
-					Platform_LogWarn("[CTR Native] No gamepad connected\n");
-				}
-				else
-				{
-					Platform_LogWarn("[CTR Native] Gamepad assigned to player %d\n", player);
-				}
+									 int player = Platform_InputCycleGamepadController();
+									 if (player == 0)
+									 {
+										 Platform_LogWarn("[CTR Native] No gamepad connected\n");
+									 }
+									 else
+									 {
+										 Platform_LogWarn("[CTR Native] Gamepad assigned to player %d\n", player);
+									 }
 #endif
-				break;
-			}
+									 break;
+								 }
 
-			Platform_HandleKey(key, down);
-			break;
+								 Platform_HandleKey(key, down);
+								 break;
 		}
 		}
 	}

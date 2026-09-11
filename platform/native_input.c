@@ -4,6 +4,10 @@
 #include "platform/native_adhoc.h"
 #include "psx/libpad.h"
 
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+#include <cell/pad.h>
+#endif
+
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
 #else
@@ -140,7 +144,7 @@ struct NativeInputStateSnapshot
 
 global_variable struct NativeInputControllerMapping s_controllerMapping;
 global_variable struct NativeInputKeyboardMapping s_keyboardMapping;
-global_variable s32 s_controllerToSlotMapping[NATIVE_INPUT_MAX_CONTROLLERS] = {-1, -1, -1, -1};
+global_variable s32 s_controllerToSlotMapping[NATIVE_INPUT_MAX_CONTROLLERS] = { -1, -1, -1, -1 };
 
 global_variable struct NativeInputController s_controllers[NATIVE_INPUT_MAX_CONTROLLERS];
 global_variable struct PlatformInputPadSnapshot s_installedSnapshots[NATIVE_INPUT_MAX_CONTROLLERS];
@@ -150,6 +154,9 @@ global_variable s32 s_inputInitialized;
 global_variable s32 s_installedSnapshotsActive;
 global_variable s32 s_keyboardControllerSlot = NATIVE_INPUT_DEFAULT_KEYBOARD_SLOT;
 global_variable s32 s_lastActiveControllerSlot = -1;
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+global_variable s32 s_ps3PadsInitialized;
+#endif
 #ifdef __vita__
 global_variable s32 s_vitaIsHandheld;
 #endif
@@ -422,7 +429,7 @@ internal void NativeInput_VitaApplyStickButtons(u16 *buttons, const SceCtrlData 
 	{
 		*buttons &= ~0x80;
 	}
-	else if (pad->lx > (128 + NATIVE_INPUT_VITA_STICK_THRESHOLD))
+	else if (pad->lx >(128 + NATIVE_INPUT_VITA_STICK_THRESHOLD))
 	{
 		*buttons &= ~0x20;
 	}
@@ -431,7 +438,7 @@ internal void NativeInput_VitaApplyStickButtons(u16 *buttons, const SceCtrlData 
 	{
 		*buttons &= ~0x10;
 	}
-	else if (pad->ly > (128 + NATIVE_INPUT_VITA_STICK_THRESHOLD))
+	else if (pad->ly >(128 + NATIVE_INPUT_VITA_STICK_THRESHOLD))
 	{
 		*buttons &= ~0x40;
 	}
@@ -443,7 +450,7 @@ internal void NativeInput_VitaApplyStickButtons(u16 *buttons, const SceCtrlData 
 		{
 			*buttons &= ~0x100;
 		}
-		else if (pad->rx > (128 + NATIVE_INPUT_VITA_STICK_THRESHOLD))
+		else if (pad->rx >(128 + NATIVE_INPUT_VITA_STICK_THRESHOLD))
 		{
 			*buttons &= ~0x200;
 		}
@@ -468,7 +475,7 @@ internal void NativeInput_ApplyController(s32 slot)
 	{
 		return;
 	}
-	
+
 	snapshot->connected = 1;
 	snapshot->status = 0;
 
@@ -481,7 +488,7 @@ internal void NativeInput_ApplyController(s32 slot)
 	leftY = ((s32)pad.ly - 128) * 256;
 
 	if ((buttons != 0xffff) || NativeInput_AxisIsActive(rightX) || NativeInput_AxisIsActive(rightY) || NativeInput_AxisIsActive(leftX) ||
-	    NativeInput_AxisIsActive(leftY))
+		NativeInput_AxisIsActive(leftY))
 	{
 		s_lastActiveControllerSlot = slot;
 	}
@@ -594,7 +601,7 @@ internal void NativeInput_ApplyController(s32 slot)
 	leftY = NativeInput_ControllerButtonState(controller, mapping->gc_axis_left_y);
 
 	if ((buttons != 0xffff) || NativeInput_AxisIsActive(rightX) || NativeInput_AxisIsActive(rightY) || NativeInput_AxisIsActive(leftX) ||
-	    NativeInput_AxisIsActive(leftY))
+		NativeInput_AxisIsActive(leftY))
 	{
 		s_lastActiveControllerSlot = slot;
 	}
@@ -618,6 +625,56 @@ internal void NativeInput_ApplyController(s32 slot)
 	snapshot->analog[1] = NativeInput_AxisToByte(rightY);
 	snapshot->analog[2] = NativeInput_AxisToByte(leftX);
 	snapshot->analog[3] = NativeInput_AxisToByte(leftY);
+#elif defined(__PS3__) || defined(__CELLOS_LV2__)
+	CellPadData padData;
+	u16 cellButtons;
+	u16 buttons;
+
+	if (cellPadGetData((u32)slot, &padData) != CELL_PAD_OK)
+	{
+		return;
+	}
+
+	if (padData.len == 0)
+	{
+		return;
+	}
+
+	snapshot->connected = 1;
+	snapshot->status = 0;
+	snapshot->id = nativeController->analogEnabled ? NATIVE_INPUT_PAD_ANALOG : NATIVE_INPUT_PAD_DIGITAL;
+
+	cellButtons = (u16)(((u16)padData.button[CELL_PAD_BTN_OFFSET_DIGITAL2] << 8) | (u16)padData.button[CELL_PAD_BTN_OFFSET_DIGITAL1]);
+	buttons = (u16)(~cellButtons & 0xffff);
+
+	if ((buttons != 0xffff) ||
+		abs((s32)padData.button[CELL_PAD_BTN_OFFSET_ANALOG_RIGHT_X] - 128) > 20 ||
+		abs((s32)padData.button[CELL_PAD_BTN_OFFSET_ANALOG_RIGHT_Y] - 128) > 20 ||
+		abs((s32)padData.button[CELL_PAD_BTN_OFFSET_ANALOG_LEFT_X] - 128) > 20 ||
+		abs((s32)padData.button[CELL_PAD_BTN_OFFSET_ANALOG_LEFT_Y] - 128) > 20)
+	{
+		s_lastActiveControllerSlot = slot;
+	}
+
+	if (((buttons & 0x1) == 0) && ((buttons & 0x8) == 0))
+	{
+		buttons = 0xffff;
+		if (nativeController->switchingAnalog == 0)
+		{
+			nativeController->analogEnabled = nativeController->analogEnabled == 0;
+		}
+		nativeController->switchingAnalog = 1;
+	}
+	else
+	{
+		nativeController->switchingAnalog = 0;
+	}
+
+	NativeInput_SetSnapshotButtons(snapshot, buttons);
+	snapshot->analog[0] = padData.button[CELL_PAD_BTN_OFFSET_ANALOG_RIGHT_X];
+	snapshot->analog[1] = padData.button[CELL_PAD_BTN_OFFSET_ANALOG_RIGHT_Y];
+	snapshot->analog[2] = padData.button[CELL_PAD_BTN_OFFSET_ANALOG_LEFT_X];
+	snapshot->analog[3] = padData.button[CELL_PAD_BTN_OFFSET_ANALOG_LEFT_Y];
 #else
 	(void)slot;
 #endif
@@ -931,7 +988,15 @@ int Platform_InputInit(void)
 	s_vitaIsHandheld = sceKernelGetModel() == SCE_KERNEL_MODEL_VITA;
 #endif
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	if (s_ps3PadsInitialized == 0)
+	{
+		if (cellPadInit(NATIVE_INPUT_MAX_CONTROLLERS) == CELL_PAD_OK)
+		{
+			s_ps3PadsInitialized = 1;
+		}
+	}
+#elif !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (SDL_InitSubSystem(SDL_INIT_GAMEPAD | SDL_INIT_HAPTIC) == 0)
 	{
 		fprintf(stderr, "[CTR Native] Failed to initialise SDL input subsystem: %s\n", SDL_GetError());
@@ -955,7 +1020,13 @@ void Platform_InputShutdown(void)
 		NativeInput_CloseController(slot);
 	}
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	if (s_ps3PadsInitialized != 0)
+	{
+		cellPadEnd();
+		s_ps3PadsInitialized = 0;
+	}
+#elif !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_inputInitialized != 0)
 	{
 		SDL_QuitSubSystem(SDL_INIT_GAMEPAD | SDL_INIT_HAPTIC);
@@ -1279,9 +1350,6 @@ void Platform_InputPadVibrate(int port, unsigned char *table, int len)
 	s32 physicalSlot = (port >> 4) & 1;
 	s32 tap = port & 3;
 	s32 slot;
-	struct NativeInputController *controller;
-	u16 freqHigh;
-	u16 freqLow;
 
 	if (NativeInput_UseMultitapBus() != 0)
 	{
@@ -1305,29 +1373,39 @@ void Platform_InputPadVibrate(int port, unsigned char *table, int len)
 		return;
 	}
 
-	controller = &s_controllers[slot];
-	if (controller->controller == NULL)
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
 	{
-		return;
+		CellPadActParam actParam;
+		memset(&actParam, 0, sizeof(actParam));
+		actParam.motor[0] = table[0] ? 1 : 0;
+		actParam.motor[1] = (u8)(len > 1 ? table[1] : 0);
+		cellPadSetActDirect((u32)slot, &actParam);
 	}
-
-	freqHigh = table[0] * 255;
-	freqLow = len > 1 ? table[1] * 255 : 0;
-
-	if ((freqLow != 0) && (freqLow < 4096))
-	{
-		freqLow = 4096;
-	}
-
-	if ((freqHigh != 0) && (freqHigh < 4096))
-	{
-		freqHigh = 4096;
-	}
-
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
-	SDL_RumbleGamepad(controller->controller, freqLow, freqHigh, 200);
 #else
-	(void)freqHigh;
-	(void)freqLow;
+	{
+		struct NativeInputController *controller = &s_controllers[slot];
+		u16 freqHigh;
+		u16 freqLow;
+
+		if (controller->controller == NULL)
+		{
+			return;
+		}
+
+		freqHigh = table[0] * 255;
+		freqLow = len > 1 ? table[1] * 255 : 0;
+
+		if ((freqLow != 0) && (freqLow < 4096))
+		{
+			freqLow = 4096;
+		}
+
+		if ((freqHigh != 0) && (freqHigh < 4096))
+		{
+			freqHigh = 4096;
+		}
+
+		SDL_RumbleGamepad(controller->controller, freqLow, freqHigh, 200);
+	}
 #endif
 }
