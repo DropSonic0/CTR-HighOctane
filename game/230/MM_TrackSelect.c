@@ -79,9 +79,9 @@ CTR_STATIC_ASSERT(MM_TRACK_SELECT_INPUT == 0x40073);
 #if defined(CTR_NATIVE)
 static struct MenuRow s_reverseVariantRows[] =
 {
-	{NATIVE_MENU_STRING_TRACK_NORMAL, 1, 1, 0, 0},
-	{NATIVE_MENU_STRING_TRACK_REVERSE, 0, 0, 1, 1},
-	{RECTMENU_STRING_NONE},
+	{ NATIVE_MENU_STRING_TRACK_NORMAL, 1, 1, 0, 0 },
+	{ NATIVE_MENU_STRING_TRACK_REVERSE, 0, 0, 1, 1 },
+	{ RECTMENU_STRING_NONE },
 };
 
 static struct RectMenu s_reverseVariantMenu =
@@ -103,8 +103,8 @@ static b32 MM_TrackSelect_CanChooseReverse(struct GameTracker *gGT, s16 physical
 	}
 
 	return (gNativeGhostReplayMode != 0) ||
-	       ((gGT->gameMode1 & TIME_TRIAL) != 0) ||
-	       ((gNativeRelicRaceMode != 0) && ((gGT->gameMode1 & RELIC_RACE) != 0));
+		((gGT->gameMode1 & TIME_TRIAL) != 0) ||
+		((gNativeRelicRaceMode != 0) && ((gGT->gameMode1 & RELIC_RACE) != 0));
 }
 
 static b32 MM_TrackSelect_ChooseVariant(struct GameTracker *gGT, s16 physicalLevelId, b32 reverse)
@@ -253,10 +253,10 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 	selectMenu = &selectMenu[trackIndex];
 	s32 previewVideoFileIndex = selectMenu->previewVideoFileIndex;
 
-	if ((entry[previewVideoFileIndex].size == 0) ||
+	if ((CTR_ReadU32LE(&entry[previewVideoFileIndex].size) == 0) ||
 
-	    // Video off-screen
-	    (r->x < 0) || (r->y < 0) || ((r->x + r->w) > MM_TRACK_VIDEO_SCREEN_W) || ((r->y + r->h) > MM_TRACK_VIDEO_SCREEN_H))
+		// Video off-screen
+		(r->x < 0) || (r->y < 0) || ((r->x + r->w) > MM_TRACK_VIDEO_SCREEN_W) || ((r->y + r->h) > MM_TRACK_VIDEO_SCREEN_H))
 	{
 		// draw icon
 		D230.trackSelect.videoStateCurr = MM_TRACK_VIDEO_ICON;
@@ -266,14 +266,14 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 	{
 		if ((D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_START_STREAM) && (D230.trackSelect.videoStatePrev == MM_TRACK_VIDEO_ICON))
 		{
-			if (NativeSTR_StartTrackPreviewFromBigfileSector(entry[previewVideoFileIndex].offset, selectMenu->previewVideoFrameCount) != 0)
+			if (NativeSTR_StartTrackPreviewFromBigfileSector(CTR_ReadU32LE(&entry[previewVideoFileIndex].offset), selectMenu->previewVideoFrameCount) != 0)
 			{
 				D230.trackSelect.videoMemAllocated = D230.trackSelect.videoStatePrev;
 			}
 		}
 
 		if (((D230.trackSelect.videoStatePrev == MM_TRACK_VIDEO_PLAYING) || (D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_PLAYING)) ||
-		    (D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_START_STREAM))
+			(D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_START_STREAM))
 		{
 			int uploaded = 0;
 			if (!CTR_NATIVE_60FPS_ACTIVE || ((gGT->timer & 1) != 0))
@@ -308,11 +308,11 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 			}
 
 			// CD position of video, and numFrames
-			MM_Video_StartStream(bh->cdpos + entry[previewVideoFileIndex].offset, selectMenu->previewVideoFrameCount);
+			MM_Video_StartStream(bh->cdpos + CTR_ReadU32LE(&entry[previewVideoFileIndex].offset), selectMenu->previewVideoFrameCount);
 		}
 
 		if (((D230.trackSelect.videoStatePrev == MM_TRACK_VIDEO_PLAYING) || (D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_PLAYING)) ||
-		    (D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_START_STREAM))
+			(D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_START_STREAM))
 		{
 			u16 tpage = gGT->ptrIcons[MM_TRACK_VIDEO_ICON_INDEX]->texLayout.tpage;
 			u8 u0 = gGT->ptrIcons[MM_TRACK_VIDEO_ICON_INDEX]->texLayout.u0;
@@ -353,8 +353,8 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 	{
 		// Draw Video icon
 		RECTMENU_DrawPolyGT4(gGT->ptrIcons[selectMenu->videoThumbnail], (r->x + MM_TRACK_VIDEO_FRAME_SRC_OFFSET_X), (r->y + MM_TRACK_VIDEO_FRAME_SRC_OFFSET_Y),
-		                     &gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, D230.videoCol.self, D230.videoCol.self, D230.videoCol.self,
-		                     D230.videoCol.self, 0, FP(1.0));
+			&gGT->backBuffer->primMem, gGT->pushBuffer_UI.ptrOT, D230.videoCol.self, D230.videoCol.self, D230.videoCol.self,
+			D230.videoCol.self, 0, FP(1.0));
 	}
 
 #ifndef CTR_NATIVE
@@ -574,7 +574,7 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 
 				// Time Trial and native Relic Race can both load a human ghost.
 				if (((gGT->gameMode1 & TIME_TRIAL) != 0) ||
-				    ((gNativeRelicRaceMode != 0) && ((gGT->gameMode1 & RELIC_RACE) != 0)))
+					((gNativeRelicRaceMode != 0) && ((gGT->gameMode1 & RELIC_RACE) != 0)))
 				{
 					// allocate room at the end of RAM for ghosts
 					sdata->ptrGhostTapePlaying = MEMPACK_AllocHighMem(MM_TRACK_SELECT_GHOST_TAPE_ALLOC_SIZE /*, R230.s_loaded_ghost_data*/);
@@ -657,130 +657,130 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 		else
 #endif
 		{
-		int importantButton = sdata->buttonTapPerPlayer[0] & MM_TRACK_SELECT_INPUT;
+			int importantButton = sdata->buttonTapPerPlayer[0] & MM_TRACK_SELECT_INPUT;
 
-		if (
-		    // if not changing levels
-		    (D230.trackSelect.trackChangeFrames == 0) &&
+			if (
+				// if not changing levels
+				(D230.trackSelect.trackChangeFrames == 0) &&
 
-		    // only check buttons if IN_MENU
-		    (D230.trackSelect.transition.state == IN_MENU) &&
+				// only check buttons if IN_MENU
+				(D230.trackSelect.transition.state == IN_MENU) &&
 
-		    // desired button pressed
-		    (importantButton != 0))
-		{
-			switch (importantButton)
+				// desired button pressed
+				(importantButton != 0))
 			{
-			case BTN_UP:
-
-				// look for unlocked track
-				do
+				switch (importantButton)
 				{
-					currTrack--;
+				case BTN_UP:
 
-					// if index is negative
-					if (currTrack < 0)
+					// look for unlocked track
+					do
 					{
-						// set to the last track
-						currTrack = numTracks - 1;
-					}
+						currTrack--;
 
-				} while (!MM_TrackSelect_boolTrackOpen(&selectMenu[currTrack]));
+						// if index is negative
+						if (currTrack < 0)
+						{
+							// set to the last track
+							currTrack = numTracks - 1;
+						}
 
-				D230.trackSelect.currentTrack = currTrack;
-				D230.trackSelect.trackChangeFrames = MM_TRACK_SELECT_TRACK_CHANGE_FRAMES;
-				D230.trackSelect.trackChangeDirection = 1;
+					} while (!MM_TrackSelect_boolTrackOpen(&selectMenu[currTrack]));
 
-				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b034c-0x800b035c for track-select previous SFX.
-				OtherFX_Play(0, 1);
-				break;
+					D230.trackSelect.currentTrack = currTrack;
+					D230.trackSelect.trackChangeFrames = MM_TRACK_SELECT_TRACK_CHANGE_FRAMES;
+					D230.trackSelect.trackChangeDirection = 1;
 
-			case BTN_DOWN:
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b034c-0x800b035c for track-select previous SFX.
+					OtherFX_Play(0, 1);
+					break;
 
-				// look for unlocked track
-				do
-				{
-					currTrack++;
+				case BTN_DOWN:
 
-					// if you go beyond max number of tracks
-					if (currTrack >= numTracks)
+					// look for unlocked track
+					do
 					{
-						// set to the first track
-						currTrack = 0;
-					}
+						currTrack++;
 
-				} while (!MM_TrackSelect_boolTrackOpen(&selectMenu[currTrack]));
+						// if you go beyond max number of tracks
+						if (currTrack >= numTracks)
+						{
+							// set to the first track
+							currTrack = 0;
+						}
 
-				D230.trackSelect.currentTrack = currTrack;
-				D230.trackSelect.trackChangeFrames = MM_TRACK_SELECT_TRACK_CHANGE_FRAMES;
-				D230.trackSelect.trackChangeDirection = -1;
+					} while (!MM_TrackSelect_boolTrackOpen(&selectMenu[currTrack]));
 
-				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b03bc-0x800b03cc for track-select next SFX.
-				OtherFX_Play(0, 1);
-				break;
+					D230.trackSelect.currentTrack = currTrack;
+					D230.trackSelect.trackChangeFrames = MM_TRACK_SELECT_TRACK_CHANGE_FRAMES;
+					D230.trackSelect.trackChangeDirection = -1;
 
-			case BTN_CROSS_one:
-			case BTN_CIRCLE:
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b03bc-0x800b03cc for track-select next SFX.
+					OtherFX_Play(0, 1);
+					break;
+
+				case BTN_CROSS_one:
+				case BTN_CIRCLE:
 #if defined(CTR_NATIVE)
-			{
-				s16 physicalLevelId = selectMenu[D230.trackSelect.currentTrack].levID;
-				if (MM_TrackSelect_CanChooseReverse(gGT, physicalLevelId))
 				{
+								   s16 physicalLevelId = selectMenu[D230.trackSelect.currentTrack].levID;
+								   if (MM_TrackSelect_CanChooseReverse(gGT, physicalLevelId))
+								   {
+									   OtherFX_Play(1, 1);
+									   s_reverseVariantMenu.rowSelected = 0;
+									   s_reverseVariantOpen = true;
+									   break;
+								   }
+								   NativeReverseTrack_SelectPhysical(physicalLevelId, false);
+				}
+#endif
+
+					if ((gNativeGhostReplayMode != 0) &&
+						(RefreshCard_CountModernGhostProfilesForLEV(selectMenu[D230.trackSelect.currentTrack].levID) == 0))
+					{
+						OtherFX_Play(5, 1);
+						break;
+					}
+
+					// "enter/confirm" sound
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0434-0x800b0444 for track-select confirm SFX.
 					OtherFX_Play(1, 1);
-					s_reverseVariantMenu.rowSelected = 0;
-					s_reverseVariantOpen = true;
+
+					// if not Battle, Time Trial, or native Boss Fight, open LapSelectMenu
+					if (((gGT->gameMode1 & (BATTLE_MODE | TIME_TRIAL | RELIC_RACE)) == 0)
+						&& (gNativeBossFightMode == 0)
+						)
+					{
+						// open lap select menu
+						D230.trackSelect.lapBoxOpen = D230.trackSelect.transition.state;
+						break;
+					}
+
+					// if Battle or Time Trial, skip straight to level
+					D230.trackSelect.transition.startAfterExit = D230.trackSelect.transition.state;
+					D230.trackSelect.transition.state = EXITING_MENU;
 					break;
-				}
-				NativeReverseTrack_SelectPhysical(physicalLevelId, false);
-			}
-#endif
 
-				if ((gNativeGhostReplayMode != 0) &&
-				    (RefreshCard_CountModernGhostProfilesForLEV(selectMenu[D230.trackSelect.currentTrack].levID) == 0))
-				{
-					OtherFX_Play(5, 1);
-					break;
-				}
+				case BTN_TRIANGLE:
+				case BTN_SQUARE_one:
 
-				// "enter/confirm" sound
-				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0434-0x800b0444 for track-select confirm SFX.
-				OtherFX_Play(1, 1);
+					// "go back" sound
+					// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0490-0x800b04a4 for track-select back SFX.
+					OtherFX_Play(2, 1);
 
-				// if not Battle, Time Trial, or native Boss Fight, open LapSelectMenu
-				if (((gGT->gameMode1 & (BATTLE_MODE | TIME_TRIAL | RELIC_RACE)) == 0)
-				    && (gNativeBossFightMode == 0)
-				)
-				{
-					// open lap select menu
-					D230.trackSelect.lapBoxOpen = D230.trackSelect.transition.state;
-					break;
-				}
-
-				// if Battle or Time Trial, skip straight to level
-				D230.trackSelect.transition.startAfterExit = D230.trackSelect.transition.state;
-				D230.trackSelect.transition.state = EXITING_MENU;
-				break;
-
-			case BTN_TRIANGLE:
-			case BTN_SQUARE_one:
-
-				// "go back" sound
-				// NOTE(aalhendi): ASM-verified NTSC-U 926 0x800b0490-0x800b04a4 for track-select back SFX.
-				OtherFX_Play(2, 1);
-
-				D230.trackSelect.transition.startAfterExit = 0;
-				D230.trackSelect.transition.state = EXITING_MENU;
+					D230.trackSelect.transition.startAfterExit = 0;
+					D230.trackSelect.transition.state = EXITING_MENU;
 #if defined(CTR_NATIVE)
-				NativeReverseTrack_ClearSelection();
+					NativeReverseTrack_ClearSelection();
 #endif
-				break;
-			default:
-				break;
-			}
+					break;
+				default:
+					break;
+				}
 
-			// clear gamepad input (for menus)
-			RECTMENU_ClearInput();
-		}
+				// clear gamepad input (for menus)
+				RECTMENU_ClearInput();
+			}
 		}
 	}
 
@@ -893,8 +893,8 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 		if (0 < D230.trackSelect.trackChangeFrames)
 		{
 			rowAngle = rowAngle + (((MM_TRACK_SELECT_TRACK_CHANGE_FRAMES - D230.trackSelect.trackChangeFrames) * MM_TRACK_SELECT_ROW_ANGLE_STEP) /
-			                       MM_TRACK_SELECT_TRACK_CHANGE_FRAMES) *
-			                          (int)D230.trackSelect.trackChangeDirection;
+				MM_TRACK_SELECT_TRACK_CHANGE_FRAMES) *
+				(int)D230.trackSelect.trackChangeDirection;
 		}
 
 		RECT rowRect;
@@ -903,7 +903,7 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 
 		// posX of track list
 		s32 rowX = (u32)D230.trackSelect_rowListTransition.currX + (MATH_Cos(rowAngle) * MM_TRACK_SELECT_ROW_X_RADIUS >> MM_TRACK_SELECT_ROW_X_SHIFT) +
-		           MM_TRACK_SELECT_ROW_X_OFFSET;
+			MM_TRACK_SELECT_ROW_X_OFFSET;
 
 		// posY of track list
 		s32 rowBaseY = (u32)D230.trackSelect_rowListTransition.currY + (MATH_Sin(rowAngle) * MM_TRACK_SELECT_ROW_Y_RADIUS >> MM_TRACK_SELECT_ROW_Y_SHIFT);
@@ -939,18 +939,18 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 					struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[MM_TRACK_SELECT_TT_STAR_ICON_GROUP]);
 
 					DecalHUD_DrawPolyGT4(iconPtrArray[MM_TRACK_SELECT_TT_STAR_ICON], rowX + MM_TRACK_SELECT_ROW_W + MM_TRACK_SELECT_STAR_X_OFFSET,
-					                     (int)rowY + starIndex * MM_TRACK_SELECT_STAR_Y_STEP + MM_TRACK_SELECT_STAR_Y_OFFSET,
+						(int)rowY + starIndex * MM_TRACK_SELECT_STAR_Y_STEP + MM_TRACK_SELECT_STAR_Y_OFFSET,
 
-					                     // pointer to PrimMem struct
-					                     &gGT->backBuffer->primMem,
+						// pointer to PrimMem struct
+						&gGT->backBuffer->primMem,
 
-					                     // pointer to OT mem
-					                     gGT->pushBuffer_UI.ptrOT,
+						// pointer to OT mem
+						gGT->pushBuffer_UI.ptrOT,
 
-					                     // color data
-					                     starColor[0], starColor[1], starColor[2], starColor[3],
+						// color data
+						starColor[0], starColor[1], starColor[2], starColor[3],
 
-					                     0, FP(1.0));
+						0, FP(1.0));
 				}
 			}
 			// restore levelID
@@ -962,13 +962,13 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 
 		// Draw string
 		DecalFont_DrawLine(sdata->lngStrings[data.metaDataLEV[selectMenu[currTrack].levID].name_LNG], (rowX + MM_TRACK_SELECT_ROW_NAME_X_OFFSET),
-		                   (rowBaseY + MM_TRACK_SELECT_ROW_NAME_Y_OFFSET), FONT_BIG, ORANGE);
+			(rowBaseY + MM_TRACK_SELECT_ROW_NAME_Y_OFFSET), FONT_BIG, ORANGE);
 
 		if ((D230.trackSelect.trackChangeFrames == 0) && ((s16)rowIndex == MM_TRACK_SELECT_CENTER_ROW))
 		{
 			// Human ghost data is available in Time Trial and native Relic Race.
 			if (((gGT->gameMode1 & TIME_TRIAL) != 0) ||
-			    ((gNativeRelicRaceMode != 0) && ((gGT->gameMode1 & RELIC_RACE) != 0)))
+				((gNativeRelicRaceMode != 0) && ((gGT->gameMode1 & RELIC_RACE) != 0)))
 			{
 				// Only advertise ghost data that can actually be followed in this mode.
 				s16 ghostProfileCount = RefreshCard_CountCompatibleGhostProfilesForLEV(selectMenu[currTrack].levID);
@@ -989,8 +989,8 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 					}
 
 					DecalFont_DrawLine(sdata->lngStrings[LNG_GHOST_DATA_EXISTS],
-					                   (rowX + MM_TRACK_SELECT_ROW_NAME_X_OFFSET + MM_TRACK_SELECT_GHOST_TEXT_FROM_NAME_X),
-					                   (rowBaseY + MM_TRACK_SELECT_GHOST_TEXT_Y_OFFSET), FONT_SMALL, ghostTextFlags);
+						(rowX + MM_TRACK_SELECT_ROW_NAME_X_OFFSET + MM_TRACK_SELECT_GHOST_TEXT_FROM_NAME_X),
+						(rowBaseY + MM_TRACK_SELECT_GHOST_TEXT_Y_OFFSET), FONT_SMALL, ghostTextFlags);
 				}
 			}
 			RECT highlightRect;
@@ -1050,11 +1050,11 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 			if (!rightSideMenuOpen)
 			{
 				DecalFont_DrawLine(sdata->lngStrings[LNG_SELECT_LEVEL_SELECT], (D230.trackSelect_titleTransition.currX + MM_TRACK_SELECT_TITLE_X),
-				                   (D230.trackSelect_titleTransition.currY + (u32)previewRect.y), FONT_BIG, (JUSTIFY_CENTER | ORANGE));
+					(D230.trackSelect_titleTransition.currY + (u32)previewRect.y), FONT_BIG, (JUSTIFY_CENTER | ORANGE));
 
 				DecalFont_DrawLine(sdata->lngStrings[LNG_LEVEL], (D230.trackSelect_titleTransition.currX + MM_TRACK_SELECT_TITLE_X),
-				                   (D230.trackSelect_titleTransition.currY + (u32)previewRect.y + MM_TRACK_SELECT_LEVEL_TEXT_Y_STEP), FONT_BIG,
-				                   (JUSTIFY_CENTER | ORANGE));
+					(D230.trackSelect_titleTransition.currY + (u32)previewRect.y + MM_TRACK_SELECT_LEVEL_TEXT_Y_STEP), FONT_BIG,
+					(JUSTIFY_CENTER | ORANGE));
 			}
 
 			// next, draw the map icon, below "SELECT LEVEL",
@@ -1063,8 +1063,8 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 
 			if ((-1 < selectMenu[menu->rowSelected].mapTextureID) &&
 
-			    // If neither lap nor Reverse selection is covering the preview area
-			    !rightSideMenuOpen)
+				// If neither lap nor Reverse selection is covering the preview area
+				!rightSideMenuOpen)
 			{
 				s32 mapID = selectMenu[menu->rowSelected].mapTextureID;
 				struct Icon *iconMap0 = gGT->ptrIcons[mapID + 0];
@@ -1089,37 +1089,37 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 				for (s32 mapLayer = 0; mapLayer < MM_TRACK_SELECT_MAP_LAYER_COUNT; mapLayer++)
 				{
 					UI_Map_DrawMap(
-					    // top half
-					    iconMap0,
+						// top half
+						iconMap0,
 
-					    // bottom half
-					    iconMap1,
+						// bottom half
+						iconMap1,
 
-					    // X
-					    D230.drawMapOffset[mapLayer].offsetX + previewRect.x +
-					        (D230.trackSelect_lapMenuTransition.currX - D230.trackSelect_previewTransition.currX) + (MM_TRACK_VIDEO_WIDTH >> 1) +
-					        (mapWidth >> 1),
+						// X
+						D230.drawMapOffset[mapLayer].offsetX + previewRect.x +
+						(D230.trackSelect_lapMenuTransition.currX - D230.trackSelect_previewTransition.currX) + (MM_TRACK_VIDEO_WIDTH >> 1) +
+						(mapWidth >> 1),
 
-					    // Y
-					    D230.drawMapOffset[mapLayer].offsetY + previewRect.y +
-					        (D230.trackSelect_lapMenuTransition.currY - D230.trackSelect_previewTransition.currY) + MM_TRACK_SELECT_MAP_CENTER_Y_OFFSET +
-					        (MM_TRACK_SELECT_MAP_BOX_H >> 1) + (mapHeight >> 1),
+						// Y
+						D230.drawMapOffset[mapLayer].offsetY + previewRect.y +
+						(D230.trackSelect_lapMenuTransition.currY - D230.trackSelect_previewTransition.currY) + MM_TRACK_SELECT_MAP_CENTER_Y_OFFSET +
+						(MM_TRACK_SELECT_MAP_BOX_H >> 1) + (mapHeight >> 1),
 
-					    // pointer to PrimMem struct
-					    &gGT->backBuffer->primMem,
+						// pointer to PrimMem struct
+						&gGT->backBuffer->primMem,
 
-					    // pointer to OT mem
-					    gGT->pushBuffer_UI.ptrOT,
+						// pointer to OT mem
+						gGT->pushBuffer_UI.ptrOT,
 
-					    // 1 = draw map with regular color (white) - used for the main layer of the minimap in the track select screen
-					    // 2 = draw map blue - used for the outline of the minimap in the track select screen
-					    // 3 = draw map black - used for the shadow of the minimap in the track select screen
-					    D230.drawMapOffset[mapLayer].type);
+						// 1 = draw map with regular color (white) - used for the main layer of the minimap in the track select screen
+						// 2 = draw map blue - used for the outline of the minimap in the track select screen
+						// 3 = draw map black - used for the shadow of the minimap in the track select screen
+						D230.drawMapOffset[mapLayer].type);
 				}
 			}
 
 			MM_TrackSelect_Video_Draw(&previewRect, selectMenu, (int)(s16)D230.trackSelect.currentTrack,
-			                          (u32)(D230.trackSelect.transition.state == EXITING_MENU), 0);
+				(u32)(D230.trackSelect.transition.state == EXITING_MENU), 0);
 
 			return;
 		}

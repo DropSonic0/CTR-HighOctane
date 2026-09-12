@@ -1,8 +1,8 @@
 /*
- * Derived from REDRIVER2/PsyCross MIT source:
- * externals/PsyCross/src/psx/LIBGTE.C
- * See THIRD_PARTY_NOTICES.md for copyright and license details.
- */
+* Derived from REDRIVER2/PsyCross MIT source:
+* externals/PsyCross/src/psx/LIBGTE.C
+* See THIRD_PARTY_NOTICES.md for copyright and license details.
+*/
 
 #include <macros.h>
 #include <ctr_gte.h>
@@ -73,49 +73,21 @@ void SetGeomScreen(int h)
 
 void SetRotMatrix(MATRIX *m)
 {
-	static int count = 0;
-	count++;
-	if (count <= 10 || (count % 500) == 0)
-	{
-		printf("[GTE] SetRotMatrix #%d: m=%p [%d,%d,%d | %d,%d,%d | %d,%d,%d]\n", count, (void*)m,
-			m ? m->m[0][0] : 0, m ? m->m[0][1] : 0, m ? m->m[0][2] : 0,
-			m ? m->m[1][0] : 0, m ? m->m[1][1] : 0, m ? m->m[1][2] : 0,
-			m ? m->m[2][0] : 0, m ? m->m[2][1] : 0, m ? m->m[2][2] : 0);
-	}
 	gte_SetRotMatrix(m);
 }
 
 void SetLightMatrix(MATRIX *m)
 {
-	static int count = 0;
-	count++;
-	if (count <= 10 || (count % 500) == 0)
-	{
-		printf("[GTE] SetLightMatrix #%d: m=%p\n", count, (void*)m);
-	}
 	gte_SetLightMatrix(m);
 }
 
 void SetColorMatrix(MATRIX *m)
 {
-	static int count = 0;
-	count++;
-	if (count <= 10 || (count % 500) == 0)
-	{
-		printf("[GTE] SetColorMatrix #%d: m=%p\n", count, (void*)m);
-	}
 	gte_SetColorMatrix(m);
 }
 
 void SetTransMatrix(MATRIX *m)
 {
-	static int count = 0;
-	count++;
-	if (count <= 10 || (count % 500) == 0)
-	{
-		printf("[GTE] SetTransMatrix #%d: m=%p t=[%d,%d,%d]\n", count, (void*)m,
-			m ? m->t[0] : 0, m ? m->t[1] : 0, m ? m->t[2] : 0);
-	}
 	gte_SetTransMatrix(m);
 }
 
@@ -163,15 +135,7 @@ void PopMatrix()
 
 void RotTrans(SVECTOR *v0, VECTOR *v1, s32 *flag)
 {
-	static int count = 0;
-	count++;
 	gte_RotTrans(v0, v1, flag);
-	if (count <= 5 || (count % 1000) == 0)
-	{
-		printf("[GTE] RotTrans #%d: v0=[%d,%d,%d] -> v1=[%d,%d,%d]\n", count,
-			v0 ? v0->vx : 0, v0 ? v0->vy : 0, v0 ? v0->vz : 0,
-			v1 ? v1->vx : 0, v1 ? v1->vy : 0, v1 ? v1->vz : 0);
-	}
 }
 
 void RotTransSV(SVECTOR *v0, SVECTOR *v1, s32 *flag)
@@ -184,32 +148,15 @@ void RotTransSV(SVECTOR *v0, SVECTOR *v1, s32 *flag)
 
 int RotTransPers(SVECTOR *v0, s32 *sxy, s32 *p, s32 *flag)
 {
-	static int count = 0;
 	int sz;
-	count++;
 	gte_RotTransPers(v0, sxy, p, flag, &sz);
-	if (count <= 5 || (count % 1000) == 0)
-	{
-		printf("[GTE] RotTransPers #%d: v0=[%d,%d,%d] -> sxy=0x%08x, sz=%d\n", count,
-			v0 ? v0->vx : 0, v0 ? v0->vy : 0, v0 ? v0->vz : 0,
-			sxy ? *sxy : 0, sz);
-	}
-
 	return sz;
 }
 
 int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, s32 *sxy0, s32 *sxy1, s32 *sxy2, s32 *p, s32 *flag)
 {
-	static int count = 0;
 	int sz;
-	count++;
 	gte_RotTransPers3(v0, v1, v2, sxy0, sxy1, sxy2, p, flag, &sz);
-	if (count <= 5 || (count % 1000) == 0)
-	{
-		printf("[GTE] RotTransPers3 #%d: sz=%d sxy0=0x%08x sxy1=0x%08x sxy2=0x%08x\n", count,
-			sz, sxy0 ? *sxy0 : 0, sxy1 ? *sxy1 : 0, sxy2 ? *sxy2 : 0);
-	}
-
 	return sz;
 }
 

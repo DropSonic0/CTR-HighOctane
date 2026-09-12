@@ -1,8 +1,8 @@
 /*
- * Derived from REDRIVER2/PsyCross MIT source:
- * externals/PsyCross/src/psx/INLINE_C.C
- * See THIRD_PARTY_NOTICES.md for copyright and license details.
- */
+* Derived from REDRIVER2/PsyCross MIT source:
+* externals/PsyCross/src/psx/INLINE_C.C
+* See THIRD_PARTY_NOTICES.md for copyright and license details.
+*/
 
 #include <macros.h>
 #include <psx/gtereg.h>
@@ -13,8 +13,6 @@ extern u32 gte_leadingzerocount(u32 lzcs);
 
 u32 MFC2(s32 reg)
 {
-	static int count = 0;
-	count++;
 	switch (reg)
 	{
 	case 1:
@@ -43,11 +41,6 @@ u32 MFC2(s32 reg)
 	case 29:
 		gteRegs.CP2D.p[reg].d = LIM(C2_IR1 >> 7, 0x1f, 0, 0) | (LIM(C2_IR2 >> 7, 0x1f, 0, 0) << 5) | (LIM(C2_IR3 >> 7, 0x1f, 0, 0) << 10);
 		break;
-	}
-
-	if (count <= 10 || (count % 1000) == 0)
-	{
-		printf("[GTE] MFC2 #%d: reg=%d -> 0x%08x\n", count, reg, gteRegs.CP2D.p[reg].d);
 	}
 
 	return gteRegs.CP2D.p[reg].d;
@@ -91,8 +84,6 @@ s32 MFC2_S(s32 reg)
 
 void MTC2(u32 value, s32 reg)
 {
-	static int count = 0;
-	count++;
 	switch (reg)
 	{
 	case 15:
@@ -116,11 +107,6 @@ void MTC2(u32 value, s32 reg)
 	}
 
 	gteRegs.CP2D.p[reg].d = value;
-
-	if (count <= 10 || (count % 1000) == 0)
-	{
-		printf("[GTE] MTC2 #%d: reg=%d, val=0x%08x\n", count, reg, value);
-	}
 }
 
 void MTC2_S(s32 value, s32 reg)
@@ -152,8 +138,6 @@ void MTC2_S(s32 value, s32 reg)
 
 void CTC2(u32 value, s32 reg)
 {
-	static int count = 0;
-	count++;
 	switch (reg)
 	{
 	case 4:
@@ -176,11 +160,6 @@ void CTC2(u32 value, s32 reg)
 	}
 
 	gteRegs.CP2C.p[reg].d = value;
-
-	if (count <= 10 || (count % 1000) == 0)
-	{
-		printf("[GTE] CTC2 #%d: reg=%d, val=0x%08x\n", count, reg, value);
-	}
 }
 
 void CTC2_S(s32 value, s32 reg)
@@ -225,11 +204,5 @@ s32 CFC2_S(s32 reg)
 
 s32 doCOP2(s32 op)
 {
-	static int count = 0;
-	count++;
-	if (count <= 10 || (count % 1000) == 0)
-	{
-		printf("[GTE] doCOP2 #%d: op=0x%08x\n", count, op);
-	}
 	return GTE_operator(op);
 }
