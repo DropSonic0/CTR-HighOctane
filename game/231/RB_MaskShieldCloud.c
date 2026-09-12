@@ -345,6 +345,9 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	s16 fadeAlphaScale;
 	int i;
 	int rotY;
+	u8 model;
+	struct Instance *bombInst;
+	struct Thread *bombTh;
 	struct TrackerWeapon *tw;
 	struct PushBuffer *pb;
 
@@ -578,7 +581,7 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	GAMEPAD_ShockForce1(player, 8, 0x7f);
 
 	// green shield
-	u8 model = DYNAMIC_SHIELD_GREEN;
+	model = DYNAMIC_SHIELD_GREEN;
 
 	if ((shieldFlags & SHIELD_FLAG_BLUE) != 0)
 	{
@@ -587,9 +590,9 @@ void RB_ShieldDark_ThTick_Grow(struct Thread *th)
 	}
 
 	// create a thread, get an instance
-	struct Instance *bombInst = INSTANCE_BirthWithThread(model, 0, MEDIUM, OTHER, RB_MovingExplosive_ThTick, sizeof(struct TrackerWeapon), playerTh);
+	bombInst = INSTANCE_BirthWithThread(model, 0, MEDIUM, OTHER, RB_MovingExplosive_ThTick, sizeof(struct TrackerWeapon), playerTh);
 
-	struct Thread *bombTh = bombInst->thread;
+	bombTh = bombInst->thread;
 	bombTh->funcThDestroy = PROC_DestroyInstance;
 
 	// if driver is not an AI (human)

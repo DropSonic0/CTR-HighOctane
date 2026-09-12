@@ -259,6 +259,7 @@ void RB_Plant_ThTick_Hungry(struct Thread *t)
 
 	struct Instance *hitInst;
 	struct Driver *hitDriver;
+	int didHit;
 
 	struct GameTracker *gGT = sdata->gGT;
 
@@ -310,7 +311,7 @@ void RB_Plant_ThTick_Hungry(struct Thread *t)
 		hitDriver = (struct Driver *)hitInst->thread->object;
 
 		// attempt to harm driver (eat)
-		int didHit = RB_Hazard_HurtDriver(hitDriver, 5, 0, 0);
+		didHit = RB_Hazard_HurtDriver(hitDriver, 5, 0, 0);
 
 		if (didHit != 0)
 		{

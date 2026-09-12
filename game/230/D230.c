@@ -236,18 +236,21 @@ struct OverlayDATA_230 D230 =
         .titleDifficultyMenuPos = {{0, 0}},
 
         .titleBaseCameraPos = {{0x32, 0xFFE2, 0x64}},
+        ._pad_titleBaseCameraPos = 0,
 
-        .transitionMeta_Menu =
-            {
-                {512, 0, 0, 0, 0},
-                {0, 0, 1, 0, 0},
-                {0, 0, 1, 0, 0},
-                {0, 0, 2, 0, 0},
-                {0, 0, 3, 0, 0},
-                {0x4B0, 0xFFE2, 0, 0, 0},
-                {0x64, 0xC8, 0, 0, 0},
-                {0, 0, -1, 0, 0},
-            },
+        {
+            .transitionMeta_Menu =
+                {
+                    {512, 0, 0, 0, 0},
+                    {0, 0, 1, 0, 0},
+                    {0, 0, 1, 0, 0},
+                    {0, 0, 2, 0, 0},
+                    {0, 0, 3, 0, 0},
+                    {0x4B0, 0xFFE2, 0, 0, 0},
+                    {0x64, 0xC8, 0, 0, 0},
+                    {0, 0, -1, 0, 0},
+                },
+        },
 
         .titleSounds =
             {
@@ -301,29 +304,29 @@ struct OverlayDATA_230 D230 =
         .characterSelectWindowPos =
             {
                 // 1P full menu
-                {.x = 0x7F, .y = 0xA},
+                {{0x7F, 0xA}},
 
                 // 1P small menu
-                {.x = 0x4D, .y = 0x1E},
+                {{0x4D, 0x1E}},
 
                 // 2P full menu
-                {.x = 0xA, .y = 0xA},
-                {.x = 0x110, .y = 0xA},
+                {{0xA, 0xA}},
+                {{0x110, 0xA}},
 
                 // 2P small menu
-                {.x = 0x1E, .y = 0x1E},
-                {.x = 0x100, .y = 0x1E},
+                {{0x1E, 0x1E}},
+                {{0x100, 0x1E}},
 
                 // 3P menu
-                {.x = 0x136, .y = 0x4},
-                {.x = 0x136, .y = 0x4A},
-                {.x = 0x136, .y = 0x90},
+                {{0x136, 0x4}},
+                {{0x136, 0x4A}},
+                {{0x136, 0x90}},
 
                 // 4P menu
-                {.x = 0x15, .y = 0x1},
-                {.x = 0x13F, .y = 0x1},
-                {.x = 0x15, .y = 0x95},
-                {.x = 0x13F, .y = 0x95},
+                {{0x15, 0x1}},
+                {{0x13F, 0x1}},
+                {{0x15, 0x95}},
+                {{0x13F, 0x95}},
             },
 
         .characterSelectWindowPosByLayout =
@@ -610,7 +613,9 @@ struct OverlayDATA_230 D230 =
                 {24, 0x4b, 0xFFFF, 0x4, 0x1f8, 0x19a},
             },
 
-        .transitionMeta_trackSel = {{-512, 0, 1, 0, 0}, {0, -200, 2, 0, 0}, {0, 200, 3, 0, 0}, {512, 0, 4, 0, 0}, {0, 0, -1, 0, 0}},
+        {
+            .transitionMeta_trackSel = {{-512, 0, 1, 0, 0}, {0, -200, 2, 0, 0}, {0, 200, 3, 0, 0}, {512, 0, 4, 0, 0}, {0, 0, -1, 0, 0}},
+        },
 
         .lapCountByRow = {{3, 0}, {5, 0}, {7, 0}, {0, 0}},
 
@@ -857,9 +862,9 @@ struct OverlayDATA_230 D230 =
         .highScoreTransition =
             {
                 .state = ENTERING_MENU,
-                .frame = {0, 0, 0},
-                .horizontalMove = {0, 0},
-                .verticalMove = {0, 0},
+                {.frame = {0, 0, 0}},
+                {.horizontalMove = {0, 0}},
+                {.verticalMove = {0, 0}},
             },
 
         // SCRAPBOOK

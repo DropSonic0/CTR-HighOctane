@@ -159,6 +159,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 	s16 *opcodeMetaShorts;
 	struct CsInitMatrixEntry *frameData;
 	int nextFrameTime;
+	int targetFrameTime;
 	int lodIndex;
 	struct ModelHeader *modelHeader;
 	int metadataBackup[CS_DECODED_OPCODE_WORD_COUNT];
@@ -338,12 +339,11 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 				{
 #if defined(CTR_NATIVE)
 					gNativeBootSkipRequested = 0;
-#else
+#endif
 					if ((u32)gGT->msInThisLEV >> CS_FRAME32_SHIFT < CS_ND_CRATE_SKIP_MIN_FRAME32)
 					{
 						goto afterCameraAndSkipChecks;
 					}
-#endif
 					RaceFlag_SetCanDraw(1);
 					if (!RaceFlag_IsTransitioning() && !RaceFlag_IsFullyOnScreen())
 					{
@@ -485,7 +485,7 @@ processOpcode:
 		frameBoundaryHit = 0;
 		if (opcodeMeta->arg1.i < opcodeMeta->arg0.i)
 		{
-			int targetFrameTime = opcodeMeta->arg1.i * CS_FRAME32_UNIT;
+			targetFrameTime = opcodeMeta->arg1.i * CS_FRAME32_UNIT;
 			animFrame32 = animFrame32 - elapsedTimeRemaining;
 			if (animFrame32 < targetFrameTime)
 			{

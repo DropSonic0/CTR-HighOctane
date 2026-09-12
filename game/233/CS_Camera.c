@@ -50,6 +50,8 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 	struct Instance *inst;
 	struct CutsceneObj *cs;
 	struct GameTracker *gGT;
+	struct Model **mArr;
+	struct CsThreadInitData initData;
 
 	gGT = sdata->gGT;
 	levID = gGT->levelID;
@@ -124,7 +126,7 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 			break;
 		}
 
-		struct Model **mArr = &D233.ptrModelBossHead;
+		mArr = &D233.ptrModelBossHead;
 
 		for (int i = 0; i < 2; i++)
 		{
@@ -141,7 +143,7 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 
 		MEMPACK_SwapPacks(gGT->activeMempackIndex);
 
-		struct CsThreadInitData initData = {0};
+		memset(&initData, 0, sizeof(initData));
 		initData.podiumPos.x = bcd->bossPos.x;
 		initData.podiumPos.y = bcd->bossPos.y;
 		initData.podiumPos.z = bcd->bossPos.z;

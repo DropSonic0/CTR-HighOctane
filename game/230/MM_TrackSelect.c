@@ -902,11 +902,11 @@ void MM_TrackSelect_MenuProc(struct RectMenu *menu)
 		rowRect.h = MM_TRACK_SELECT_ROW_H;
 
 		// posX of track list
-		s32 rowX = (u32)D230.trackSelect_rowListTransition.currX + (MATH_Cos(rowAngle) * MM_TRACK_SELECT_ROW_X_RADIUS >> MM_TRACK_SELECT_ROW_X_SHIFT) +
+		s32 rowX = (s32)D230.trackSelect_rowListTransition.currX + (MATH_Cos(rowAngle) * MM_TRACK_SELECT_ROW_X_RADIUS >> MM_TRACK_SELECT_ROW_X_SHIFT) +
 		           MM_TRACK_SELECT_ROW_X_OFFSET;
 
 		// posY of track list
-		s32 rowBaseY = (u32)D230.trackSelect_rowListTransition.currY + (MATH_Sin(rowAngle) * MM_TRACK_SELECT_ROW_Y_RADIUS >> MM_TRACK_SELECT_ROW_Y_SHIFT);
+		s32 rowBaseY = (s32)D230.trackSelect_rowListTransition.currY + (MATH_Sin(rowAngle) * MM_TRACK_SELECT_ROW_Y_RADIUS >> MM_TRACK_SELECT_ROW_Y_SHIFT);
 
 		s16 rowY = (s16)rowBaseY + MM_TRACK_SELECT_ROW_Y_OFFSET;
 		rowRect.x = (s16)rowX;

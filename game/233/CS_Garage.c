@@ -85,6 +85,22 @@ void CS_Garage_MenuProc(struct RectMenu *menu)
 	u16 classNamePosX;
 	u32 statNamePosX;
 	u32 statBarPosX;
+	int engineID;
+	int classStringIndex;
+	u16 statBarStart_Y;
+	u16 statBarEnd_Y;
+	u16 statBarShadows_Y;
+	int boxLeft;
+	int boxRight;
+	int maxStatBarLength;
+	int statBarRight;
+	char *name;
+	int arrowColor;
+	u32 *arrowColors;
+	int nameLen;
+	int arrowPos[2];
+	int arrowRot[2];
+	struct Icon **iconPtrArray;
 
 	u32 currSelectIndex = sdata->advCharSelectIndex_curr;
 	struct GameTracker *gGT = sdata->gGT;
@@ -151,11 +167,11 @@ void CS_Garage_MenuProc(struct RectMenu *menu)
 	DecalFont_DrawLine(sdata->lngStrings[LNG_ACCEL], statNamePosX, GARAGE_STAT_NAME_ACCEL_Y, FONT_BIG, JUSTIFY_RIGHT | LIME_GREEN);
 	DecalFont_DrawLine(sdata->lngStrings[LNG_TURN], statNamePosX, GARAGE_STAT_NAME_TURN_Y, FONT_BIG, JUSTIFY_RIGHT | BLUE);
 
-	int engineID = MDC->engineID;
+	engineID = MDC->engineID;
 
 	// 0x248 - Beginner
 	// EngineID == 3
-	int classStringIndex = 0;
+	classStringIndex = 0;
 
 	// 0x24A - Advanced
 	if (engineID == SPEED)
@@ -170,10 +186,10 @@ void CS_Garage_MenuProc(struct RectMenu *menu)
 	}
 
 	// 7 pixels tall
-	u16 statBarStart_Y = GARAGE_STAT_BAR_START_Y;
-	u16 statBarEnd_Y = GARAGE_STAT_BAR_END_Y;
+	statBarStart_Y = GARAGE_STAT_BAR_START_Y;
+	statBarEnd_Y = GARAGE_STAT_BAR_END_Y;
 
-	u16 statBarShadows_Y = GARAGE_STAT_BAR_SHADOW_Y;
+	statBarShadows_Y = GARAGE_STAT_BAR_SHADOW_Y;
 
 	// Draw class name
 	DecalFont_DrawLine(sdata->lngStrings[gGarage.classStringIDs[classStringIndex]], classNamePosX, GARAGE_CLASS_NAME_Y, FONT_BIG, (JUSTIFY_CENTER | ORANGE));
@@ -275,8 +291,8 @@ void CS_Garage_MenuProc(struct RectMenu *menu)
 	}
 
 	// Use the longest voice for calculating the box size in order to support multilanguage text.
-	int boxLeft = classNamePosX;
-	int boxRight = classNamePosX;
+	boxLeft = classNamePosX;
+	boxRight = classNamePosX;
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -290,7 +306,7 @@ void CS_Garage_MenuProc(struct RectMenu *menu)
 			boxRight = classRight;
 	}
 
-	const int statStringIDs[3] = {LNG_SPEED, LNG_ACCEL, LNG_TURN};
+	static const int statStringIDs[3] = {LNG_SPEED, LNG_ACCEL, LNG_TURN};
 	for (int i = 0; i < 3; i++)
 	{
 		int statWidth = DecalFont_GetLineWidth(sdata->lngStrings[statStringIDs[i]], FONT_BIG);
@@ -302,14 +318,14 @@ void CS_Garage_MenuProc(struct RectMenu *menu)
 			boxRight = (int)statNamePosX;
 	}
 
-	int maxStatBarLength = 0;
+	maxStatBarLength = 0;
 	for (int i = 0; i < 12; i++)
 	{
 		if (gGarage.statBarTargetLengths[i] > maxStatBarLength)
 			maxStatBarLength = gGarage.statBarTargetLengths[i];
 	}
 
-	int statBarRight = (int)statBarPosX + CTR_WIDESCREEN_SCALE_X(maxStatBarLength);
+	statBarRight = (int)statBarPosX + CTR_WIDESCREEN_SCALE_X(maxStatBarLength);
 	if ((int)statBarPosX < boxLeft)
 		boxLeft = (int)statBarPosX;
 	if (statBarRight > boxRight)
@@ -324,12 +340,12 @@ void CS_Garage_MenuProc(struct RectMenu *menu)
 	// Draw 2D Menu rectangle background
 	RECTMENU_DrawInnerRect(&r, 4, gGT->backBuffer->otMem.uiOT);
 
-	char *name = sdata->lngStrings[nameIndex];
+	name = sdata->lngStrings[nameIndex];
 
 	// Draw character name
 	DecalFont_DrawLine(name, GARAGE_CHARACTER_NAME_X, GARAGE_CHARACTER_NAME_Y, FONT_BIG, 0xffff8000);
 
-	int arrowColor = ORANGE;
+	arrowColor = ORANGE;
 
 	// blink arrows
 	if ((FPS_HALF(sdata->frameCounter) & 4) == 0)
@@ -338,14 +354,16 @@ void CS_Garage_MenuProc(struct RectMenu *menu)
 	}
 
 	// Color data
-	u32 *arrowColors = data.ptrColor[(s32)arrowColor];
+	arrowColors = data.ptrColor[(s32)arrowColor];
 
-	int nameLen = DecalFont_GetLineWidth(name, FONT_BIG) >> 1;
+	nameLen = DecalFont_GetLineWidth(name, FONT_BIG) >> 1;
 
-	int arrowPos[2] = {GARAGE_CHARACTER_ARROW_LEFT_BASE_X - nameLen, nameLen + GARAGE_CHARACTER_ARROW_RIGHT_BASE_X};
-	int arrowRot[2] = {GARAGE_CHARACTER_ARROW_ROT_LEFT, 0};
+	arrowPos[0] = GARAGE_CHARACTER_ARROW_LEFT_BASE_X - nameLen;
+	arrowPos[1] = nameLen + GARAGE_CHARACTER_ARROW_RIGHT_BASE_X;
+	arrowRot[0] = GARAGE_CHARACTER_ARROW_ROT_LEFT;
+	arrowRot[1] = 0;
 
-	struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[4]);
+	iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[4]);
 
 	for (int i = 0; i < 2; i++)
 	{

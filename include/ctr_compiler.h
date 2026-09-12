@@ -33,7 +33,7 @@
 #define CTR_TRAP() abort()
 #endif
 
-#if defined(__GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__SNC__) && !defined(__EDG__)
 #define CTR_GCC_OPTIMIZE_O0 __attribute__((optimize("O0")))
 #else
 #define CTR_GCC_OPTIMIZE_O0

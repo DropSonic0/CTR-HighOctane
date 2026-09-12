@@ -159,6 +159,9 @@ void RB_Spider_ThTick(struct Thread *t)
 	struct Driver *victim;
 	struct Instance *spiderInst;
 	struct Spider *spider;
+	s16 animFrame;
+	s16 animLoopCount;
+	int numAnimFrames;
 
 	spider = t->object;
 	spiderInst = t->inst;
@@ -177,7 +180,7 @@ void RB_Spider_ThTick(struct Thread *t)
 		if (4 < spider->animLoopCount)
 		{
 			// Play animation backwards
-			s16 animFrame = spiderInst->animFrame;
+			animFrame = spiderInst->animFrame;
 #if CTR_NATIVE_60FPS
 			if (!CTR_NATIVE_60FPS_ACTIVE || ((sdata->gGT->timer & 1) != 0))
 			{
@@ -207,13 +210,13 @@ void RB_Spider_ThTick(struct Thread *t)
 			goto updatePosScale;
 		}
 
-		s16 animFrame = spiderInst->animFrame;
-		int numAnimFrames = INSTANCE_GetNumAnimFrames(spiderInst, spiderInst->animIndex);
+		animFrame = spiderInst->animFrame;
+		numAnimFrames = INSTANCE_GetNumAnimFrames(spiderInst, spiderInst->animIndex);
 
 		if (numAnimFrames <= animFrame + 1)
 		{
 			spiderInst->animFrame = 0;
-			s16 animLoopCount = spider->animLoopCount;
+			animLoopCount = spider->animLoopCount;
 			spider->animLoopCount = animLoopCount + 1;
 
 			if ((s16)(animLoopCount + 1) == 5)
@@ -231,8 +234,8 @@ void RB_Spider_ThTick(struct Thread *t)
 	{
 		if (4 < spider->animLoopCount)
 		{
-			s16 animFrame = spiderInst->animFrame;
-			int numAnimFrames = INSTANCE_GetNumAnimFrames(spiderInst, 0);
+			animFrame = spiderInst->animFrame;
+			numAnimFrames = INSTANCE_GetNumAnimFrames(spiderInst, 0);
 
 			if (animFrame + 1 < numAnimFrames)
 			{
@@ -265,13 +268,13 @@ void RB_Spider_ThTick(struct Thread *t)
 			goto checkCollision;
 		}
 
-		s16 animFrame = spiderInst->animFrame;
-		int numAnimFrames = INSTANCE_GetNumAnimFrames(spiderInst, spiderInst->animIndex);
+		animFrame = spiderInst->animFrame;
+		numAnimFrames = INSTANCE_GetNumAnimFrames(spiderInst, spiderInst->animIndex);
 
 		if (numAnimFrames <= animFrame + 1)
 		{
 			spiderInst->animFrame = 0;
-			s16 animLoopCount = spider->animLoopCount;
+			animLoopCount = spider->animLoopCount;
 			spider->animLoopCount = animLoopCount + 1;
 
 			if ((s16)(animLoopCount + 1) == 5)
