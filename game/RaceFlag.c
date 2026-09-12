@@ -504,13 +504,13 @@ void RaceFlag_DrawLoadingString(void)
 	return;
 }
 
-force_inline char RaceFlag_CalculateBrightness(u32 sine, u8 darkTile)
+force_inline u8 RaceFlag_CalculateBrightness(u32 sine, u8 darkTile)
 {
 	if (darkTile)
 	{
-		return ((sine * -55 + 0x140000) >> 0xD);
+		return (u8)(((int)sine * -55 + 0x140000) >> 0xD);
 	}
-	return ((sine * -125 + 0x1fe000) >> 0xD);
+	return (u8)(((int)sine * -125 + 0x1fe000) >> 0xD);
 }
 
 force_inline int RaceFlag_Sin(u32 angle)

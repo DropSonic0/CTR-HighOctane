@@ -1187,16 +1187,16 @@ internal void COLL_FIXED_PlayerSearch_SetupSearch(struct ScratchpadStruct *sps, 
 	s32 posX = CTR_MipsSra(d->posCurr.x, 8);
 	s32 posY = CTR_MipsSra(d->posCurr.y, 8);
 	s32 posZ = CTR_MipsSra(d->posCurr.z, 8);
-	SVec3 probeBottom = {
-	    .x = (s16)posX,
-	    .y = (s16)CTR_MipsAddLo(posY, -COLL_FIXED_PLAYER_SEARCH_BOTTOM_Y_OFFSET),
-	    .z = (s16)posZ,
-	};
-	SVec3 probeTop = {
-	    .x = (s16)posX,
-	    .y = (s16)CTR_MipsAddLo(posY, COLL_FIXED_PLAYER_SEARCH_TOP_Y_OFFSET),
-	    .z = (s16)posZ,
-	};
+	SVec3 probeBottom;
+	SVec3 probeTop;
+
+	probeBottom.x = (s16)posX;
+	probeBottom.y = (s16)CTR_MipsAddLo(posY, -COLL_FIXED_PLAYER_SEARCH_BOTTOM_Y_OFFSET);
+	probeBottom.z = (s16)posZ;
+
+	probeTop.x = (s16)posX;
+	probeTop.y = (s16)CTR_MipsAddLo(posY, COLL_FIXED_PLAYER_SEARCH_TOP_Y_OFFSET);
+	probeTop.z = (s16)posZ;
 
 	d->actionsFlagSet &= ~ACTION_ENGINE_ECHO;
 
@@ -2303,11 +2303,13 @@ void COLL_MOVED_PlayerSearch(struct Thread *t, struct Driver *d)
 
 	for (s32 iterations = 15; iterations != 0; iterations--)
 	{
-		Vec3 velocity = {
-		    .x = CollMoved_PlayerSearch_StepVelocity(d->velocity.x, gGT->elapsedTimeMS, multiplier),
-		    .y = CollMoved_PlayerSearch_StepVelocity(d->velocity.y, gGT->elapsedTimeMS, multiplier),
-		    .z = CollMoved_PlayerSearch_StepVelocity(d->velocity.z, gGT->elapsedTimeMS, multiplier),
-		};
+		Vec3 velocity;
+		SVec3 current;
+		SVec3 next;
+
+		velocity.x = CollMoved_PlayerSearch_StepVelocity(d->velocity.x, gGT->elapsedTimeMS, multiplier);
+		velocity.y = CollMoved_PlayerSearch_StepVelocity(d->velocity.y, gGT->elapsedTimeMS, multiplier);
+		velocity.z = CollMoved_PlayerSearch_StepVelocity(d->velocity.z, gGT->elapsedTimeMS, multiplier);
 
 		sps->boolDidTouchQuadblock = 0;
 		sps->numTrianglesTested = 0;
@@ -2317,17 +2319,13 @@ void COLL_MOVED_PlayerSearch(struct Thread *t, struct Driver *d)
 		sps->hitFraction = COLL_FRACTION_ONE;
 
 		// Retail uses addu/sra/lhu/sh for these sweep points.
-		SVec3 current = {
-		    .x = (s16)CTR_MipsAddLo((u16)d->originToCenter.x, CTR_MipsSra(d->posCurr.x, 8)),
-		    .y = (s16)CTR_MipsAddLo((u16)d->originToCenter.y, CTR_MipsSra(d->posCurr.y, 8)),
-		    .z = (s16)CTR_MipsAddLo((u16)d->originToCenter.z, CTR_MipsSra(d->posCurr.z, 8)),
-		};
+		current.x = (s16)CTR_MipsAddLo((u16)d->originToCenter.x, CTR_MipsSra(d->posCurr.x, 8));
+		current.y = (s16)CTR_MipsAddLo((u16)d->originToCenter.y, CTR_MipsSra(d->posCurr.y, 8));
+		current.z = (s16)CTR_MipsAddLo((u16)d->originToCenter.z, CTR_MipsSra(d->posCurr.z, 8));
 
-		SVec3 next = {
-		    .x = (s16)CTR_MipsAddLo((u16)d->originToCenter.x, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.x, velocity.x), 8)),
-		    .y = (s16)CTR_MipsAddLo((u16)d->originToCenter.y, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.y, velocity.y), 8)),
-		    .z = (s16)CTR_MipsAddLo((u16)d->originToCenter.z, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.z, velocity.z), 8)),
-		};
+		next.x = (s16)CTR_MipsAddLo((u16)d->originToCenter.x, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.x, velocity.x), 8));
+		next.y = (s16)CTR_MipsAddLo((u16)d->originToCenter.y, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.y, velocity.y), 8));
+		next.z = (s16)CTR_MipsAddLo((u16)d->originToCenter.z, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.z, velocity.z), 8));
 
 		sps->Union.QuadBlockColl.pos = current;
 		sps->Input1.pos = next;
@@ -2477,11 +2475,10 @@ internal Vec3 CollMoved_ScrubImpact_GteLLV0(s32 x, s32 y, s32 z)
 	MTC2(z, 1);
 	doCOP2(0x04a6012);
 
-	Vec3 out = {
-	    .x = MFC2_S(25),
-	    .y = MFC2_S(26),
-	    .z = MFC2_S(27),
-	};
+	Vec3 out;
+	out.x = MFC2_S(25);
+	out.y = MFC2_S(26);
+	out.z = MFC2_S(27);
 	return out;
 }
 
@@ -2590,11 +2587,10 @@ u32 COLL_MOVED_ScrubImpact(struct Driver *d, struct Thread *t, struct Scratchpad
 
 		if ((scrubFlags & SCRUB_FLAG_APPLY_IMPACT) != 0)
 		{
-			Vec3 impact = {
-			    .x = CTR_MipsSra(CTR_MipsMulLo(dot, normal.x), 12),
-			    .y = CTR_MipsSra(CTR_MipsMulLo(dot, normal.y), 12),
-			    .z = CTR_MipsSra(CTR_MipsMulLo(dot, normal.z), 12),
-			};
+			Vec3 impact;
+			impact.x = CTR_MipsSra(CTR_MipsMulLo(dot, normal.x), 12);
+			impact.y = CTR_MipsSra(CTR_MipsMulLo(dot, normal.y), 12);
+			impact.z = CTR_MipsSra(CTR_MipsMulLo(dot, normal.z), 12);
 			s32 speedSq = 0;
 
 			if (scrub->impactAngle != 0)

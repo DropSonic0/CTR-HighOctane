@@ -1294,9 +1294,11 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 				goto next_particle;
 			}
 
-			struct ParticleRenderListMatrix matrix = Particle_RenderList_BuildNormalMatrix(particle, flagsAxis);
+			{
+				struct ParticleRenderListMatrix matrix = Particle_RenderList_BuildNormalMatrix(particle, flagsAxis);
 
-			Particle_RenderList_WriteNormalPrimitive((POLY_FT4 *)prim, icon, flagsAxis, flagsSetColor, color, &matrix, &scratch->depth);
+				Particle_RenderList_WriteNormalPrimitive((POLY_FT4 *)prim, icon, flagsAxis, flagsSetColor, color, &matrix, &scratch->depth);
+			}
 			Particle_RenderList_LinkAndAdvance(&primCursor, &payloadCursor, particle, idpp, flagsSetColor, scratch->depth, scratch->ot);
 			prim = primCursor;
 

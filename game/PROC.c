@@ -293,7 +293,7 @@ struct Thread *PROC_BirthWithObject(int flags, void *funcThTick, const char *nam
 	}
 
 	// set remaining fields AFTER linking (ASM order)
-	th->funcThTick = funcThTick;
+	th->funcThTick = (ThreadFunc)funcThTick;
 	th->name = name;
 	th->object = (void *)(((u32)stackObj) + 8);
 

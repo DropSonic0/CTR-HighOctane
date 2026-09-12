@@ -434,7 +434,7 @@ void Music_SetDefaults(void)
 {
 	// no music playing
 	sdata->cseqBoolPlay = false;
-	sdata->cseqHighestIndex = -1;
+	sdata->cseqHighestIndex = 0xffffffffU;
 	sdata->cseqTempo = 0;
 }
 
@@ -543,7 +543,7 @@ void Music_Stop(void)
 	CseqMusic_Stop(sdata->cseqHighestIndex & 0xffff);
 
 	sdata->cseqBoolPlay = 0;
-	sdata->cseqHighestIndex = -1;
+	sdata->cseqHighestIndex = 0xffffffffU;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e524-0x8002e53c
@@ -561,7 +561,7 @@ void Music_End(void)
 	sdata->cseqBoolPlay = false;
 
 	// no songs are playing
-	sdata->cseqHighestIndex = -1;
+	sdata->cseqHighestIndex = 0xffffffffU;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e550-0x8002e55c

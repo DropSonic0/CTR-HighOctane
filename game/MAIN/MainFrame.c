@@ -286,7 +286,7 @@ void MainFrame_GameLogic(struct GameTracker *gGT, struct GamepadSystem *gGamepad
 			gGT->elapsedEventTime = 0;
 		}
 
-		CTR_CycleTex_AllModels(-1, (struct Model **)sdata->PLYROBJECTLIST, gGT->timer);
+		CTR_CycleTex_AllModels(0xffffffffU, (struct Model **)sdata->PLYROBJECTLIST, gGT->timer);
 		CTR_CycleTex_AllModels(gGT->level1->numModels, gGT->level1->ptrModelsPtrArray, gGT->timer);
 
 		psVar8 = 0;

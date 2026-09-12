@@ -110,15 +110,15 @@ typedef union ColorCode
 
 typedef ColorCode Color;
 
-#define MakeColorCode(red, green, blue, renderCode)         \
-	(ColorCode)                                             \
-	{                                                       \
-		.r = red, .g = green, .b = blue, .code = renderCode \
+#define MakeColorCode(red, green, blue, renderCode)           \
+	(ColorCode)                                               \
+	{                                                         \
+		{ .r = red, .g = green, .b = blue, .code = renderCode } \
 	}
-#define MakeColor(red, green, blue)     \
-	(Color)                             \
-	{                                   \
-		.r = red, .g = green, .b = blue \
+#define MakeColor(red, green, blue)       \
+	(Color)                               \
+	{                                     \
+		{ .r = red, .g = green, .b = blue } \
 	}
 
 typedef union Point
@@ -131,10 +131,10 @@ typedef union Point
 	s32 self;
 } Point;
 
-#define MakePoint(px, py) \
-	(Point)               \
-	{                     \
-		.x = px, .y = py  \
+#define MakePoint(px, py)   \
+	(Point)                 \
+	{                       \
+		{ .x = px, .y = py } \
 	}
 
 typedef union UV

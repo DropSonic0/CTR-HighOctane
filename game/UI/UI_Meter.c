@@ -325,7 +325,10 @@ void UI_DrawSlideMeter(s16 posX, s16 posY, struct Driver *driver)
 	Color black = MakeColor(0, 0, 0);
 	CTR_Box_DrawWireBox(&box, &black, gGT->pushBuffer_UI.ptrOT, &gGT->backBuffer->primMem);
 
-	const PrimCode primCode = {.poly = {.quad = 1, .renderCode = RenderCode_Polygon}};
+	PrimCode primCode;
+	memset(&primCode, 0, sizeof(primCode));
+	primCode.poly.quad = 1;
+	primCode.poly.renderCode = RenderCode_Polygon;
 	ColorCode colorCode = MakeColorCode(UI_SLIDE_METER_READY_R, UI_SLIDE_METER_READY_G, UI_SLIDE_METER_READY_B, primCode);
 
 	if (driver->const_turboLowRoomWarning * ELAPSED_MS < driver->turbo_MeterRoomLeft)
@@ -381,7 +384,10 @@ void UI_DrawReservesMeter(s16 posX, s16 posY, struct Driver *driver)
 	int meterWidth = (reserves * UI_RESERVES_METER_SCALE_NUMERATOR) / UI_RESERVES_METER_SCALE_DENOMINATOR;
 	meterWidth = CTR_WIDESCREEN_SCALE_X(meterWidth);
 
-	const PrimCode primCode = {.poly = {.quad = 1, .renderCode = RenderCode_Polygon}};
+	PrimCode primCode;
+	memset(&primCode, 0, sizeof(primCode));
+	primCode.poly.quad = 1;
+	primCode.poly.renderCode = RenderCode_Polygon;
 	ColorCode meterColor = MakeColorCode(0xff, 0, 0, primCode);
 
 	if (reserves > UI_RESERVES_METER_YELLOW_THRESHOLD)

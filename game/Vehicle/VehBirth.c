@@ -290,7 +290,9 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 
 	if (sps->boolDidTouchQuadblock == 0)
 	{
-		d->AxisAngle3_normalVec = (SVec3){.x = 0, .y = FP_ONE, .z = 0};
+		d->AxisAngle3_normalVec.x = 0;
+		d->AxisAngle3_normalVec.y = FP_ONE;
+		d->AxisAngle3_normalVec.z = 0;
 	}
 	else
 	{

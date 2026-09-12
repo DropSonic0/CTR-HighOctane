@@ -667,16 +667,16 @@ void BOTS_LevInstColl(struct Thread *botThread)
 	sps->Union.QuadBlockColl.quadFlagsIgnored = 0;
 	sps->Input1.hitRadius = BOTS_LEVEL_INST_COLL_RADIUS;
 
-	SVec3 currPos = {
-	    .x = (s16)CTR_MipsSra(driver->posCurr.x, FRACTIONAL_BITS_8),
-	    .y = (s16)CTR_MipsAddLo(CTR_MipsSra(driver->posCurr.y, FRACTIONAL_BITS_8), BOTS_LEVEL_INST_COLL_RADIUS),
-	    .z = (s16)CTR_MipsSra(driver->posCurr.z, FRACTIONAL_BITS_8),
-	};
-	SVec3 prevPos = {
-	    .x = (s16)CTR_MipsSra(driver->posPrev.x, FRACTIONAL_BITS_8),
-	    .y = (s16)CTR_MipsAddLo(CTR_MipsSra(driver->posPrev.y, FRACTIONAL_BITS_8), BOTS_LEVEL_INST_COLL_RADIUS),
-	    .z = (s16)CTR_MipsSra(driver->posPrev.z, FRACTIONAL_BITS_8),
-	};
+	SVec3 currPos;
+	SVec3 prevPos;
+
+	currPos.x = (s16)CTR_MipsSra(driver->posCurr.x, FRACTIONAL_BITS_8);
+	currPos.y = (s16)CTR_MipsAddLo(CTR_MipsSra(driver->posCurr.y, FRACTIONAL_BITS_8), BOTS_LEVEL_INST_COLL_RADIUS);
+	currPos.z = (s16)CTR_MipsSra(driver->posCurr.z, FRACTIONAL_BITS_8);
+
+	prevPos.x = (s16)CTR_MipsSra(driver->posPrev.x, FRACTIONAL_BITS_8);
+	prevPos.y = (s16)CTR_MipsAddLo(CTR_MipsSra(driver->posPrev.y, FRACTIONAL_BITS_8), BOTS_LEVEL_INST_COLL_RADIUS);
+	prevPos.z = (s16)CTR_MipsSra(driver->posPrev.z, FRACTIONAL_BITS_8);
 
 	COLL_FIXED_BotsSearch(&currPos, &prevPos, sps);
 
@@ -1108,11 +1108,10 @@ UpdateTireColorTimer:
 		int combinedRadius = CTR_MipsAddLo(botThread->driverHitRadius, hitThread->driverHitRadius);
 		if (driverSearch.bucket.bestDistSq < CTR_MipsMulLo(combinedRadius, combinedRadius))
 		{
-			Vec3 selfVelocity = {
-			    .x = CTR_MipsAddLo(botDriver->xSpeed, botDriver->botData.aiPhysics.accel.x),
-			    .y = CTR_MipsAddLo(botDriver->ySpeed, botDriver->botData.aiPhysics.accel.y),
-			    .z = CTR_MipsAddLo(botDriver->zSpeed, botDriver->botData.aiPhysics.accel.z),
-			};
+			Vec3 selfVelocity;
+			selfVelocity.x = CTR_MipsAddLo(botDriver->xSpeed, botDriver->botData.aiPhysics.accel.x);
+			selfVelocity.y = CTR_MipsAddLo(botDriver->ySpeed, botDriver->botData.aiPhysics.accel.y);
+			selfVelocity.z = CTR_MipsAddLo(botDriver->zSpeed, botDriver->botData.aiPhysics.accel.z);
 			VehPhysCrash_AnyTwoCars(botThread, &driverSearch, &selfVelocity);
 		}
 	}
@@ -2087,16 +2086,16 @@ UpdateTireColorTimer:
 		s16 probeY = (s16)CTR_MipsSra(CTR_MipsAddLo(botDriver->botData.positionBackup.y, botDriver->botData.aiPhysics.velocity.y), 8);
 		s16 probeX = (s16)CTR_MipsSra(CTR_MipsAddLo(botDriver->botData.positionBackup.x, botDriver->botData.aiPhysics.velocity.x), 8);
 		s16 probeZ = (s16)CTR_MipsSra(CTR_MipsAddLo(botDriver->botData.positionBackup.z, botDriver->botData.aiPhysics.velocity.z), 8);
-		SVec3 probeTop = {
-		    .x = probeX,
-		    .y = (s16)CTR_MipsSubLo(probeY, 0x100),
-		    .z = probeZ,
-		};
-		SVec3 probeBottom = {
-		    .x = probeX,
-		    .y = (s16)CTR_MipsAddLo(probeY, 0x80),
-		    .z = probeZ,
-		};
+		SVec3 probeTop;
+		SVec3 probeBottom;
+
+		probeTop.x = probeX;
+		probeTop.y = (s16)CTR_MipsSubLo(probeY, 0x100);
+		probeTop.z = probeZ;
+
+		probeBottom.x = probeX;
+		probeBottom.y = (s16)CTR_MipsAddLo(probeY, 0x80);
+		probeBottom.z = probeZ;
 
 		sps->ptr_mesh_info = gGT->level1->ptr_mesh_info;
 		sps->Union.QuadBlockColl.quadFlagsWanted = QUADBLOCK_FLAG_GROUND;
@@ -2623,6 +2622,8 @@ UpdateTireColorTimer:
 	botDriver->rotCurr.y = botDriver->botData.aiRot.y;
 	botDriver->rotCurr.z = botDriver->botData.aiRot.z;
 
+	int hazardSpeed = botDriver->speedApprox;
+
 	int badnessRecieveTimer = botDriver->clockReceive; // iVar4
 
 	if (badnessRecieveTimer == 0)
@@ -2746,15 +2747,14 @@ UpdateTireColorTimer:
 		}
 	}
 
+	if (hazardSpeed < 0)
+	{
+		hazardSpeed = CTR_MipsNegLo(hazardSpeed);
+	}
+
 	if ((botDriver->actionsFlagSet & ACTION_TOUCH_GROUND) == 0)
 	{
-		int iVar4 = botDriver->speedApprox;
-		if (iVar4 < 0)
-		{
-			iVar4 = CTR_MipsNegLo(iVar4);
-		}
-
-		if (iVar4 < 0x101)
+		if (hazardSpeed < 0x101)
 		{
 			goto CheckExistingHazardTimer;
 		}
@@ -2768,14 +2768,7 @@ UpdateTireColorTimer:
 	}
 	else
 	{
-		int iVar4 = botDriver->speedApprox;
-
-		if (iVar4 < 0)
-		{
-			iVar4 = CTR_MipsNegLo(iVar4);
-		}
-
-		if (iVar4 < 0x101)
+		if (hazardSpeed < 0x101)
 		{
 		CheckExistingHazardTimer:
 			badnessRecieveTimer = botDriver->hazardTimer;
@@ -2858,16 +2851,16 @@ FinishHazardTimerUpdate:
 		s16 probeX = (s16)CTR_MipsSra(CTR_MipsAddLo(botDriver->botData.positionBackup.x, botDriver->botData.aiPhysics.velocity.x), 8);
 		s16 probeY = (s16)CTR_MipsSra(CTR_MipsAddLo(botDriver->botData.positionBackup.y, botDriver->botData.aiPhysics.velocity.y), 8);
 		s16 probeZ = (s16)CTR_MipsSra(CTR_MipsAddLo(botDriver->botData.positionBackup.z, botDriver->botData.aiPhysics.velocity.z), 8);
-		SVec3 probeTop = {
-		    .x = probeX,
-		    .y = (s16)CTR_MipsSubLo(probeY, 0x100),
-		    .z = probeZ,
-		};
-		SVec3 probeBottom = {
-		    .x = probeX,
-		    .y = (s16)CTR_MipsAddLo(probeY, 0x40),
-		    .z = probeZ,
-		};
+		SVec3 probeTop;
+		SVec3 probeBottom;
+
+		probeTop.x = probeX;
+		probeTop.y = (s16)CTR_MipsSubLo(probeY, 0x100);
+		probeTop.z = probeZ;
+
+		probeBottom.x = probeX;
+		probeBottom.y = (s16)CTR_MipsAddLo(probeY, 0x40);
+		probeBottom.z = probeZ;
 
 		sps->ptr_mesh_info = gGT->level1->ptr_mesh_info;
 		sps->Union.QuadBlockColl.quadFlagsWanted = QUADBLOCK_FLAG_GROUND;
@@ -3080,19 +3073,16 @@ void BOTS_CollideWithOtherAI(struct Driver *robot_1, struct Driver *robot_2)
 		navSegmentEndPos = &navFrameNext->pos;
 	}
 
-	SVec3 pos = {
-	    .x = (s16)CTR_MipsSra(robot_1->posCurr.x, FRACTIONAL_BITS_8),
-	    .y = (s16)CTR_MipsSra(robot_1->posCurr.y, FRACTIONAL_BITS_8),
-	    .z = (s16)CTR_MipsSra(robot_1->posCurr.z, FRACTIONAL_BITS_8),
-	};
+	SVec3 pos;
+	pos.x = (s16)CTR_MipsSra(robot_1->posCurr.x, FRACTIONAL_BITS_8);
+	pos.y = (s16)CTR_MipsSra(robot_1->posCurr.y, FRACTIONAL_BITS_8);
+	pos.z = (s16)CTR_MipsSra(robot_1->posCurr.z, FRACTIONAL_BITS_8);
 
 	int res1 = CAM_MapRange_PosPoints(navSegmentEndPos, navSegmentStartPos, &pos);
 
-	pos = (SVec3){
-	    .x = (s16)CTR_MipsSra(robot_2->posCurr.x, FRACTIONAL_BITS_8),
-	    .y = (s16)CTR_MipsSra(robot_2->posCurr.y, FRACTIONAL_BITS_8),
-	    .z = (s16)CTR_MipsSra(robot_2->posCurr.z, FRACTIONAL_BITS_8),
-	};
+	pos.x = (s16)CTR_MipsSra(robot_2->posCurr.x, FRACTIONAL_BITS_8);
+	pos.y = (s16)CTR_MipsSra(robot_2->posCurr.y, FRACTIONAL_BITS_8);
+	pos.z = (s16)CTR_MipsSra(robot_2->posCurr.z, FRACTIONAL_BITS_8);
 
 	int res2 = CAM_MapRange_PosPoints(navSegmentEndPos, navSegmentStartPos, &pos);
 

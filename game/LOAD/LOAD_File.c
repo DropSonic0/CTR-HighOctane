@@ -63,10 +63,9 @@ void LOAD_InitCD()
 	// -> LOAD_InitCDvol. Native skips CdInit (no disc), so call the volume
 	// hook explicitly to preserve the same init ordering.
 	LOAD_InitCDvol();
-	return;
-#endif
-
+#else
 	CDSYS_Init(1);
+#endif
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80031c78-0x80031d30
@@ -453,7 +452,7 @@ void *LOAD_XnfFile(char *filename, void *ptrDestination, int *size)
 	{
 		// allocate room for all sectors,
 		// remove alignment before next Read
-		int sectorSize = (cdlFile.size + LOAD_CD_DATA_SECTOR_ROUND_MASK) & LOAD_CD_DATA_SECTOR_ALIGN_MASK;
+		int sectorSize = (int)((u32)(cdlFile.size + LOAD_CD_DATA_SECTOR_ROUND_MASK) & (u32)LOAD_CD_DATA_SECTOR_ALIGN_MASK);
 		ptrDestination = MEMPACK_AllocMem(sectorSize /*, fileName*/);
 		if (ptrDestination == NULL)
 		{

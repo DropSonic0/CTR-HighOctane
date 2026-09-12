@@ -36,7 +36,10 @@ void UI_DrawSpeedNeedle(s16 posX, s16 posY, struct Driver *driver)
 		return;
 	}
 
-	const PrimCode primCode = {.poly = {.gouraud = 1, .renderCode = RenderCode_Polygon}};
+	PrimCode primCode;
+	memset(&primCode, 0, sizeof(primCode));
+	primCode.poly.gouraud = 1;
+	primCode.poly.renderCode = RenderCode_Polygon;
 
 	p->v[0].color = MakeColorCode(91, 91, 0, primCode);
 	p->v[1].color = MakeColorCode(50, 43, 1, primCode);
@@ -117,9 +120,9 @@ void UI_DrawSpeedNeedle(s16 posX, s16 posY, struct Driver *driver)
 }
 
 const Color DrawSpeedBG_Colors[7] = {
-    [0] = {.r = 0x00, .g = 0xb5, .b = 0x00}, [1] = {.r = 0x00, .g = 0xb5, .b = 0x00}, [2] = {.r = 0x00, .g = 0xb5, .b = 0x00},
-    [3] = {.r = 0xff, .g = 0xd1, .b = 0x00}, [4] = {.r = 0xdb, .g = 0x00, .b = 0x00}, [5] = {.r = 0xdb, .g = 0x00, .b = 0x00},
-    [6] = {.r = 0xdb, .g = 0x00, .b = 0x00},
+    [0] = {{.r = 0x00, .g = 0xb5, .b = 0x00}}, [1] = {{.r = 0x00, .g = 0xb5, .b = 0x00}}, [2] = {{.r = 0x00, .g = 0xb5, .b = 0x00}},
+    [3] = {{.r = 0xff, .g = 0xd1, .b = 0x00}}, [4] = {{.r = 0xdb, .g = 0x00, .b = 0x00}}, [5] = {{.r = 0xdb, .g = 0x00, .b = 0x00}},
+    [6] = {{.r = 0xdb, .g = 0x00, .b = 0x00}},
 };
 
 // NOTE(aalhendi): PSX path ASM-verified NTSC-U 926 0x800516ac-0x80051c64.
@@ -162,7 +165,11 @@ void UI_DrawSpeedBG(void)
 			return;
 		}
 
-		const PrimCode primCode = {.poly = {.renderCode = RenderCode_Polygon, .gouraud = 1, .quad = 1}};
+		PrimCode primCode;
+		memset(&primCode, 0, sizeof(primCode));
+		primCode.poly.renderCode = RenderCode_Polygon;
+		primCode.poly.gouraud = 1;
+		primCode.poly.quad = 1;
 		ColorCode colorBottom = DrawSpeedBG_Colors[colorIndex];
 		ColorCode colorTop = DrawSpeedBG_Colors[colorIndex + 1];
 		colorBottom.code = primCode;
@@ -197,11 +204,18 @@ void UI_DrawSpeedBG(void)
 			return;
 		}
 
-		p->t.texpage = (Texpage){.code = 0xE1, .dither = 1, .y_VRAM_EXP = 1};
+		memset(&p->t.texpage, 0, sizeof(p->t.texpage));
+		p->t.texpage.code = 0xE1;
+		p->t.texpage.dither = 1;
+		p->t.texpage.y_VRAM_EXP = 1;
 		p->p.tag.self = 0;
 
 		Color color = MakeColor(0, 0, 0);
-		const PrimCode primCode = {.poly = {.renderCode = RenderCode_Polygon, .gouraud = 1, .semiTransparency = 1}};
+		PrimCode primCode;
+		memset(&primCode, 0, sizeof(primCode));
+		primCode.poly.renderCode = RenderCode_Polygon;
+		primCode.poly.gouraud = 1;
+		primCode.poly.semiTransparency = 1;
 
 		for (int j = 0; j < 3; j++)
 		{

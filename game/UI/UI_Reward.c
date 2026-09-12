@@ -213,7 +213,7 @@ void UI_ThTick_big1(struct Thread *bucket)
 
 	MatrixRotate(&inst->matrix, &obj->m, &inst->matrix);
 
-	u32 drawOtagState = CTR_ReadU32LE(&sdata->gGT->bool_DrawOTag_InProgress);
+	u32 drawOtagState = CTR_ReadU32LE(&gGT->bool_DrawOTag_InProgress);
 	if ((drawOtagState & UI_REWARD_HUD_VISIBLE_WORD_MASK) == UI_REWARD_HUD_VISIBLE_WORD_VALUE)
 	{
 		inst->flags &= ~HIDE_MODEL;

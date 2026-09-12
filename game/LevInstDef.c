@@ -166,8 +166,8 @@ static void LevInstDef_FindTurboVisualQuads(struct mesh_info *mesh)
 {
 	const struct QuadBlock *quadBlocks = mesh->ptrQuadBlockArray;
 	const int numQuadBlocks = mesh->numQuadBlock;
-	SDL_memset(s_nativeTurboVisualBits, 0, sizeof(s_nativeTurboVisualBits));
-	SDL_memset(s_nativeSuperTurboVisualBits, 0, sizeof(s_nativeSuperTurboVisualBits));
+	memset(s_nativeTurboVisualBits, 0, sizeof(s_nativeTurboVisualBits));
+	memset(s_nativeSuperTurboVisualBits, 0, sizeof(s_nativeSuperTurboVisualBits));
 	s_nativeTurboQuadBase = quadBlocks;
 	s_nativeTurboQuadCount = numQuadBlocks;
 
@@ -253,6 +253,10 @@ static void LevInstDef_FindTurboVisualQuads(struct mesh_info *mesh)
 				}
 			}
 		}
+
+		(void)bestTriggerOverlap;
+		(void)bestCandidateOverlap;
+		(void)bestYDelta;
 
 			if (bestIndex >= 0)
 			{

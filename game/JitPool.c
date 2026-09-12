@@ -13,7 +13,7 @@ void JitPool_Clear(struct JitPool *AP)
 	for (s32 loopIndex = 0; loopIndex < AP->maxItems; loopIndex++)
 	{
 		// add all pool items to the free list
-		LIST_AddFront(&AP->free, (struct Item *)currSlot);
+		LIST_AddFront(&AP->free, (struct Item *)(void *)currSlot);
 
 		currSlot += JITPOOL_ALIGN_ITEM_STRIDE(AP->itemSize);
 	}
@@ -45,7 +45,7 @@ int JitPool_Add(struct JitPool *AP)
 		LIST_AddFront(&AP->taken, item);
 	}
 
-	return (s32)item;
+	return (s32)(uintptr_t)item;
 }
 
 

@@ -134,7 +134,13 @@ void MainFreeze_ConfigDrawArrows(s16 offsetX, s16 offsetY, char *str)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80037da0-0x80038b5c.
 static inline void MainFreeze_ConfigDrawWire(s16 x1, s16 y1, s16 x2, s16 y2, u8 r, u8 g, u8 b, void *ot)
 {
-	CTR_Box_DrawWirePrims(MakePoint(x1, y1), MakePoint(x2, y2), MakeColor(r, g, b), ot);
+	Point pt1, pt2;
+	Color col;
+	pt1.x = x1; pt1.y = y1;
+	pt2.x = x2; pt2.y = y2;
+	memset(&col, 0, sizeof(col));
+	col.r = r; col.g = g; col.b = b;
+	CTR_Box_DrawWirePrims(pt1, pt2, col, ot);
 }
 
 static inline void MainFreeze_ConfigDrawRaceWheel(int value, struct GameTracker *gGT)
