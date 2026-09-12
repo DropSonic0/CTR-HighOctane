@@ -21,7 +21,7 @@ void Vector_SpecLightSpin2D(struct Instance *inst, const SVec3 *rot, const SVec3
 	VECTOR viewMac;
 	SVec3 light = *lightDir;
 	SVec3 lightLocal;
-	SVec3 view = {{0, 0, 0x1000}};
+	SVec3 view = {.x = 0, .y = 0, .z = 0x1000};
 	SVec3 viewLocal;
 	SVec3 halfVector;
 	struct GameTracker *gGT = sdata->gGT;
@@ -122,11 +122,11 @@ void Vector_SpecLightNoSpin3D(struct Instance *inst, const SVec3 *rot, const SVe
 		struct PushBuffer *pb = &gGT->pushBuffer[i];
 		SVec3 viewLocal;
 		SVec3 halfVector;
-		SVec3 view = {{
-		    (s16)(inst->matrix.t[0] - pb->pos.x),
-		    (s16)(inst->matrix.t[1] - pb->pos.y),
-		    (s16)(inst->matrix.t[2] - pb->pos.z),
-		}};
+		SVec3 view = {
+		    .x = inst->matrix.t[0] - pb->pos.x,
+		    .y = inst->matrix.t[1] - pb->pos.y,
+		    .z = inst->matrix.t[2] - pb->pos.z,
+		};
 
 		MATH_VectorNormalize(&view);
 		Vector_LightMatrixMul(&lightMatrix, &view, &viewLocal);

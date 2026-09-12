@@ -389,7 +389,7 @@ static void VehPickupItem_MissileLoadPlayerView(struct GameTracker *gGT, struct 
 
 static void VehPickupItem_MissileLoadAiView(struct Driver *driver, struct PushBuffer *pb)
 {
-	SVec3 rot = {{driver->rotCurr.x, driver->rotCurr.y, driver->rotCurr.z}};
+	SVec3 rot = {.x = driver->rotCurr.x, .y = driver->rotCurr.y, .z = driver->rotCurr.z};
 	MATRIX matrix = {0};
 	MATRIX inverse;
 
@@ -836,7 +836,7 @@ void VehPickupItem_ShootNow(struct Driver *d, s32 weaponID, s32 flags)
 
 		RB_MinePool_Add(mw);
 		VehPickupItem_PotionThrow(mw, weaponInst, flags);
-		mineHitModel = MODEL_GET_ID(weaponInst->model) | COLL_MODELID_BLOCKAGE_FLAG;
+		mineHitModel = weaponInst->model->id | COLL_MODELID_BLOCKAGE_FLAG;
 		mineShouldInitFollower = (flags == 0);
 
 	RunMineCOLL:;
@@ -897,7 +897,7 @@ void VehPickupItem_ShootNow(struct Driver *d, s32 weaponID, s32 flags)
 
 		if (sps->boolDidTouchQuadblock == 0)
 		{
-			fallbackNormal = (SVec3){{0, COLL_FRACTION_ONE, 0}};
+			fallbackNormal = (SVec3){.x = 0, .y = COLL_FRACTION_ONE, .z = 0};
 			rotationNormal = fallbackNormal.v;
 
 			mw->stopFallAtY = weaponInst->matrix.t[1];
@@ -995,7 +995,7 @@ void VehPickupItem_ShootNow(struct Driver *d, s32 weaponID, s32 flags)
 
 			VehPickupItem_ClearMineMotion(mw);
 
-			mineHitModel = MODEL_GET_ID(weaponInst->model);
+			mineHitModel = weaponInst->model->id;
 			mineShouldInitFollower = 1;
 			goto RunMineCOLL;
 		}

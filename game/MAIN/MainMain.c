@@ -165,9 +165,11 @@ u32 main(void)
 
 		// Happens on first frame that loading ends
 		case 1:
+
 			ElimBG_Deactivate(gGT);
 
 			MainStats_RestartRaceCountLoss();
+			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c9f8-0x8003ca04 for load-complete voiceline reset.
 			Voiceline_ClearTimeStamp();
 
 			// Disable End-Of-Race menu
@@ -183,7 +185,7 @@ u32 main(void)
 
 			else
 			{
-				if (RaceFlag_IsFullyOffScreen())
+				if (RaceFlag_IsFullyOnScreen())
 				{
 					RaceFlag_BeginTransition(2);
 				}
@@ -191,30 +193,54 @@ u32 main(void)
 
 			DropRain_Reset(gGT);
 			GAMEPROG_GetPtrHighScoreTrack();
-
 			MainInit_FinalizeInit(gGT);
-			Platform_Log("[CTR Native] MainMain: after FinalizeInit\n"); Platform_LogFlush();
+
+#if defined(CTR_NATIVE)
+			if ((gGT->levelID == NAUGHTY_DOG_CRATE) && (gNativeBootSkipRequested != 0))
+			{
+				gNativeBootSkipRequested = 0;
+				RaceFlag_SetCanDraw(1);
+				CseqMusic_StopAll();
+				CDSYS_XAPauseRequest();
+				RaceFlag_SetDrawOrder(0);
+				gGT->renderFlags = RENDER_FLAG_CHECKERED_FLAG;
+				MainRaceTrack_RequestLoad(MAIN_MENU_LEVEL);
+			}
+#endif
 
 			GAMEPAD_GetNumConnected(gGS);
-			Platform_Log("[CTR Native] MainMain: after GAMEPAD_GetNumConnected\n"); Platform_LogFlush();
 
 			sdata->boolSoundPaused = 0;
+			// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003caa4-0x8003cab4 for load-complete engine audio init.
 			VehBirth_EngineAudio_AllPlayers();
-			Platform_Log("[CTR Native] MainMain: after VehBirth_EngineAudio_AllPlayers\n"); Platform_LogFlush();
 
+			// 9 = intro cutscene
+			// 10 = traffic lights
+			// 11 = racing
+
+			// Arcade-Style track starts with intro cutscene
 			uVar12 = 9;
 
-			if (
+				if (
+			    // If Level ID is less than 18, it's one of the race tracks
 			    (gGT->levelID < NITRO_COURT) || (
+			                                        // Battle-Style track starts with traffic lights
 			                                        uVar12 = 10,
+			                                        // Level ID >= 18 and < 23
+			                                        // Battle tracks
 			                                        gGT->levelID - NITRO_COURT < 7))
-			{
-				Audio_SetState_Safe(uVar12);
-			}
-			Platform_Log("[CTR Native] MainMain: after Audio_SetState_Safe\n"); Platform_LogFlush();
-
-			sdata->mainGameState = 3;
-			Platform_Log("[CTR Native] MainMain: mainGameState set to 3\n"); Platform_LogFlush();
+				{
+#if defined(__vita__)
+					if (!(NativeAdhoc_IsConnected() && (uVar12 == AUDIO_RACE_INTRO)))
+#endif
+					{
+						Audio_SetState_Safe(uVar12);
+					}
+				}
+#ifdef CTR_NATIVE
+				NativeAdhoc_NotifyLevelReady(gGT);
+#endif
+				sdata->mainGameState = 3;
 			gGT->clockEffectEnabled &= 0xfffe;
 			break;
 
@@ -233,16 +259,6 @@ u32 main(void)
 		// Main Gameplay Update
 		// Makes up all normal interaction with the game
 		case 3:
-			{
-				static int s_mainCase3LogCount = 0;
-				if (s_mainCase3LogCount < 20 || (s_mainCase3LogCount % 60) == 0)
-				{
-					Platform_Log("[CTR Native] MainMain: case 3 frame %d (stage=%d gameMode1=0x%08x)\n",
-						s_mainCase3LogCount, sdata->Loading.stage, gGT->gameMode1);
-					Platform_LogFlush();
-				}
-				s_mainCase3LogCount++;
-			}
 
 			// if loading, or gameplay interrupted
 			if (sdata->Loading.stage != LOAD_IDLE)
@@ -334,9 +350,7 @@ u32 main(void)
 				// if something is being loaded
 				else
 				{
-					Platform_Log("[CTR Native] MainMain: calling LOAD_TenStages(stage=%d)...\n", iVar8); Platform_LogFlush();
 					sdata->Loading.stage = LOAD_TenStages(gGT, iVar8, sdata->ptrBigfile1);
-					Platform_Log("[CTR Native] MainMain: LOAD_TenStages returned stage=%d\n", sdata->Loading.stage); Platform_LogFlush();
 
 					// If just finished loading stage 9
 					if (sdata->Loading.stage == LOAD_FINISHED)
@@ -506,15 +520,7 @@ u32 main(void)
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 				NativePerf_BeginScope(NATIVE_PERF_BUCKET_GAME_LOGIC);
 #endif
-				static int s_logicCount = 0;
-				if (s_logicCount < 20 || (s_logicCount % 60) == 0) {
-					Platform_Log("[CTR Native] MainMain: calling MainFrame_GameLogic...\n"); Platform_LogFlush();
-				}
 				MainFrame_GameLogic(gGT, gGS);
-				if (s_logicCount < 20 || (s_logicCount % 60) == 0) {
-					Platform_Log("[CTR Native] MainMain: after MainFrame_GameLogic\n"); Platform_LogFlush();
-				}
-				s_logicCount++;
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 					NativePerf_EndScope(NATIVE_PERF_BUCKET_GAME_LOGIC);
 #endif
@@ -542,15 +548,7 @@ u32 main(void)
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 			NativePerf_BeginScope(NATIVE_PERF_BUCKET_RENDER_FRAME);
 #endif
-			static int s_renderCount = 0;
-			if (s_renderCount < 20 || (s_renderCount % 60) == 0) {
-				Platform_Log("[CTR Native] MainMain: calling MainFrame_RenderFrame...\n"); Platform_LogFlush();
-			}
 			MainFrame_RenderFrame(gGT, gGS);
-			if (s_renderCount < 20 || (s_renderCount % 60) == 0) {
-				Platform_Log("[CTR Native] MainMain: after MainFrame_RenderFrame\n"); Platform_LogFlush();
-			}
-			s_renderCount++;
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 			NativePerf_EndScope(NATIVE_PERF_BUCKET_RENDER_FRAME);
 #endif
@@ -637,9 +635,7 @@ void StateZero()
 #define MEMPACK_SIZE 0x200000 // 2mb
 
 	MEMPACK_Init(MEMPACK_SIZE);
-
 	LOAD_InitCD();
-
 	RaceFlag_SetFullyOffScreen();
 
 	ResetGraph(0);
@@ -710,11 +706,6 @@ void StateZero()
 	// Get CD Position fo BIGFILE
 	sdata->ptrBigfile1 = LOAD_ReadDirectory(BIGPATH);
 
-	if (sdata->ptrBigfile1 == NULL)
-	{
-		return;
-	}
-
 // Defrag to save heap space,
 // required because MEMPACK_Init moves heap
 #if 0
@@ -743,7 +734,6 @@ void StateZero()
 	// PAL SCES02105 calls it multiple times
 	LOAD_LangFile((int)sdata->ptrBigfile1, 1);
 #endif
-
 	GAMEPROG_NewGame_OnBoot();
 	gGT->overlayIndex_null_notUsed = 0;
 
@@ -782,38 +772,29 @@ void StateZero()
 	VSyncCallback(MainDrawCb_Vsync);
 
 	Music_SetIntro();
-
 	CseqMusic_StopAll();
-
 	CseqMusic_Start(CSEQ_SONG_LEVEL, 0, NULL, 0, 0);
-
 	Music_Start(0);
 
 	// "Start your engines, for Sony Computer..."
 	CDSYS_XAPlay(CDSYS_XA_TYPE_EXTRA, 0x50);
 
-#ifdef CTR_NATIVE
-	int sceaFrames = 0;
-#define LOAD_NATIVE_SCEA_INTRO_MIN_FRAMES 210
-	while ((sdata->XA_State != 0) || ((gNativeBootSkipRequested == 0) && (sceaFrames < LOAD_NATIVE_SCEA_INTRO_MIN_FRAMES)))
+	while (sdata->XA_State != 0)
 	{
+		// WARNING: Read-only address (ram, 0x8008d888) is written
+		// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c940-0x8003c948 for startup XA pause polling.
+#ifdef CTR_NATIVE
+		// NOTE(aalhendi): Retail hardware interrupts keep XA/audio moving while
+		// this loop spins. Native owns VBlank in VSync(), so pump it here.
 		VSync(0);
-		sceaFrames++;
 		if ((gNativeBootSkipRequested == 0) && (Platform_InputStartPressed() != 0))
 		{
 			gNativeBootSkipRequested = 1;
 			CDSYS_XAPauseRequest();
-			break;
 		}
-		Platform_PresentVRAMDisplay();
-		CDSYS_XAPauseAtEnd();
-	}
-#else
-	while (sdata->XA_State != 0)
-	{
-		CDSYS_XAPauseAtEnd();
-	}
 #endif
+		CDSYS_XAPauseAtEnd();
+	}
 
 	DecalGlobal_Clear(gGT);
 

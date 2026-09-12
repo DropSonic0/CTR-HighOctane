@@ -733,16 +733,16 @@ void CAM_StartLine_FlyIn_FixY(SVec3 *posRot)
 	{
 		s32 probeOffset = i * 0x400;
 
-		SVec3 posTop = {{
-		    pos.x,
-		    (s16)CTR_MipsSubLo((u16)pos.y, CTR_MipsAddLo(probeOffset, 0x400)),
-		    pos.z
-		}};
-		SVec3 posBottom = {{
-		    pos.x,
-		    (s16)CTR_MipsSubLo((u16)pos.y, CTR_MipsSubLo(probeOffset, 0x100)),
-		    pos.z
-		}};
+		SVec3 posTop = {
+		    .x = pos.x,
+		    .y = (s16)CTR_MipsSubLo((u16)pos.y, CTR_MipsAddLo(probeOffset, 0x400)),
+		    .z = pos.z,
+		};
+		SVec3 posBottom = {
+		    .x = pos.x,
+		    .y = (s16)CTR_MipsSubLo((u16)pos.y, CTR_MipsSubLo(probeOffset, 0x100)),
+		    .z = pos.z,
+		};
 
 		COLL_SearchBSP_CallbackQUADBLK(&posTop, &posBottom, sps, 0);
 

@@ -83,20 +83,13 @@ void COLL_SearchBSP_CallbackQUADBLK(const SVec3 *top, const SVec3 *bottom, struc
 
 internal b32 COLL_SearchBSP_CallbackPARAM_Overlaps(struct BSP *node, const struct BoundingBox *bounds)
 {
-	s16 minY = (s16)CTR_ReadU16LE(&node->box.min.y);
-	s16 minX = (s16)CTR_ReadU16LE(&node->box.min.x);
-	s16 maxX = (s16)CTR_ReadU16LE(&node->box.max.x);
-	s16 minZ = (s16)CTR_ReadU16LE(&node->box.min.z);
-	s16 maxZ = (s16)CTR_ReadU16LE(&node->box.max.z);
-	s16 maxY = (s16)CTR_ReadU16LE(&node->box.max.y);
-
-	return ((minY <= bounds->max.y) && (minX <= bounds->max.x) && (bounds->min.x <= maxX) &&
-	        (minZ <= bounds->max.z) && (bounds->min.z <= maxZ) && (bounds->min.y <= maxY));
+	return ((node->box.min.y <= bounds->max.y) && (node->box.min.x <= bounds->max.x) && (bounds->min.x <= node->box.max.x) &&
+	        (node->box.min.z <= bounds->max.z) && (bounds->min.z <= node->box.max.z) && (bounds->min.y <= node->box.max.y));
 }
 
 internal void COLL_SearchBSP_CallbackPARAM_PushChild(struct BSP *root, BspChildId childID, const struct BoundingBox *bounds, BspChildId **stackTop)
 {
-	u16 rawChildID = (u16)CTR_ReadU16LE(&childID);
+	u16 rawChildID = (u16)childID;
 	if (rawChildID == BSP_CHILD_ID_NONE)
 	{
 		return;
@@ -108,7 +101,7 @@ internal void COLL_SearchBSP_CallbackPARAM_PushChild(struct BSP *root, BspChildI
 		return;
 	}
 
-	**stackTop = rawChildID;
+	**stackTop = childID;
 	(*stackTop)++;
 }
 
@@ -139,7 +132,8 @@ void COLL_SearchBSP_CallbackPARAM(struct BSP *root, struct BoundingBox *bbox, Co
 	while (stackTop != stackBase)
 	{
 		stackTop--;
-		u16 rawChildID = (u16)*stackTop;
+		BspChildId childID = *stackTop;
+		u16 rawChildID = (u16)childID;
 		struct BSP *child = &root[rawChildID & BSP_CHILD_ID_INDEX_MASK];
 
 		if ((rawChildID & BSP_CHILD_ID_LEAF_FLAG) != 0)
@@ -557,16 +551,9 @@ void COLL_FIXED_BSPLEAF_TestInstance(struct BSP *node, struct ScratchpadStruct *
 
 	// check every instance hitbox until
 	// end of list (null flag) is found
-	for (/**/; CTR_ReadU16LE(&bspArray->flag) != 0; bspArray++)
+	for (/**/; bspArray->flag != 0; bspArray++)
 	{
 		struct BoundingBox *bbox = &bspArray->box;
-		u16 flag = CTR_ReadU16LE(&bspArray->flag);
-		s16 bMinX = (s16)CTR_ReadU16LE(&bbox->min.x);
-		s16 bMaxX = (s16)CTR_ReadU16LE(&bbox->max.x);
-		s16 bMinY = (s16)CTR_ReadU16LE(&bbox->min.y);
-		s16 bMaxY = (s16)CTR_ReadU16LE(&bbox->max.y);
-		s16 bMinZ = (s16)CTR_ReadU16LE(&bbox->min.z);
-		s16 bMaxZ = (s16)CTR_ReadU16LE(&bbox->max.z);
 
 		// 1F8001CC
 		s32 arraySize = sps->numBspHitboxesHit - 1;
@@ -582,7 +569,7 @@ void COLL_FIXED_BSPLEAF_TestInstance(struct BSP *node, struct ScratchpadStruct *
 		        // if hitbox data is not tied to an active visible instance
 		        (
 		            // if collision for instance is disabled
-		            ((flag & BSP_HITBOX_COLLIDABLE) == 0) ||
+		            ((bspArray->flag & BSP_HITBOX_COLLIDABLE) == 0) ||
 		            // if bspHitbox.InstDef doesn't exist
 		            (bspArray->data.hitbox.instDef == NULL))
 
@@ -594,17 +581,17 @@ void COLL_FIXED_BSPLEAF_TestInstance(struct BSP *node, struct ScratchpadStruct *
 		        ((bspArray->data.hitbox.instDef->ptrInstance->flags & DRAW_COLLISION_MASK) != 0)) &&
 
 		    // compare bsp boundingbox to scratchpad boundingbox
-		    ((sps->bbox.min.x <= bMaxX) &&
+		    ((sps->bbox.min.x <= bbox->max.x) &&
 
-		     (bMinX <= sps->bbox.max.x) &&
+		     (bbox->min.x <= sps->bbox.max.x) &&
 
-		     (sps->bbox.min.y <= bMaxY) &&
+		     (sps->bbox.min.y <= bbox->max.y) &&
 
-		     (bMinY <= sps->bbox.max.y) &&
+		     (bbox->min.y <= sps->bbox.max.y) &&
 
-		     (sps->bbox.min.z <= bMaxZ) &&
+		     (sps->bbox.min.z <= bbox->max.z) &&
 
-		     (bMinZ <= sps->bbox.max.z)))
+		     (bbox->min.z <= sps->bbox.max.z)))
 		{
 			// check with collision for this instance
 			COLL_FIXED_INSTANC_TestPoint(sps, bspArray);
@@ -1026,20 +1013,13 @@ void COLL_FIXED_QUADBLK_GetNormVecs_HiLOD(struct ScratchpadStruct *sps, struct Q
 void COLL_FIXED_QUADBLK_TestTriangles(struct QuadBlock *quad, struct ScratchpadStruct *sps)
 {
 	struct BspSearchVertex *bsv = &sps->bspSearchVert[0];
-	b32 hasSecondTriangle = CTR_ReadU16LE(&quad->index[2]) != CTR_ReadU16LE(&quad->index[3]);
-	u16 quadFlags = CTR_ReadU16LE(&quad->quadFlags);
-	s16 qMinX = (s16)CTR_ReadU16LE(&quad->bbox.min.x);
-	s16 qMaxX = (s16)CTR_ReadU16LE(&quad->bbox.max.x);
-	s16 qMinY = (s16)CTR_ReadU16LE(&quad->bbox.min.y);
-	s16 qMaxY = (s16)CTR_ReadU16LE(&quad->bbox.max.y);
-	s16 qMinZ = (s16)CTR_ReadU16LE(&quad->bbox.min.z);
-	s16 qMaxZ = (s16)CTR_ReadU16LE(&quad->bbox.max.z);
+	b32 hasSecondTriangle = quad->index[2] != quad->index[3];
 
 	sps->candidate.ptrQuadblock = quad;
 
-	if (((sps->Union.QuadBlockColl.quadFlagsWanted & quadFlags) == 0) || ((sps->Union.QuadBlockColl.quadFlagsIgnored & quadFlags) != 0) ||
-	    (qMinX > sps->bbox.max.x) || (qMinY > sps->bbox.max.y) || (qMinZ > sps->bbox.max.z) ||
-	    (sps->bbox.min.x > qMaxX) || (sps->bbox.min.y > qMaxY) || (sps->bbox.min.z > qMaxZ))
+	if (((sps->Union.QuadBlockColl.quadFlagsWanted & quad->quadFlags) == 0) || ((sps->Union.QuadBlockColl.quadFlagsIgnored & quad->quadFlags) != 0) ||
+	    (quad->bbox.min.x > sps->bbox.max.x) || (quad->bbox.min.y > sps->bbox.max.y) || (quad->bbox.min.z > sps->bbox.max.z) ||
+	    (sps->bbox.min.x > quad->bbox.max.x) || (sps->bbox.min.y > quad->bbox.max.y) || (sps->bbox.min.z > quad->bbox.max.z))
 	{
 		return;
 	}
@@ -1083,22 +1063,21 @@ void COLL_FIXED_QUADBLK_TestTriangles(struct QuadBlock *quad, struct ScratchpadS
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8001f5f0-0x8001f67c
 void COLL_FIXED_BSPLEAF_TestQuadblocks(struct BSP *node, struct ScratchpadStruct *sps)
 {
-	u16 nodeFlag = CTR_ReadU16LE(&node->flag);
 	// if bsp flag is water
-	if ((nodeFlag & BSP_LEAF_FLAG_WATER) != 0)
+	if ((node->flag & BSP_LEAF_FLAG_WATER) != 0)
 	{
 		sps->collision.stepFlags |= COLL_STEP_FLAG_WATER_BSP;
 	}
 
-	s32 numQuads = (s32)CTR_ReadU32LE(&node->data.leaf.numQuads);
+	s32 numQuads = node->data.leaf.numQuads;
 	struct QuadBlock *ptrQuad = node->data.leaf.ptrQuadBlockArray;
 
 	// loop through all quadblocks
-	while (numQuads > 0)
+	do
 	{
 		COLL_FIXED_QUADBLK_TestTriangles(ptrQuad++, sps);
 		numQuads--;
-	}
+	} while (numQuads > 0);
 
 	if ((sps->Union.QuadBlockColl.searchFlags & COLL_SEARCH_TEST_INSTANCES) != 0)
 	{
@@ -1208,16 +1187,16 @@ internal void COLL_FIXED_PlayerSearch_SetupSearch(struct ScratchpadStruct *sps, 
 	s32 posX = CTR_MipsSra(d->posCurr.x, 8);
 	s32 posY = CTR_MipsSra(d->posCurr.y, 8);
 	s32 posZ = CTR_MipsSra(d->posCurr.z, 8);
-	SVec3 probeBottom = {{
-	    (s16)posX,
-	    (s16)CTR_MipsAddLo(posY, -COLL_FIXED_PLAYER_SEARCH_BOTTOM_Y_OFFSET),
-	    (s16)posZ,
-	}};
-	SVec3 probeTop = {{
-	    (s16)posX,
-	    (s16)CTR_MipsAddLo(posY, COLL_FIXED_PLAYER_SEARCH_TOP_Y_OFFSET),
-	    (s16)posZ,
-	}};
+	SVec3 probeBottom = {
+	    .x = (s16)posX,
+	    .y = (s16)CTR_MipsAddLo(posY, -COLL_FIXED_PLAYER_SEARCH_BOTTOM_Y_OFFSET),
+	    .z = (s16)posZ,
+	};
+	SVec3 probeTop = {
+	    .x = (s16)posX,
+	    .y = (s16)CTR_MipsAddLo(posY, COLL_FIXED_PLAYER_SEARCH_TOP_Y_OFFSET),
+	    .z = (s16)posZ,
+	};
 
 	d->actionsFlagSet &= ~ACTION_ENGINE_ECHO;
 
@@ -2075,20 +2054,13 @@ KeepNormal:;
 void COLL_MOVED_QUADBLK_TestTriangles(struct QuadBlock *quad, struct ScratchpadStruct *sps)
 {
 	struct BspSearchVertex *bsv = &sps->bspSearchVert[0];
-	b32 hasSecondTriangle = CTR_ReadU16LE(&quad->index[2]) != CTR_ReadU16LE(&quad->index[3]);
-	u16 quadFlags = CTR_ReadU16LE(&quad->quadFlags);
-	s16 qMinX = (s16)CTR_ReadU16LE(&quad->bbox.min.x);
-	s16 qMaxX = (s16)CTR_ReadU16LE(&quad->bbox.max.x);
-	s16 qMinY = (s16)CTR_ReadU16LE(&quad->bbox.min.y);
-	s16 qMaxY = (s16)CTR_ReadU16LE(&quad->bbox.max.y);
-	s16 qMinZ = (s16)CTR_ReadU16LE(&quad->bbox.min.z);
-	s16 qMaxZ = (s16)CTR_ReadU16LE(&quad->bbox.max.z);
+	b32 hasSecondTriangle = quad->index[2] != quad->index[3];
 
 	sps->candidate.ptrQuadblock = quad;
 
-	if (((sps->Union.QuadBlockColl.quadFlagsWanted & quadFlags) == 0) || ((sps->Union.QuadBlockColl.quadFlagsIgnored & quadFlags) != 0) ||
-	    (qMinX > sps->bbox.max.x) || (qMinY > sps->bbox.max.y) || (qMinZ > sps->bbox.max.z) ||
-	    (sps->bbox.min.x > qMaxX) || (sps->bbox.min.y > qMaxY) || (sps->bbox.min.z > qMaxZ))
+	if (((sps->Union.QuadBlockColl.quadFlagsWanted & quad->quadFlags) == 0) || ((sps->Union.QuadBlockColl.quadFlagsIgnored & quad->quadFlags) != 0) ||
+	    (quad->bbox.min.x > sps->bbox.max.x) || (quad->bbox.min.y > sps->bbox.max.y) || (quad->bbox.min.z > sps->bbox.max.z) ||
+	    (sps->bbox.min.x > quad->bbox.max.x) || (sps->bbox.min.y > quad->bbox.max.y) || (sps->bbox.min.z > quad->bbox.max.z))
 	{
 		return;
 	}
@@ -2144,22 +2116,21 @@ void COLL_MOVED_QUADBLK_TestTriangles(struct QuadBlock *quad, struct ScratchpadS
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800202a8-0x80020334
 void COLL_MOVED_BSPLEAF_TestQuadblocks(struct BSP *node, struct ScratchpadStruct *sps)
 {
-	u16 nodeFlag = CTR_ReadU16LE(&node->flag);
 	// if bsp flag is water
-	if ((nodeFlag & BSP_LEAF_FLAG_WATER) != 0)
+	if ((node->flag & BSP_LEAF_FLAG_WATER) != 0)
 	{
 		sps->collision.stepFlags |= COLL_STEP_FLAG_WATER_BSP;
 	}
 
-	s32 numQuads = (s32)CTR_ReadU32LE(&node->data.leaf.numQuads);
+	s32 numQuads = node->data.leaf.numQuads;
 	struct QuadBlock *ptrQuad = node->data.leaf.ptrQuadBlockArray;
 
 	// loop through all quadblocks
-	while (numQuads > 0)
+	do
 	{
 		COLL_MOVED_QUADBLK_TestTriangles(ptrQuad++, sps);
 		numQuads--;
-	}
+	} while (numQuads > 0);
 
 	if ((sps->Union.QuadBlockColl.searchFlags & COLL_SEARCH_TEST_INSTANCES) != 0)
 	{
@@ -2332,11 +2303,11 @@ void COLL_MOVED_PlayerSearch(struct Thread *t, struct Driver *d)
 
 	for (s32 iterations = 15; iterations != 0; iterations--)
 	{
-		Vec3 velocity = {{
-		    CollMoved_PlayerSearch_StepVelocity(d->velocity.x, gGT->elapsedTimeMS, multiplier),
-		    CollMoved_PlayerSearch_StepVelocity(d->velocity.y, gGT->elapsedTimeMS, multiplier),
-		    CollMoved_PlayerSearch_StepVelocity(d->velocity.z, gGT->elapsedTimeMS, multiplier),
-		}};
+		Vec3 velocity = {
+		    .x = CollMoved_PlayerSearch_StepVelocity(d->velocity.x, gGT->elapsedTimeMS, multiplier),
+		    .y = CollMoved_PlayerSearch_StepVelocity(d->velocity.y, gGT->elapsedTimeMS, multiplier),
+		    .z = CollMoved_PlayerSearch_StepVelocity(d->velocity.z, gGT->elapsedTimeMS, multiplier),
+		};
 
 		sps->boolDidTouchQuadblock = 0;
 		sps->numTrianglesTested = 0;
@@ -2346,17 +2317,17 @@ void COLL_MOVED_PlayerSearch(struct Thread *t, struct Driver *d)
 		sps->hitFraction = COLL_FRACTION_ONE;
 
 		// Retail uses addu/sra/lhu/sh for these sweep points.
-		SVec3 current = {{
-		    (s16)CTR_MipsAddLo((u16)d->originToCenter.x, CTR_MipsSra(d->posCurr.x, 8)),
-		    (s16)CTR_MipsAddLo((u16)d->originToCenter.y, CTR_MipsSra(d->posCurr.y, 8)),
-		    (s16)CTR_MipsAddLo((u16)d->originToCenter.z, CTR_MipsSra(d->posCurr.z, 8)),
-		}};
+		SVec3 current = {
+		    .x = (s16)CTR_MipsAddLo((u16)d->originToCenter.x, CTR_MipsSra(d->posCurr.x, 8)),
+		    .y = (s16)CTR_MipsAddLo((u16)d->originToCenter.y, CTR_MipsSra(d->posCurr.y, 8)),
+		    .z = (s16)CTR_MipsAddLo((u16)d->originToCenter.z, CTR_MipsSra(d->posCurr.z, 8)),
+		};
 
-		SVec3 next = {{
-		    (s16)CTR_MipsAddLo((u16)d->originToCenter.x, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.x, velocity.x), 8)),
-		    (s16)CTR_MipsAddLo((u16)d->originToCenter.y, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.y, velocity.y), 8)),
-		    (s16)CTR_MipsAddLo((u16)d->originToCenter.z, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.z, velocity.z), 8)),
-		}};
+		SVec3 next = {
+		    .x = (s16)CTR_MipsAddLo((u16)d->originToCenter.x, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.x, velocity.x), 8)),
+		    .y = (s16)CTR_MipsAddLo((u16)d->originToCenter.y, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.y, velocity.y), 8)),
+		    .z = (s16)CTR_MipsAddLo((u16)d->originToCenter.z, CTR_MipsSra(CTR_MipsAddLo(d->posCurr.z, velocity.z), 8)),
+		};
 
 		sps->Union.QuadBlockColl.pos = current;
 		sps->Input1.pos = next;
@@ -2506,11 +2477,11 @@ internal Vec3 CollMoved_ScrubImpact_GteLLV0(s32 x, s32 y, s32 z)
 	MTC2(z, 1);
 	doCOP2(0x04a6012);
 
-	Vec3 out = {{
-	    MFC2_S(25),
-	    MFC2_S(26),
-	    MFC2_S(27),
-	}};
+	Vec3 out = {
+	    .x = MFC2_S(25),
+	    .y = MFC2_S(26),
+	    .z = MFC2_S(27),
+	};
 	return out;
 }
 
@@ -2619,11 +2590,11 @@ u32 COLL_MOVED_ScrubImpact(struct Driver *d, struct Thread *t, struct Scratchpad
 
 		if ((scrubFlags & SCRUB_FLAG_APPLY_IMPACT) != 0)
 		{
-			Vec3 impact = {{
-			    CTR_MipsSra(CTR_MipsMulLo(dot, normal.x), 12),
-			    CTR_MipsSra(CTR_MipsMulLo(dot, normal.y), 12),
-			    CTR_MipsSra(CTR_MipsMulLo(dot, normal.z), 12),
-			}};
+			Vec3 impact = {
+			    .x = CTR_MipsSra(CTR_MipsMulLo(dot, normal.x), 12),
+			    .y = CTR_MipsSra(CTR_MipsMulLo(dot, normal.y), 12),
+			    .z = CTR_MipsSra(CTR_MipsMulLo(dot, normal.z), 12),
+			};
 			s32 speedSq = 0;
 
 			if (scrub->impactAngle != 0)

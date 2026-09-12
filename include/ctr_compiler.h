@@ -20,13 +20,8 @@
 #define CTR_PRAGMA(value)      CTR_PRAGMA_IMPL(value)
 #endif
 
-#if defined(__PPU__) || defined(__PS3__) || defined(__CELLOS_LV2__)
-#define CTR_PACKED_BEGIN _Pragma("pack(push, 1)")
-#define CTR_PACKED_END   _Pragma("pack(pop)")
-#else
 #define CTR_PACKED_BEGIN CTR_PRAGMA(pack(push, 1))
 #define CTR_PACKED_END   CTR_PRAGMA(pack(pop))
-#endif
 
 #if defined(__GNUC__) || defined(__clang__)
 #define CTR_MAY_ALIAS __attribute__((may_alias))

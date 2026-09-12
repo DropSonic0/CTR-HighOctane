@@ -336,22 +336,44 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 
 #endif
 
-	// CameraMatrix, for shadows, particles, and audio
-	CTR_MatrixCopyRot(&pb->matrix_Camera, matrixDST);
+	// CameraMatrix
+	uVar3 = CTR_ReadU32LE(&matrixDST->m[0][0]);
+	uVar4 = CTR_ReadU32LE(&matrixDST->m[0][2]);
+	uVar5 = CTR_ReadU32LE(&matrixDST->m[1][1]);
+	uVar6 = CTR_ReadU32LE(&matrixDST->m[2][0]);
+	sVar7 = matrixDST->m[2][2];
 
-	// Transpose camera matrix
-	pb->matrix_CameraTranspose.m[0][0] = matrixDST->m[0][0];
-	pb->matrix_CameraTranspose.m[0][1] = matrixDST->m[1][0];
-	pb->matrix_CameraTranspose.m[0][2] = matrixDST->m[2][0];
-	pb->matrix_CameraTranspose.m[1][0] = matrixDST->m[0][1];
-	pb->matrix_CameraTranspose.m[1][1] = matrixDST->m[1][1];
-	pb->matrix_CameraTranspose.m[1][2] = matrixDST->m[2][1];
-	pb->matrix_CameraTranspose.m[2][0] = matrixDST->m[0][2];
-	pb->matrix_CameraTranspose.m[2][1] = matrixDST->m[1][2];
-	pb->matrix_CameraTranspose.m[2][2] = matrixDST->m[2][2];
+	// CameraMatrix, for shadows, particles, and audio
+	CTR_WriteU32LE(&pb->matrix_Camera.m[0][0], uVar3);
+	CTR_WriteU32LE(&pb->matrix_Camera.m[0][2], uVar4);
+	CTR_WriteU32LE(&pb->matrix_Camera.m[1][1], uVar5);
+	CTR_WriteU32LE(&pb->matrix_Camera.m[2][0], uVar6);
+	pb->matrix_Camera.m[2][2] = sVar7;
+
+	// transpose the camera matrix
+	view0 = (uVar3 & 0xffff) | (uVar4 & 0xffff0000);
+	view4 = (uVar6 & 0xffff) | (uVar3 & 0xffff0000);
+	view8 = (uVar5 & 0xffff) | (uVar6 & 0xffff0000);
+	viewC = (uVar4 & 0xffff) | (uVar5 & 0xffff0000);
+
+	// CameraTranspose, for lightning during Driver Warping effect
+	*(int *)((int)&pb->matrix_CameraTranspose + 0x0) = view0;
+	*(int *)((int)&pb->matrix_CameraTranspose + 0x4) = view4;
+	*(int *)((int)&pb->matrix_CameraTranspose + 0x8) = view8;
+	*(int *)((int)&pb->matrix_CameraTranspose + 0xC) = viewC;
+	*(s16 *)((int)&pb->matrix_CameraTranspose + 0x10) = sVar7;
 
 	// load transpose camera matrix
+	// similar to gte_SetLightMatrix
+#ifndef CTR_NATIVE
+	gte_r8(view0);
+	gte_r9(view4);
+	gte_r10(view8);
+	gte_r11(viewC);
+	gte_r12(sVar7);
+#else
 	gte_SetLightMatrix(&pb->matrix_CameraTranspose);
+#endif
 
 	// multiply inverted camera position,
 	// by transpose camera matrix
@@ -361,15 +383,11 @@ void PushBuffer_SetMatrixVP(struct PushBuffer *pb)
 	CTR_GteStoreMAC(&pb->matrix_ViewProj.t[0]);
 
 	// start with transpose camera matrix
-	pb->matrix_ViewProj.m[0][0] = pb->matrix_CameraTranspose.m[0][0];
-	pb->matrix_ViewProj.m[0][1] = pb->matrix_CameraTranspose.m[0][1];
-	pb->matrix_ViewProj.m[0][2] = pb->matrix_CameraTranspose.m[0][2];
-	pb->matrix_ViewProj.m[1][0] = pb->matrix_CameraTranspose.m[1][0];
-	pb->matrix_ViewProj.m[1][1] = pb->matrix_CameraTranspose.m[1][1];
-	pb->matrix_ViewProj.m[1][2] = pb->matrix_CameraTranspose.m[1][2];
-	pb->matrix_ViewProj.m[2][0] = pb->matrix_CameraTranspose.m[2][0];
-	pb->matrix_ViewProj.m[2][1] = pb->matrix_CameraTranspose.m[2][1];
-	pb->matrix_ViewProj.m[2][2] = pb->matrix_CameraTranspose.m[2][2];
+	*(int *)((int)&pb->matrix_ViewProj + 0x0) = view0;
+	*(int *)((int)&pb->matrix_ViewProj + 0x4) = view4;
+	*(int *)((int)&pb->matrix_ViewProj + 0x8) = view8;
+	*(int *)((int)&pb->matrix_ViewProj + 0xC) = viewC;
+	*(s16 *)((int)&pb->matrix_ViewProj + 0x10) = sVar7;
 
 	// NTSC:
 	// 0x360/0x600 = 9/16 aspect,

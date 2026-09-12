@@ -1,8 +1,8 @@
 /*
-* Derived from REDRIVER2/PsyCross MIT source:
-* externals/PsyCross/src/psx/INLINE_C.C
-* See THIRD_PARTY_NOTICES.md for copyright and license details.
-*/
+ * Derived from REDRIVER2/PsyCross MIT source:
+ * externals/PsyCross/src/psx/INLINE_C.C
+ * See THIRD_PARTY_NOTICES.md for copyright and license details.
+ */
 
 #include <macros.h>
 #include <psx/gtereg.h>

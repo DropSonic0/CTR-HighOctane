@@ -481,7 +481,7 @@ void DecalFont_DrawLineStrlen(char *str, s16 len, int posX, s16 posY, s16 fontTy
 			{
 #endif
 
-				if (iconID < (u16)CTR_ReadU16LE(&gGT->iconGroup[iconGroupID]->numIcons))
+				if (iconID < gGT->iconGroup[iconGroupID]->numIcons)
 				{
 					struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[iconGroupID]);
 
@@ -502,7 +502,7 @@ void DecalFont_DrawLineStrlen(char *str, s16 len, int posX, s16 posY, s16 fontTy
 			if (iconStruct == 0)
 			{
 				struct Icon **iconPtrArray = ICONGROUP_GETICONS(gGT->iconGroup[iconGroupID]);
-				if (kanaID < (u16)CTR_ReadU16LE(&gGT->iconGroup[iconGroupID]->numIcons))
+				if (kanaID < gGT->iconGroup[iconGroupID]->numIcons)
 					iconStruct = iconPtrArray[kanaID];
 			}
 			if (iconStruct != 0)

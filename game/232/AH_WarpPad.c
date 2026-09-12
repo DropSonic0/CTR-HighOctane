@@ -1499,7 +1499,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 		CTR_SET_VEC3(newInst->scale.v, AH_WP_STANDARD_ITEM_SCALE, AH_WP_STANDARD_ITEM_SCALE, AH_WP_STANDARD_ITEM_SCALE);
 
 		// always face camera
-		for (i = 0; i < (int)CTR_ReadU16LE(&newInst->model->numHeaders); i++)
+		for (i = 0; i < newInst->model->numHeaders; i++)
 		{
 			newInst->model->headers[i].flags |= 1;
 		}
@@ -1531,7 +1531,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 	CTR_SET_VEC3(newInst->scale.v, AH_WP_STANDARD_ITEM_SCALE, AH_WP_STANDARD_ITEM_SCALE, AH_WP_STANDARD_ITEM_SCALE);
 
 	// always face camera
-	for (i = 0; i < (int)CTR_ReadU16LE(&newInst->model->numHeaders); i++)
+	for (i = 0; i < newInst->model->numHeaders; i++)
 	{
 		newInst->model->headers[i].flags |= 1;
 	}

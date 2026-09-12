@@ -4389,6 +4389,15 @@ void NativeRenderer_UpdateVertexBuffer(const GrVertex *vertices, int num_vertice
 		NativePerf_EndScope(NATIVE_PERF_BUCKET_RENDERER_VERTEX_UPLOAD);
 		return;
 	}
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	static int ps3VboLogCount = 0;
+	ps3VboLogCount++;
+	if (ps3VboLogCount <= 10 || (ps3VboLogCount % 120) == 0)
+	{
+		Platform_Log("[PS3 Renderer] UpdateVertexBuffer #%d: num_vertices=%d vboIndex=%d\n",
+			ps3VboLogCount, num_vertices, s_curVertexBuffer);
+	}
+#endif
 	if ((u32)num_vertices >= MAX_VERTEX_BUFFER_SIZE)
 	{
 		NATIVE_RENDERER_ERROR("%s\n", "MAX_VERTEX_BUFFER_SIZE reached, expect rendering errors");
@@ -4436,6 +4445,14 @@ void NativeRenderer_DrawTriangles(int start_vertex, int triangles)
 {
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_RENDERER_DRAW_TRIANGLES);
 #if defined(__PS3__) || defined(__CELLOS_LV2__)
+	static int ps3DrawTriLogCount = 0;
+	ps3DrawTriLogCount++;
+	if (ps3DrawTriLogCount <= 20 || (ps3DrawTriLogCount % 200) == 0)
+	{
+		Platform_Log("[PS3 Renderer] DrawTriangles #%d: start_vertex=%d triangles=%d shader=%d boundVBO=%d\n",
+			ps3DrawTriLogCount, start_vertex, triangles, (int)s_previousShader, s_boundVertexBuffer);
+	}
+
 	if (s_boundVertexBuffer >= 0)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[s_boundVertexBuffer]);

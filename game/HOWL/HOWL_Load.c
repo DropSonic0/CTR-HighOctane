@@ -65,30 +65,20 @@ void howl_ParseHeader(struct HowlHeader *hh)
 	sdata->ptrHowlHeader = (struct HowlHeader *)addr;
 	addr += sizeof(struct HowlHeader);
 
-	u32 numSpuAddrs = CTR_ReadU32LE(&hh->numSpuAddrs);
-	u32 numOtherFX = CTR_ReadU32LE(&hh->numOtherFX);
-	u32 numEngineFX = CTR_ReadU32LE(&hh->numEngineFX);
-	u32 numBanks = CTR_ReadU32LE(&hh->numBanks);
-	u32 numSequences = CTR_ReadU32LE(&hh->numSequences);
-
-	Platform_Log("[CTR Native] howl_ParseHeader: spu=%u other=%u eng=%u banks=%u seq=%u\n",
-	             numSpuAddrs, numOtherFX, numEngineFX, numBanks, numSequences);
-	Platform_LogFlush();
-
 	sdata->howl_spuAddrs = (struct SpuAddrEntry *)addr;
-	addr += sizeof(struct SpuAddrEntry) * numSpuAddrs;
+	addr += sizeof(struct SpuAddrEntry) * hh->numSpuAddrs;
 
 	sdata->howl_metaOtherFX = (struct OtherFX *)addr;
-	addr += sizeof(struct OtherFX) * numOtherFX;
+	addr += sizeof(struct OtherFX) * hh->numOtherFX;
 
 	sdata->howl_metaEngineFX = (struct EngineFX *)addr;
-	addr += sizeof(struct EngineFX) * numEngineFX;
+	addr += sizeof(struct EngineFX) * hh->numEngineFX;
 
 	sdata->howl_bankOffsets = (u16 *)addr;
-	addr += sizeof(s16) * numBanks;
+	addr += sizeof(s16) * hh->numBanks;
 
 	sdata->howl_songOffsets = (u16 *)addr;
-	addr += sizeof(s16) * numSequences;
+	addr += sizeof(s16) * hh->numSequences;
 
 	sdata->howl_endOfHowl = addr;
 }
@@ -101,18 +91,14 @@ void howl_ParseCseqHeader(struct CseqHeader *ch)
 	sdata->ptrCseqHeader = (struct CseqHeader *)addr;
 	addr += sizeof(struct CseqHeader);
 
-	u8 numLongSamples = ch->numLongSamples;
-	u8 numShortSamples = ch->numShortSamples;
-	u16 numSongs = CTR_ReadU16LE(&ch->numSongs);
-
 	sdata->ptrCseqLongSamples = (struct SampleInstrument *)addr;
-	addr += sizeof(struct SampleInstrument) * numLongSamples;
+	addr += sizeof(struct SampleInstrument) * ch->numLongSamples;
 
 	sdata->ptrCseqShortSamples = (struct SampleDrums *)addr;
-	addr += sizeof(struct SampleDrums) * numShortSamples;
+	addr += sizeof(struct SampleDrums) * ch->numShortSamples;
 
 	sdata->ptrCseqSongStartOffset = (s16 *)addr;
-	addr += sizeof(s16) * numSongs;
+	addr += sizeof(s16) * ch->numSongs;
 
 	addr = (addr + 3) & ~3;
 
@@ -127,13 +113,8 @@ int howl_LoadHeader(char *filename)
 	int numSector;
 	int ret;
 
-	Platform_Log("[CTR Native] howl_LoadHeader: %s\n", filename);
-	Platform_LogFlush();
-
 	if (LOAD_FindFile(filename, &sdata->KartHWL_CdFile) == 0)
 	{
-		Platform_LogError("[CTR Native] howl_LoadHeader: LOAD_FindFile failed for %s\n", filename);
-		Platform_LogFlush();
 		return 0;
 	}
 
@@ -147,28 +128,16 @@ int howl_LoadHeader(char *filename)
 		// read sector #1 of HOWL, just for header
 		ret = LOAD_HowlHeaderSectors(&sdata->KartHWL_CdFile, alloc, 0, 1);
 
-		u32 magic = CTR_ReadU32LE(&alloc->magic);
-		u32 version = CTR_ReadU32LE(&alloc->version);
-
-		Platform_Log("[CTR Native] howl_LoadHeader: ret=%d magic=%08x ver=%08x\n", ret, magic, version);
-		Platform_LogFlush();
-
 		if (
 		    // confirm first sector loaded properly
-		    (ret != 0) && (memcmp(&alloc->magic, "HOWL", 4) == 0) && (version == 0x80) // different in other CTR builds
+		    (ret != 0) && (alloc->magic == *(int *)&sdata->s_HOWL[0]) && (alloc->version == 0x80) // different in other CTR builds
 		)
 		{
 			// allocate room for howlHeader + pointerTable
-			u32 headerSize = CTR_ReadU32LE(&alloc->headerSize);
-			howlHeaderSize = sizeof(struct HowlHeader) + headerSize;
+			howlHeaderSize = sizeof(struct HowlHeader) + alloc->headerSize;
 
 			// align up for sector size
 			numSector = CTR_MipsSra(CTR_MipsAddLo(howlHeaderSize, 0x7ff), 11);
-
-			Platform_Log("[CTR Native] howl_LoadHeader: headerSize=%u howlHeaderSize=%d numSector=%d cdSize=%d\n",
-			             headerSize, howlHeaderSize, numSector, sdata->KartHWL_CdFile.size);
-			Platform_LogFlush();
-
 			MEMPACK_ReallocMem(numSector << 0xb);
 
 			// if header needs more sectors loaded, like CTR-U which needs 3 sectors
@@ -181,23 +150,13 @@ int howl_LoadHeader(char *filename)
 				// deallocate sector-alignment padding
 				MEMPACK_ReallocMem(howlHeaderSize);
 
-				Platform_Log("[CTR Native] howl_LoadHeader: Success!\n");
-				Platform_LogFlush();
-
 				// do NOT PopState
 				return 1;
-			}
-			else
-			{
-				Platform_LogError("[CTR Native] howl_LoadHeader: LOAD_HowlHeaderSectors failed for remaining sectors!\n");
-				Platform_LogFlush();
 			}
 		}
 	}
 
 	MEMPACK_PopState();
-	Platform_LogError("[CTR Native] howl_LoadHeader: Failed!\n");
-	Platform_LogFlush();
 	return 0;
 }
 
@@ -219,7 +178,7 @@ int howl_SetSong(int songID)
 	// Stage 0: Start Loading
 	sdata->songLoadStage = 0;
 
-	sdata->songSectorOffset = (s16)CTR_ReadU16LE(&sdata->howl_songOffsets[songID & 0xffff]);
+	sdata->songSectorOffset = sdata->howl_songOffsets[songID & 0xffff];
 	return 1;
 }
 
@@ -262,8 +221,7 @@ int howl_LoadSong()
 		}
 
 		// CseqHeader->songSize, aligned up to sector size
-		s32 rawSongSize = (s32)CTR_ReadU32LE(&sdata->sampleBlock1[0]);
-		int numSector = CTR_MipsSrl(CTR_MipsAddLo(rawSongSize, 0x7ff), 11);
+		int numSector = CTR_MipsSrl(CTR_MipsAddLo(*(s32 *)&sdata->sampleBlock1[0], 0x7ff), 11);
 
 		ret = LOAD_HowlSectorChainStart(&sdata->KartHWL_CdFile,      // CdLoc of HOWL
 		                                sdata->tenSampleBlocks,      // (sampleBlock1+0x800) RAM destination

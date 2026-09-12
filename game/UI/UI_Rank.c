@@ -250,9 +250,7 @@ void UI_DrawRankedDrivers(void)
 					}
 				}
 
-				SVec2 iconPos;
-				iconPos.x = pos.x;
-				iconPos.y = pos.y;
+				SVec2 iconPos = {.x = pos.x, .y = pos.y};
 				s16 iconScale = UI_RANK_ICON_SCALE;
 
 				int isTransitioning = (pos.x == UI_RANK_ICON_OFFSCREEN_X);
@@ -421,18 +419,18 @@ void UI_DrawRankedDrivers(void)
 			struct CheckpointNode *cn1 = &cn[cn0->nextIndex_forward];
 			struct CheckpointNode *cn2 = &cn[cn1->nextIndex_forward];
 
-			SVec3 trackDir = {{
-			    (s16)(cn1->pos.x - cn2->pos.x),
-			    (s16)(cn1->pos.y - cn2->pos.y),
-			    (s16)(cn1->pos.z - cn2->pos.z),
-			}};
+			SVec3 trackDir = {
+			    .x = cn1->pos.x - cn2->pos.x,
+			    .y = cn1->pos.y - cn2->pos.y,
+			    .z = cn1->pos.z - cn2->pos.z,
+			};
 			MATH_VectorNormalize(&trackDir);
 
-			SVec3 warpDelta = {{
-			    (s16)(warpballPos[0] - cn1->pos.x),
-			    (s16)(warpballPos[1] - cn1->pos.y),
-			    (s16)(warpballPos[2] - cn1->pos.z),
-			}};
+			SVec3 warpDelta = {
+			    .x = warpballPos[0] - cn1->pos.x,
+			    .y = warpballPos[1] - cn1->pos.y,
+			    .z = warpballPos[2] - cn1->pos.z,
+			};
 
 			CTR_GteLoadRotRow0SVec3(&trackDir);
 			CTR_GteLoadSVec3V0(&warpDelta);

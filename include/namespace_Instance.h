@@ -420,8 +420,6 @@ CTR_STATIC_ASSERT(sizeof(((struct Model *)0)->name) == MODEL_NAME_WORD_COUNT * s
 CTR_STATIC_ASSERT(OFFSETOF(struct Model, id) == 0x10);
 CTR_STATIC_ASSERT(OFFSETOF(struct Model, headers) == 0x14);
 
-#define MODEL_GET_ID(m) ((s16)CTR_ReadU16LE(&(m)->id))
-
 struct InstDef
 {
 	// 0

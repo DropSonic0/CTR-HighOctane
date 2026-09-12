@@ -15,7 +15,7 @@ int CseqMusic_Start(u16 songID, int p2, struct SongSet *p3, int p4, int p5)
 		return 0;
 	}
 
-	if (CTR_ReadU16LE(&sdata->ptrCseqHeader->numSongs) <= songID)
+	if (sdata->ptrCseqHeader->numSongs <= songID)
 	{
 		return 0;
 	}
@@ -227,7 +227,7 @@ void CseqMusic_AdvHubSwap(u16 songId, struct SongSet *songSet, int songSetActive
 	{
 		return;
 	}
-	if (CTR_ReadU16LE(&sdata->ptrCseqHeader->numSongs) <= songId)
+	if (sdata->ptrCseqHeader->numSongs <= songId)
 	{
 		return;
 	}

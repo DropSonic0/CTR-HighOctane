@@ -37,8 +37,6 @@ int NativeAudio_RenderFrames(s16 *out, int frameCount);
 void NativeAudio_SetDeterministicRenderMode(int enabled);
 int NativeAudio_IsDeterministicRenderMode(void);
 int NativeAudio_QueueRenderedFrames(const s16 *frames, int frameCount);
-void NativeAudio_LockOutput(void);
-void NativeAudio_UnlockOutput(void);
 void NativeAudio_ClearOutputQueue(void);
 void NativeAudio_SetBackgroundMuted(int muted);
 void NativeAudio_Shutdown(void);

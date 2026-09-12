@@ -56,9 +56,6 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 	// Used in stage 0, 4, 5, 6
 	b32 boolPlayMusicDuringLoading = (levelID == ADVENTURE_GARAGE) || (levelID == NAUGHTY_DOG_CRATE);
 
-	Platform_Log("[CTR Native] LOAD_TenStages: Executing stage %d (levelID=%d)...\n", loadingStage, levelID);
-	Platform_LogFlush();
-
 	switch (loadingStage)
 	{
 	case 0:
@@ -86,12 +83,14 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 				MainInit_VRAMDisplay();
 
 #ifdef CTR_NATIVE
-				int copyrightFrames = 0;
-#define LOAD_NATIVE_COPYRIGHT_INTRO_MIN_FRAMES 210
-				while ((gNativeBootSkipRequested == 0) && (copyrightFrames < LOAD_NATIVE_COPYRIGHT_INTRO_MIN_FRAMES))
+				// NOTE(aalhendi): SCEA is already held by XA playback in MainMain. The copyright
+				// TIM has no XA, so keep it visible until the intro CSEQ reaches
+				// the point retail normally reaches while loading the ND crate.
+				// Present every wait tick so both host swapchain images are
+				// overwritten with copyright instead of briefly revealing SCEA.
+				while (((sdata->songPool[0].flags & 3) == 1) && (sdata->songPool[0].timeSpentPlaying < LOAD_NATIVE_NDBOX_INTRO_SONG_SYNC_TIME))
 				{
 					VSync(0);
-					copyrightFrames++;
 					if (Platform_InputStartPressed() != 0)
 					{
 						gNativeBootSkipRequested = 1;
@@ -527,7 +526,7 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 		// if level is not nullptr
 		if (lev != 0)
 		{
-			LibraryOfModels_Store(gGT, CTR_ReadU32LE(&lev->numModels), lev->ptrModelsPtrArray);
+			LibraryOfModels_Store(gGT, lev->numModels, lev->ptrModelsPtrArray);
 
 			gGT->ptrCircle = (u32)DecalGlobal_FindInLEV(lev, rdata.s_circle);
 			gGT->ptrClod = (u32)DecalGlobal_FindInLEV(lev, rdata.s_clod);
@@ -666,17 +665,12 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 					modelPtrArr[i] = m;
 				}
 
-				s16 modelID = MODEL_GET_ID(m);
-
-				if (modelID == -1)
+				if (m->id == -1)
 				{
 					continue;
 				}
 
-				if ((u16)modelID < len(gGT->modelPtr))
-				{
-					gGT->modelPtr[modelID] = m;
-				}
+				gGT->modelPtr[m->id] = m;
 			}
 
 			MEMPACK_SwapPacks(gGT->activeMempackIndex);

@@ -380,7 +380,7 @@ static void Particle_UpdateIconFrame(struct Particle *p, u16 flagsSetColor)
 {
 	struct ParticleAxis *frameAxis = &p->axis[PARTICLE_AXIS_ICON_FRAME_OR_LINE_COLOR];
 	int frame = frameAxis->startVal;
-	int frameLimit = (s16)CTR_ReadU16LE(&p->ptrIconGroup->numIcons) << 8;
+	int frameLimit = p->ptrIconGroup->numIcons << 8;
 
 	if (frame < 0)
 	{
@@ -1127,7 +1127,17 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 
 	PushBuffer_SetPsyqGeom(pb);
 
-	gte_SetLightMatrix(&pb->matrix_ViewProj);
+	scratch->viewProjWords[0] = CTR_ReadU32LE(&pb->matrix_ViewProj.m[0][0]);
+	scratch->viewProjWords[1] = CTR_ReadU32LE(&pb->matrix_ViewProj.m[0][2]);
+	scratch->viewProjWords[2] = CTR_ReadU32LE(&pb->matrix_ViewProj.m[1][1]);
+	scratch->viewProjWords[3] = CTR_ReadU32LE(&pb->matrix_ViewProj.m[2][0]);
+	scratch->viewProjR33Low = CTR_ReadU16LE(&pb->matrix_ViewProj.m[2][2]);
+
+	CTC2(scratch->viewProjWords[0], 8);
+	CTC2(scratch->viewProjWords[1], 9);
+	CTC2(scratch->viewProjWords[2], 10);
+	CTC2(scratch->viewProjWords[3], 11);
+	CTC2(scratch->viewProjWords[4], 12);
 
 	scratch->ot = pb->ptrOT;
 	cameraID = (s8)pb->cameraID;
@@ -1182,16 +1192,14 @@ void Particle_RenderList(struct PushBuffer *pb, void *particleList)
 			{
 				int frame = particle->axis[PARTICLE_AXIS_ICON_FRAME_OR_LINE_COLOR].startVal >> 8;
 
-				s16 numIcons = (s16)CTR_ReadU16LE(&iconGroup->numIcons);
-
 				if (frame < 0)
 				{
 					frame = 0;
 				}
 
-				if (numIcons <= frame)
+				if (iconGroup->numIcons <= frame)
 				{
-					frame = numIcons - 1;
+					frame = iconGroup->numIcons - 1;
 				}
 
 				if (frame < 0)
@@ -1504,7 +1512,7 @@ struct Particle *Particle_Init(u32 param_1, struct IconGroup *ig, struct Particl
 	gGT->numParticles++;
 
 	p->ptrIconGroup = ig;
-	if (ig != NULL && (s16)CTR_ReadU16LE(&ig->numIcons) > 0)
+	if (ig != NULL && ig->numIcons != 0 && ig->numIcons > 0)
 	{
 		p->ptrIconArray = ((struct Icon **)ICONGROUP_GETICONS(ig))[0];
 	}
