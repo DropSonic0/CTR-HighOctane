@@ -431,57 +431,57 @@ enum
 #define OVR233_CS_PARTICLE_DISABLED 0xffffffffu
 #define OVR233_CS_PATH_MOTION_DISABLE_ARG 0xffffffffu
 #define OVR233_LE16_AT(OFFSET, VALUE) \
-	[(OFFSET)] = (u8)((VALUE) & 0xff), \
-	[(OFFSET) + 1] = (u8)(((VALUE) >> 8) & 0xff)
+	[(OFFSET)] = (s8)(u8)((u32)(VALUE) & 0xff), \
+	[(OFFSET) + 1] = (s8)(u8)(((u32)(VALUE) >> 8) & 0xff)
 #define OVR233_LE32_AT(OFFSET, VALUE) \
-	[(OFFSET)] = (u8)((VALUE) & 0xff), \
-	[(OFFSET) + 1] = (u8)(((VALUE) >> 8) & 0xff), \
-	[(OFFSET) + 2] = (u8)(((VALUE) >> 16) & 0xff), \
-	[(OFFSET) + 3] = (u8)(((VALUE) >> 24) & 0xff)
+	[(OFFSET)] = (s8)(u8)((u32)(VALUE) & 0xff), \
+	[(OFFSET) + 1] = (s8)(u8)(((u32)(VALUE) >> 8) & 0xff), \
+	[(OFFSET) + 2] = (s8)(u8)(((u32)(VALUE) >> 16) & 0xff), \
+	[(OFFSET) + 3] = (s8)(u8)(((u32)(VALUE) >> 24) & 0xff)
 #define OVR233_ALIGN4(VALUE) (((VALUE) + 3u) & ~3u)
 #define OVR233_RETAIL_ADDR(OFFSET) (OVR233_RETAIL_BASE + (OFFSET))
 #define OVR233_CS_OP_AT(OFFSET, OPCODE) \
-	[(OFFSET)] = (OPCODE)
+	[(OFFSET)] = (s8)(u8)(OPCODE)
 #define OVR233_CS_OP_ARG1_AT(OFFSET, OPCODE, ARG1) \
-	[(OFFSET)] = (OPCODE), \
+	[(OFFSET)] = (s8)(u8)(OPCODE), \
 	OVR233_LE32_AT((OFFSET) + 1, (ARG1))
 #define OVR233_CS_OP_ARG0_ARG1_AT(OFFSET, OPCODE, ARG0, ARG1) \
-	[(OFFSET)] = (OPCODE), \
+	[(OFFSET)] = (s8)(u8)(OPCODE), \
 	OVR233_LE32_AT((OFFSET) + 1, (ARG0)), \
 	OVR233_LE32_AT((OFFSET) + 5, (ARG1))
 #define OVR233_CS_OP_3S_AT(OFFSET, OPCODE, SHORT0, SHORT1, SHORT2) \
-	[(OFFSET)] = (OPCODE), \
+	[(OFFSET)] = (s8)(u8)(OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE16_AT((OFFSET) + 3, (SHORT1)), \
 	OVR233_LE16_AT((OFFSET) + 5, (SHORT2))
 #define OVR233_CS_OP_5S_AT(OFFSET, OPCODE, SHORT0, SHORT1, SHORT2, SHORT3, SHORT4) \
-	[(OFFSET)] = (OPCODE), \
+	[(OFFSET)] = (s8)(u8)(OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE16_AT((OFFSET) + 3, (SHORT1)), \
 	OVR233_LE16_AT((OFFSET) + 5, (SHORT2)), \
 	OVR233_LE16_AT((OFFSET) + 7, (SHORT3)), \
 	OVR233_LE16_AT((OFFSET) + 9, (SHORT4))
 #define OVR233_CS_OP_S1_ARG1_AT(OFFSET, OPCODE, SHORT0, ARG1) \
-	[(OFFSET)] = (OPCODE), \
+	[(OFFSET)] = (s8)(u8)(OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE32_AT((OFFSET) + 3, (ARG1))
 #define OVR233_CS_OP_S1_ARG0_ARG1_AT(OFFSET, OPCODE, SHORT0, ARG0, ARG1) \
-	[(OFFSET)] = (OPCODE), \
+	[(OFFSET)] = (s8)(u8)(OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE32_AT((OFFSET) + 3, (ARG0)), \
 	OVR233_LE32_AT((OFFSET) + 7, (ARG1))
 #define OVR233_CS_OP_2B_AT(OFFSET, FRAME_START, FRAME_END, ARG0, ARG1) \
-	[(OFFSET)] = CS_OPCODE_ANIM_RANGE, \
+	[(OFFSET)] = (s8)(u8)CS_OPCODE_ANIM_RANGE, \
 	OVR233_LE16_AT((OFFSET) + 1, (FRAME_START)), \
 	OVR233_LE16_AT((OFFSET) + 3, (FRAME_END)), \
 	OVR233_LE32_AT((OFFSET) + 5, (ARG0)), \
 	OVR233_LE32_AT((OFFSET) + 9, (ARG1))
 #define OVR233_CS_OP_ARG0_GOTO_AT(OFFSET, OPCODE, ARG0, TARGET) \
-	[(OFFSET)] = (OPCODE), \
+	[(OFFSET)] = (s8)(u8)(OPCODE), \
 	OVR233_LE32_AT((OFFSET) + 1, (ARG0)), \
 	OVR233_LE32_AT(OVR233_ALIGN4((OFFSET) + 5), OVR233_RETAIL_ADDR(TARGET))
 #define OVR233_CS_OP_3S_ARG0_ARG1_2S_AT(OFFSET, OPCODE, SHORT0, SHORT1, SHORT2, ARG0, ARG1, SHORT8, SHORT9) \
-	[(OFFSET)] = (OPCODE), \
+	[(OFFSET)] = (s8)(u8)(OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE16_AT((OFFSET) + 3, (SHORT1)), \
 	OVR233_LE16_AT((OFFSET) + 5, (SHORT2)), \
@@ -490,7 +490,7 @@ enum
 	OVR233_LE16_AT((OFFSET) + 15, (SHORT8)), \
 	OVR233_LE16_AT((OFFSET) + 17, (SHORT9))
 #define OVR233_CS_GOTO_AT(OFFSET, TARGET) \
-	[(OFFSET)] = CS_OPCODE_GOTO, \
+	[(OFFSET)] = (s8)(u8)CS_OPCODE_GOTO, \
 	OVR233_LE32_AT(OVR233_ALIGN4((OFFSET) + 1), OVR233_RETAIL_ADDR(TARGET))
 #define OVR233_CS_OP_HIDE_INSTANCE_AND_END_THREAD_AT(OFFSET) \
 	OVR233_CS_OP_AT(OFFSET, CS_OPCODE_HIDE_INSTANCE_AND_END_THREAD)
@@ -908,9 +908,9 @@ const struct OverlayRDATA_233 R233 =
                  .spawn = {.modelDelta = -2}},
             },
         .csOpcodeMetaPrefix = {
-            /* 0x5adc */ 0xdf, 0x20, 0x00, 0x19, 0x28, 0x10, 0x10, 0x18, 0x10, 0x10, 0x10, 0x18, 0x00, 0x10, 0x10, 0x00,
+            /* 0x5adc */ (s8)0xdf, 0x20, 0x00, 0x19, 0x28, 0x10, 0x10, 0x18, 0x10, 0x10, 0x10, 0x18, 0x00, 0x10, 0x10, 0x00,
             /* 0x5aec */ 0x10, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x10, 0x10, 0x10, 0x00,
-            /* 0x5afc */ 0x00, 0x10, 0x10, 0x00, 0x19, 0x00, 0x2c, 0x10, 0x00, 0x00, 0x00, 0x1e, 0x11, 0xc7, 0x00, 0x00,
+            /* 0x5afc */ 0x00, 0x10, 0x10, 0x00, 0x19, 0x00, 0x2c, 0x10, 0x00, 0x00, 0x00, 0x1e, 0x11, (s8)0xc7, 0x00, 0x00,
             /* 0x5b0c */ 0x07, 0x00, 0x00, 0x00,
         },
         .bossOpcodeData = {

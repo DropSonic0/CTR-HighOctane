@@ -537,50 +537,50 @@ struct OverlayRDATA_233
 	// 800b14cc
 	// NOTE(aalhendi): Retail cs_opcodeMeta prefix. Native interpreter uses
 	// the source-owned table in 233_02_09_CS_ScriptCmd.c.
-	char csOpcodeMetaPrefix[0x34];
+	u8 csOpcodeMetaPrefix[0x34];
 
 	// 800b1500
-	char bossOpcodeData[0x2b4];
+	u8 bossOpcodeData[0x2b4];
 
 	// 800b17b4
-	char script_tawnaNormal[0x28];
+	u8 script_tawnaNormal[0x28];
 
 	// 800b17dc
-	char script_tawnaCredits[0x164c];
+	u8 script_tawnaCredits[0x164c];
 
 	// 800b2e28
-	char script_default[0x18];
+	u8 script_default[0x18];
 
 	// 800b2e40
-	char script_dingofire[0x38];
+	u8 script_dingofire[0x38];
 
 	// 800b2e78
 	char *danceFirstScripts[0x10];
 
 	// 800b2eb8
-	char danceOtherOpcodeData[0x12d4];
+	u8 danceOtherOpcodeData[0x12d4];
 
 	// 800b418c
 	char *danceOtherScripts[0x10];
 
 	// 800b41cc
-	char introModelOpcodeData[0x3b0];
+	u8 introModelOpcodeData[0x3b0];
 
 	// 800b457c
 	char *introModelScripts[0x10];
 
 	// 800b45bc
-	char introCutsceneOpcodeData[0x11c];
+	u8 introCutsceneOpcodeData[0x11c];
 
 	// 800b46d8
 	// NOTE(aalhendi): Retail PTR_DAT_800b45bc_800b46d8.
 	char *introCutsceneOpcodes[9];
 
 	// 800b46fc
-	char introEndingOpcodeData[0x50];
+	u8 introEndingOpcodeData[0x50];
 
 	// 800b474c
-	char creditsCutsceneOpcodeData[0x1dc];
+	u8 creditsCutsceneOpcodeData[0x1dc];
 
 	// 800b4928
 	// NOTE(aalhendi): Retail PTR_DAT_800b474c_800b4928.
@@ -588,10 +588,10 @@ struct OverlayRDATA_233
 
 	// 800b4978
 	// ND crate intro script starts at offset 0x18.
-	char creditsOpcodeData[0x40];
+	u8 creditsOpcodeData[0x40];
 
 	// 800b49b8
-	char boxAndAdvCharSelectOpcodeData[0x10c4];
+	u8 boxAndAdvCharSelectOpcodeData[0x10c4];
 
 	// 800b5a7c
 	// NOTE(aalhendi): Retail PTR_DAT_800b49b8_800b5a7c.
