@@ -1,8 +1,8 @@
 /*
- * Derived from REDRIVER2/PsyCross MIT source:
- * externals/PsyCross/include/psx/libgpu.h
- * See THIRD_PARTY_NOTICES.md for copyright and license details.
- */
+* Derived from REDRIVER2/PsyCross MIT source:
+* externals/PsyCross/include/psx/libgpu.h
+* See THIRD_PARTY_NOTICES.md for copyright and license details.
+*/
 
 #ifndef LIBGPU_H
 #define LIBGPU_H
@@ -15,7 +15,7 @@
 
 typedef short VERTTYPE;
 
-extern int (*GPU_printf)(const char *fmt, ...);
+extern int(*GPU_printf)(const char *fmt, ...);
 
 #define WAIT_TIME                      0x800000
 
@@ -33,20 +33,20 @@ extern int (*GPU_printf)(const char *fmt, ...);
 
 #define dumpMatrix(x)                                                                                                                                 \
 	GPU_printf("\t%5d,%5d,%5d\n", (x)->m[0][0], (x)->m[0][1], (x)->m[0][2]), GPU_printf("\t%5d,%5d,%5d\n", (x)->m[1][0], (x)->m[1][1], (x)->m[1][2]), \
-	    GPU_printf("\t%5d,%5d,%5d\n", (x)->m[2][0], (x)->m[2][1], (x)->m[2][2])
+	GPU_printf("\t%5d,%5d,%5d\n", (x)->m[2][0], (x)->m[2][1], (x)->m[2][2])
 
 #define setRECT(r, _x, _y, _w, _h)              (r)->x = (_x), (r)->y = (_y), (r)->w = (_w), (r)->h = (_h)
 
 /*
- *	Set Primitive Attributes
- */
+*	Set Primitive Attributes
+*/
 #define setTPage(p, tp, abr, x, y)              ((p)->tpage = getTPage(tp, abr, x, y))
 
 #define setClut(p, x, y)                        ((p)->clut = getClut(x, y))
 
 /*
- * Set Primitive Colors
- */
+* Set Primitive Colors
+*/
 #define setRGB0(p, _r0, _g0, _b0)               (p)->r0 = _r0, (p)->g0 = _g0, (p)->b0 = _b0
 
 #define setRGB1(p, _r1, _g1, _b1)               (p)->r1 = _r1, (p)->g1 = _g1, (p)->b1 = _b1
@@ -65,8 +65,8 @@ extern int (*GPU_printf)(const char *fmt, ...);
 #define setRGBP3(p, _r3, _g3, _b3, _p3)         (p)->r3 = _r3, (p)->g3 = _g3, (p)->b3 = _b3, (p)->p3 = _p3
 
 /*
- * Set Primitive Screen Points
- */
+* Set Primitive Screen Points
+*/
 #define setXY0(p, _x0, _y0)                     (p)->x0 = (_x0), (p)->y0 = (_y0)
 
 #define setXY2(p, _x0, _y0, _x1, _y1)           (p)->x0 = (_x0), (p)->y0 = (_y0), (p)->x1 = (_x1), (p)->y1 = (_y1)
@@ -77,17 +77,17 @@ extern int (*GPU_printf)(const char *fmt, ...);
 	(p)->x0 = (_x0), (p)->y0 = (_y0), (p)->x1 = (_x1), (p)->y1 = (_y1), (p)->x2 = (_x2), (p)->y2 = (_y2), (p)->x3 = (_x3), (p)->y3 = (_y3)
 
 #define setXYWH(p, _x0, _y0, _w, _h)                                                                                                            \
-	(p)->x0 = (_x0), (p)->y0 = (_y0), (p)->x1 = (_x0) + (_w), (p)->y1 = (_y0), (p)->x2 = (_x0), (p)->y2 = (_y0) + (_h), (p)->x3 = (_x0) + (_w), \
-	(p)->y3 = (_y0) + (_h)
+	(p)->x0 = (_x0), (p)->y0 = (_y0), (p)->x1 = (_x0)+(_w), (p)->y1 = (_y0), (p)->x2 = (_x0), (p)->y2 = (_y0)+(_h), (p)->x3 = (_x0)+(_w), \
+	(p)->y3 = (_y0)+(_h)
 
 /*
- * Set Primitive Width/Height
- */
+* Set Primitive Width/Height
+*/
 #define setWH(p, _w, _h)                        (p)->w = _w, (p)->h = _h
 
 /*
- * Set Primitive Texture Points
- */
+* Set Primitive Texture Points
+*/
 #define setUV0(p, _u0, _v0)                     (p)->u0 = (_u0), (p)->v0 = (_v0)
 
 #define setUV3(p, _u0, _v0, _u1, _v1, _u2, _v2) (p)->u0 = (_u0), (p)->v0 = (_v0), (p)->u1 = (_u1), (p)->v1 = (_v1), (p)->u2 = (_u2), (p)->v2 = (_v2)
@@ -96,13 +96,13 @@ extern int (*GPU_printf)(const char *fmt, ...);
 	(p)->u0 = (_u0), (p)->v0 = (_v0), (p)->u1 = (_u1), (p)->v1 = (_v1), (p)->u2 = (_u2), (p)->v2 = (_v2), (p)->u3 = (_u3), (p)->v3 = (_v3)
 
 #define setUVWH(p, _u0, _v0, _w, _h)                                                                                                            \
-	(p)->u0 = (_u0), (p)->v0 = (_v0), (p)->u1 = (_u0) + (_w), (p)->v1 = (_v0), (p)->u2 = (_u0), (p)->v2 = (_v0) + (_h), (p)->u3 = (_u0) + (_w), \
-	(p)->v3 = (_v0) + (_h)
+	(p)->u0 = (_u0), (p)->v0 = (_v0), (p)->u1 = (_u0)+(_w), (p)->v1 = (_v0), (p)->u2 = (_u0), (p)->v2 = (_v0)+(_h), (p)->u3 = (_u0)+(_w), \
+	(p)->v3 = (_v0)+(_h)
 
 
 /*
- * Dump Primivie Parameters
- */
+* Dump Primivie Parameters
+*/
 #define dumpRECT16(r) GPU_printf("(%d,%d)-(%d,%d)\n", (r)->x, (r)->y, (r)->w, (r)->h)
 
 #define dumpWH(p)     GPU_printf("(%d,%d)\n", (p)->w, (p)->h)
@@ -128,8 +128,8 @@ extern int (*GPU_printf)(const char *fmt, ...);
 #define dumpRGB3(p)   GPU_printf("(%3d,%3d,%3d)\n", (p)->r3, (p)->g3, (p)->b3)
 
 /*
- * Primitive Handling Macros
- */
+* Primitive Handling Macros
+*/
 
 #ifdef CTR_NATIVE
 static inline uint32_t CTR_GPU_ReadTagWord(const void *p)
@@ -209,31 +209,38 @@ static inline void CTR_GPU_WriteTagAddrToken(void *p, uint32_t token)
 
 #define dumpTPage(tpage)                                                                                     \
 	GPU_printf("tpage: (%d,%d,%d,%d)\n", ((tpage) >> 7) & 0x3, ((tpage) >> 5) & 0x3, ((tpage) << 6) & 0x3c0, \
-	           (((tpage) << 4) & 0x100) + (((tpage) >> 2) & 0x200))
+	(((tpage) << 4) & 0x100) + (((tpage) >> 2) & 0x200))
 
 #define dumpClut(clut)                   GPU_printf("clut: (%d,%d)\n", (clut & 0x3f) << 4, (clut >> 6))
 
 #define _get_mode(dfe, dtd, tpage)       ((0xe1000000) | ((dtd) ? 0x0200 : 0) | ((dfe) ? 0x0400 : 0) | ((tpage) & 0x9ff))
 
-#define setDrawTPage(p, dfe, dtd, tpage) setlen(p, 1), ((uint32_t *)(p))[1] = _get_mode(dfe, dtd, tpage)
-
 #define _get_tw(tw)                                                                                                                   \
 	(tw ? ((0xe2000000) | ((((tw)->y & 0xff) >> 3) << 15) | ((((tw)->x & 0xff) >> 3) << 10) | (((~((tw)->h - 1) & 0xff) >> 3) << 5) | \
-	       (((~((tw)->w - 1) & 0xff) >> 3)))                                                                                          \
-	    : 0)
-
-#define setTexWindow(p, tw) setlen(p, 2), ((uint32_t *)(p))[1] = _get_tw(tw), ((uint32_t *)(p))[2] = 0
+	(((~((tw)->w - 1) & 0xff) >> 3)))                                                                                          \
+	: 0)
 
 #define _get_len(rect)      (((RECT16)->w * (rect)->h + 1) / 2 + 4)
 
+#ifdef CTR_NATIVE
+#define setDrawTPage(p, dfe, dtd, tpage) setlen(p, 1), CTR_WriteU32LE((uint8_t *)(p) + 4, _get_mode(dfe, dtd, tpage))
+#define setTexWindow(p, tw) setlen(p, 2), CTR_WriteU32LE((uint8_t *)(p) + 4, _get_tw(tw)), CTR_WriteU32LE((uint8_t *)(p) + 8, 0)
+#define setDrawStp(p, pbw)  setlen(p, 2), CTR_WriteU32LE((uint8_t *)(p) + 4, 0xe6000000 | (pbw ? 0x01 : 0)), CTR_WriteU32LE((uint8_t *)(p) + 8, 0)
+#define setDrawMode(p, dfe, dtd, tpage, tw) setlen(p, 2), CTR_WriteU32LE((uint8_t *)(p) + 4, _get_mode(dfe, dtd, tpage)), CTR_WriteU32LE((uint8_t *)(p) + 8, _get_tw((RECT16 *)tw))
+#define setDrawLoad(pt, rect)                                                                                                                                           \
+	(_get_len(RECT16) <= 16) ? ((setlen(pt, _get_len(rect))), (CTR_WriteU32LE(&(pt)->code[0], 0xa0000000)), (CTR_WriteU32LE(&(pt)->code[1], *((uint32_t *)&(rect)->x))), \
+	(CTR_WriteU32LE(&(pt)->code[2], *((uint32_t *)&(rect)->w))), (CTR_WriteU32LE(&(pt)->p[_get_len(rect) - 4], 0x01000000)))            \
+	: ((setlen(pt, 0)))
+#else
+#define setDrawTPage(p, dfe, dtd, tpage) setlen(p, 1), ((uint32_t *)(p))[1] = _get_mode(dfe, dtd, tpage)
+#define setTexWindow(p, tw) setlen(p, 2), ((uint32_t *)(p))[1] = _get_tw(tw), ((uint32_t *)(p))[2] = 0
+#define setDrawStp(p, pbw)                  setlen(p, 2), ((uint32_t *)p)[1] = 0xe6000000 | (pbw ? 0x01 : 0), ((uint32_t *)p)[2] = 0
+#define setDrawMode(p, dfe, dtd, tpage, tw) setlen(p, 2), ((uint32_t *)p)[1] = _get_mode(dfe, dtd, tpage), ((uint32_t *)p)[2] = _get_tw((RECT16 *)tw)
 #define setDrawLoad(pt, rect)                                                                                                            \
 	(_get_len(RECT16) <= 16) ? ((setlen(pt, _get_len(rect))), ((pt)->code[0] = 0xa0000000), ((pt)->code[1] = *((uint32_t *)&(rect)->x)), \
-	                            ((pt)->code[2] = *((uint32_t *)&(rect)->w)), ((pt)->p[_get_len(rect) - 4] = 0x01000000))                 \
-	                         : ((setlen(pt, 0)))
-
-#define setDrawStp(p, pbw)                  setlen(p, 2), ((uint32_t *)p)[1] = 0xe6000000 | (pbw ? 0x01 : 0), ((uint32_t *)p)[2] = 0
-
-#define setDrawMode(p, dfe, dtd, tpage, tw) setlen(p, 2), ((uint32_t *)p)[1] = _get_mode(dfe, dtd, tpage), ((uint32_t *)p)[2] = _get_tw((RECT16 *)tw)
+	((pt)->code[2] = *((uint32_t *)&(rect)->w)), ((pt)->p[_get_len(rect) - 4] = 0x01000000))                 \
+	: ((setlen(pt, 0)))
+#endif
 
 
 /*	Primitive 	Lentgh		Code				*/
@@ -264,8 +271,8 @@ static inline void CTR_GPU_WriteTagAddrToken(void *p, uint32_t token)
 #define setLineG4(p)                        setlen(p, 9), setcode(p, 0x5c), (p)->pad = 0x55555555, (p)->p2 = 0, (p)->p3 = 0
 
 /*
- * RECT16angle:
- */
+* RECT16angle:
+*/
 #pragma pack(push, 1)
 
 typedef struct _RECT16
@@ -283,8 +290,8 @@ typedef struct _RECT16
 #define P_LEN          1 // 1 long
 
 /*
- * Polygon Primitive Definitions
- */
+* Polygon Primitive Definitions
+*/
 
 typedef struct
 {
@@ -412,8 +419,8 @@ typedef struct
 } POLY_GT4; /* Gouraud Textured Quadrangle */
 
 /*
- * Line Primitive Definitions
- */
+* Line Primitive Definitions
+*/
 typedef struct
 {
 	DECLARE_P_ADDR
@@ -479,8 +486,8 @@ typedef struct
 } LINE_G4; /* 3 connected Gouraud Line */
 
 /*
- * Sprite Primitive Definitions
- */
+* Sprite Primitive Definitions
+*/
 typedef struct
 {
 	DECLARE_P_ADDR
@@ -510,8 +517,8 @@ typedef struct
 } SPRT_8; /* 8x8 Sprite */
 
 /*
- * Tile Primitive Definitions
- */
+* Tile Primitive Definitions
+*/
 typedef struct
 {
 	DECLARE_P_ADDR
@@ -542,8 +549,8 @@ typedef struct
 } TILE_1; /* 1x1 Tile */
 
 /*
- *  Special Primitive Definitions
- */
+*  Special Primitive Definitions
+*/
 typedef struct
 {
 	DECLARE_P_ADDR
@@ -594,8 +601,8 @@ typedef struct
 } DR_STP; /* Drawing STP */
 
 /*
- * PSY-X commands
- */
+* PSY-X commands
+*/
 
 typedef struct
 {
@@ -611,8 +618,8 @@ typedef struct
 } DR_PSYX_DBGMARKER;
 
 /*
- * Environment
- */
+* Environment
+*/
 typedef struct
 {
 	DECLARE_P_ADDR
@@ -643,14 +650,14 @@ typedef struct
 } DISPENV;
 
 /*
- *	Font Stream Parameters
- */
+*	Font Stream Parameters
+*/
 #define FNT_MAX_ID   8    /* max number of stream ID */
 #define FNT_MAX_SPRT 1024 /* max number of sprites in all streams */
 
 /*
- *	Multi-purpose Sony-TMD primitive
- */
+*	Multi-purpose Sony-TMD primitive
+*/
 typedef struct
 {
 	uint32_t id;
@@ -679,8 +686,8 @@ typedef struct
 } TMD_PRIM;
 
 /*
- *	Multi-purpose TIM image
- */
+*	Multi-purpose TIM image
+*/
 typedef struct
 {
 	uint32_t mode;   /* pixel mode */
@@ -698,8 +705,8 @@ typedef struct
 #endif
 
 /*
- * Prototypes
- */
+* Prototypes
+*/
 #ifndef _FNTPRINT_
 #define _FNTPRINT_
 extern int FntPrint(char *fmt, ...);
@@ -740,7 +747,7 @@ extern uint32_t *ClearOTag(uint32_t *ot, int n);
 extern uint32_t *ClearOTagR(uint32_t *ot, int n);
 extern uint32_t *FntFlush();
 extern uint32_t *KanjiFntFlush(int id);
-extern uint32_t DrawSyncCallback(void (*func)(void));
+extern uint32_t DrawSyncCallback(void(*func)(void));
 extern uint16_t GetClut(int x, int y);
 extern uint16_t GetTPage(int tp, int abr, int x, int y);
 extern uint16_t LoadClut(uint32_t *clut, int x, int y);
@@ -810,21 +817,21 @@ extern void GetDrawOffset(DR_OFFSET *p);
 extern void GetDrawEnv2(DR_ENV *p);
 
 /*
- * PSY-X commands
- */
+* PSY-X commands
+*/
 
 extern void SetPsyXTexture(DR_PSYX_TEX *p, uint32_t grTextureId, int width, int height);
 extern void SetPsyXDebugMarker(DR_PSYX_DBGMARKER *p, const char *str);
 
 #ifdef _DEBUG
 #define PSYX_DBG_MARKER_TEXT(primptr, ot, text)  \
-	{                                            \
-		DR_PSYX_DBGMARKER *marker;               \
-		marker = (DR_PSYX_DBGMARKER *)(primptr); \
-		SetPsyXDebugMarker(marker, text);        \
-		(primptr) += sizeof(DR_PSYX_DBGMARKER);  \
-		addPrim((ot), marker);                   \
-	}
+{                                            \
+	DR_PSYX_DBGMARKER *marker;               \
+	marker = (DR_PSYX_DBGMARKER *)(primptr); \
+	SetPsyXDebugMarker(marker, text);        \
+	(primptr) += sizeof(DR_PSYX_DBGMARKER);  \
+	addPrim((ot), marker);                   \
+}
 #else
 #define PSYX_DBG_MARKER_TEXT(primptr, ot, text)
 #endif

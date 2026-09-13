@@ -1,8 +1,8 @@
 /*
- * Derived from REDRIVER2/PsyCross MIT source:
- * externals/PsyCross/src/gpu/PsyX_GPU.cpp
- * See THIRD_PARTY_NOTICES.md for copyright and license details.
- */
+* Derived from REDRIVER2/PsyCross MIT source:
+* externals/PsyCross/src/gpu/PsyX_GPU.cpp
+* See THIRD_PARTY_NOTICES.md for copyright and license details.
+*/
 
 #include <macros.h>
 #include "platform/native_gpu.h"
@@ -459,7 +459,7 @@ void NativeGpu_RunBackendTaskSync(NativeGpuBackendTaskFn task, void *arg)
 void NativeGpu_SyncVRAMToCPU(int x, int y, int w, int h)
 {
 #ifdef __vita__
-	NativeGpuBackendRectTask task = {x, y, w, h, 0, 0, 0};
+	NativeGpuBackendRectTask task = { x, y, w, h, 0, 0, 0 };
 	NativeGpu_RunBackendTaskSync(NativeGpu_BackendSyncVRAMToCPUTask, &task);
 #else
 	NativeRenderer_SyncVRAMToCPU(x, y, w, h);
@@ -765,7 +765,7 @@ int NativeGpu_CaptureState(void *dst, int dstSize)
 	snapshot->psxDrawMaskSet = s_gpu.psxDrawMaskSet;
 
 #ifdef __vita__
-	NativeGpuBackendVRAMStateTask task = {snapshot->vram, sizeof(snapshot->vram), 0};
+	NativeGpuBackendVRAMStateTask task = { snapshot->vram, sizeof(snapshot->vram), 0 };
 	NativeGpu_RunBackendTaskSync(NativeGpu_BackendCaptureVRAMStateTask, &task);
 	return task.result;
 #else
@@ -794,7 +794,7 @@ int NativeGpu_RestoreState(const void *src, int srcSize)
 		return 0;
 	}
 #ifdef __vita__
-	NativeGpuBackendVRAMStateTask task = {(void *)snapshot->vram, sizeof(snapshot->vram), 0};
+	NativeGpuBackendVRAMStateTask task = { (void *)snapshot->vram, sizeof(snapshot->vram), 0 };
 	NativeGpu_RunBackendTaskSync(NativeGpu_BackendRestoreVRAMStateTask, &task);
 	if (!task.result)
 	{
@@ -876,7 +876,7 @@ void MakeLineArray(GrVertex *vertex, VERTTYPE *p0, VERTTYPE *p1)
 	float ofsX, ofsY;
 	DrawEnvOffset(&ofsX, &ofsY);
 
-	memset(vertex, 0, sizeof(GrVertex) * 4);
+	memset(vertex, 0, sizeof(GrVertex)* 4);
 	NativeGpu_SetVertexOrderDepth(vertex, 4);
 
 	if (dx > abs((s16)dy))
@@ -918,7 +918,7 @@ void MakeVertexTriangle(GrVertex *vertex, VERTTYPE *p0, VERTTYPE *p1, VERTTYPE *
 	float ofsX, ofsY;
 	DrawEnvOffset(&ofsX, &ofsY);
 
-	memset(vertex, 0, sizeof(GrVertex) * 3);
+	memset(vertex, 0, sizeof(GrVertex)* 3);
 	NativeGpu_SetVertexOrderDepth(vertex, 3);
 
 	vertex[0].x = p0[0] + ofsX;
@@ -941,7 +941,7 @@ void MakeVertexQuad(GrVertex *vertex, VERTTYPE *p0, VERTTYPE *p1, VERTTYPE *p2, 
 	float ofsX, ofsY;
 	DrawEnvOffset(&ofsX, &ofsY);
 
-	memset(vertex, 0, sizeof(GrVertex) * 4);
+	memset(vertex, 0, sizeof(GrVertex)* 4);
 	NativeGpu_SetVertexOrderDepth(vertex, 4);
 
 	vertex[0].x = p0[0] + ofsX;
@@ -964,7 +964,7 @@ void MakeVertexRect(GrVertex *vertex, VERTTYPE *p0, s16 w, s16 h)
 	float ofsX, ofsY;
 	DrawEnvOffset(&ofsX, &ofsY);
 
-	memset(vertex, 0, sizeof(GrVertex) * 4);
+	memset(vertex, 0, sizeof(GrVertex)* 4);
 	NativeGpu_SetVertexOrderDepth(vertex, 4);
 
 	vertex[0].x = p0[0] + ofsX;
@@ -1020,17 +1020,17 @@ void MakeTexcoordQuad(GrVertex *vertex, u8 *uv0, u8 *uv1, u8 *uv2, u8 *uv3, s16 
 	/*
 	if (g_cfg_bilinearFiltering)
 	{
-	    vertex[0].tcx = -1;
-	    vertex[0].tcy = -1;
+	vertex[0].tcx = -1;
+	vertex[0].tcy = -1;
 
-	    vertex[1].tcx = -1;
-	    vertex[1].tcy = -1;
+	vertex[1].tcx = -1;
+	vertex[1].tcy = -1;
 
-	    vertex[2].tcx = -1;
-	    vertex[2].tcy = -1;
+	vertex[2].tcx = -1;
+	vertex[2].tcy = -1;
 
-	    vertex[3].tcx = -1;
-	    vertex[3].tcy = -1;
+	vertex[3].tcx = -1;
+	vertex[3].tcy = -1;
 	}*/
 }
 
@@ -1066,17 +1066,17 @@ void MakeTexcoordTriangle(GrVertex *vertex, u8 *uv0, u8 *uv1, u8 *uv2, s16 page,
 	/*
 	if (g_cfg_bilinearFiltering)
 	{
-	    vertex[0].tcx = -1;
-	    vertex[0].tcy = -1;
+	vertex[0].tcx = -1;
+	vertex[0].tcy = -1;
 
-	    vertex[1].tcx = -1;
-	    vertex[1].tcy = -1;
+	vertex[1].tcx = -1;
+	vertex[1].tcy = -1;
 
-	    vertex[2].tcx = -1;
-	    vertex[2].tcy = -1;
+	vertex[2].tcx = -1;
+	vertex[2].tcy = -1;
 
-	    vertex[3].tcx = -1;
-	    vertex[3].tcy = -1;
+	vertex[3].tcx = -1;
+	vertex[3].tcy = -1;
 	}*/
 }
 
@@ -1384,8 +1384,8 @@ internal int NativeGpu_EmitTexturedSprite(VERTTYPE *position, u8 *uv, s16 page, 
 			const int texU = ((int)uv[0] + xOffset) & 255;
 			const int remainingW = width - xOffset;
 			const int partW = remainingW < 256 - texU ? remainingW : 256 - texU;
-			VERTTYPE partPosition[2] = {(VERTTYPE)(position[0] + xOffset), (VERTTYPE)(position[1] + yOffset)};
-			u8 partUv[2] = {(u8)texU, (u8)texV};
+			VERTTYPE partPosition[2] = { (VERTTYPE)(position[0] + xOffset), (VERTTYPE)(position[1] + yOffset) };
+			u8 partUv[2] = { (u8)texU, (u8)texV };
 			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex + emittedVertices];
 
 			MakeVertexRect(firstVertex, partPosition, (s16)partW, (s16)partH);
@@ -1456,7 +1456,7 @@ internal void NativeGpu_PrepareFramebufferFeedback(int tpage)
 #endif
 
 #ifdef __vita__
-	NativeGpuBackendRectTask task = {activeDrawEnv.clip.x, activeDrawEnv.clip.y, activeDrawEnv.clip.w, activeDrawEnv.clip.h, 0, 0, 0};
+	NativeGpuBackendRectTask task = { activeDrawEnv.clip.x, activeDrawEnv.clip.y, activeDrawEnv.clip.w, activeDrawEnv.clip.h, 0, 0, 0 };
 	NativeGpu_RunBackendTaskSync(NativeGpu_BackendStoreFrameBufferTask, &task);
 #else
 	NativeRenderer_StoreFrameBuffer(activeDrawEnv.clip.x, activeDrawEnv.clip.y, activeDrawEnv.clip.w, activeDrawEnv.clip.h);
@@ -1537,16 +1537,16 @@ internal void AddSplit(bool semiTrans, bool textured, bool framebufferFeedback, 
 
 	// FIXME: compare drawing environment too?
 	if (!psxTexturedSemiTrans && curSplit->blendMode == blendMode && curSplit->texFormat == texFormat && curSplit->textureId == textureId &&
-	    curSplit->drawPrimMode == s_gpu.drawPrimMode && curSplit->psxTexturedSemiTrans == psxTexturedSemiTrans &&
-	    curSplit->psxTextureOutputSTP == psxTextureOutputSTP && curSplit->psxDrawMaskSet == s_gpu.psxDrawMaskSet &&
-	    curSplit->superTurboTint == superTurboTint &&
+		curSplit->drawPrimMode == s_gpu.drawPrimMode && curSplit->psxTexturedSemiTrans == psxTexturedSemiTrans &&
+		curSplit->psxTextureOutputSTP == psxTextureOutputSTP && curSplit->psxDrawMaskSet == s_gpu.psxDrawMaskSet &&
+		curSplit->superTurboTint == superTurboTint &&
 #ifdef __vita__
-	    curSplit->p4CacheEligible == p4CacheEligible &&
-	    (!p4CacheEligible || (curSplit->p4Page == p4Page && curSplit->p4Clut == p4Clut && curSplit->p4SuperTurboTint == p4SuperTurboTint)) &&
+		curSplit->p4CacheEligible == p4CacheEligible &&
+		(!p4CacheEligible || (curSplit->p4Page == p4Page && curSplit->p4Clut == p4Clut && curSplit->p4SuperTurboTint == p4SuperTurboTint)) &&
 #endif
-	    curSplit->drawenv.clip.x == activeDrawEnv.clip.x && curSplit->drawenv.clip.y == activeDrawEnv.clip.y &&
-	    curSplit->drawenv.clip.w == activeDrawEnv.clip.w && curSplit->drawenv.clip.h == activeDrawEnv.clip.h && curSplit->drawenv.dfe == activeDrawEnv.dfe &&
-	    curSplit->debugText == s_gpu.currentSplitDebugText)
+		curSplit->drawenv.clip.x == activeDrawEnv.clip.x && curSplit->drawenv.clip.y == activeDrawEnv.clip.y &&
+		curSplit->drawenv.clip.w == activeDrawEnv.clip.w && curSplit->drawenv.clip.h == activeDrawEnv.clip.h && curSplit->drawenv.dfe == activeDrawEnv.dfe &&
+		curSplit->debugText == s_gpu.currentSplitDebugText)
 	{
 		return;
 	}
@@ -1611,13 +1611,13 @@ internal void NativeGpu_SetSplitShaderState(const GPUDrawSplit *split, int semiT
 		NativeRenderer_SetBlendMode(blendMode);
 	}
 	NativeRenderer_SetTexture(texture, split->texFormat, semiTransPass, blendMode,
-	                          texture != NativeRenderer_GetWhiteTexture(), split->superTurboTint,
+		texture != NativeRenderer_GetWhiteTexture(), split->superTurboTint,
 #ifdef __vita__
-	                          split->psxTextureFullyOpaque,
+		split->psxTextureFullyOpaque,
 #else
-	                          false,
+		false,
 #endif
-	                          cachedP4);
+		cachedP4);
 	if (split->texFormat == TF_32_BIT_RGBA)
 	{
 		NativeRenderer_SetOverrideTextureSize(split->drawenv.tw.w, split->drawenv.tw.h);
@@ -1711,7 +1711,7 @@ internal NativeGpuPassCategory NativeGpu_GetPassCategory(const GPUDrawSplit *spl
 internal bool NativeGpu_CanUseMixedSTPPass(const GPUDrawSplit *split)
 {
 	return split->psxTexturedSemiTrans && split->psxSemiTransPassMask == 3 && !split->drawPrimMode && !split->psxDrawMaskSet &&
-	       split->blendMode != BM_SUBTRACT;
+		split->blendMode != BM_SUBTRACT;
 }
 
 internal bool NativeGpu_GetDepthPassInfo(const GPUDrawSplit *split, NativeGpuPassCategory *category, int *semiTransPass)
@@ -1747,30 +1747,30 @@ internal bool NativeGpu_GetDepthPassInfo(const GPUDrawSplit *split, NativeGpuPas
 }
 
 internal bool NativeGpu_DepthPassStateCompatible(const GPUDrawSplit *first, int firstSemiTransPass, const GPUDrawSplit *second,
-                                                  int secondSemiTransPass)
+	int secondSemiTransPass)
 {
 	if (firstSemiTransPass != secondSemiTransPass || first->textureId != second->textureId || first->texFormat != second->texFormat ||
-	    first->drawPrimMode != second->drawPrimMode || first->psxTextureOutputSTP != second->psxTextureOutputSTP ||
-	    first->psxDrawMaskSet != second->psxDrawMaskSet || first->psxTextureFullyOpaque != second->psxTextureFullyOpaque ||
-	    first->p4CacheEligible != second->p4CacheEligible ||
-	    (first->p4CacheEligible &&
-	     (first->p4Page != second->p4Page || first->p4Clut != second->p4Clut || first->p4SuperTurboTint != second->p4SuperTurboTint)) ||
-	    first->debugText != second->debugText || first->drawenv.dfe != second->drawenv.dfe)
+		first->drawPrimMode != second->drawPrimMode || first->psxTextureOutputSTP != second->psxTextureOutputSTP ||
+		first->psxDrawMaskSet != second->psxDrawMaskSet || first->psxTextureFullyOpaque != second->psxTextureFullyOpaque ||
+		first->p4CacheEligible != second->p4CacheEligible ||
+		(first->p4CacheEligible &&
+		(first->p4Page != second->p4Page || first->p4Clut != second->p4Clut || first->p4SuperTurboTint != second->p4SuperTurboTint)) ||
+		first->debugText != second->debugText || first->drawenv.dfe != second->drawenv.dfe)
 	{
 		return false;
 	}
 
 	if (first->drawenv.clip.x != second->drawenv.clip.x || first->drawenv.clip.y != second->drawenv.clip.y ||
-	    first->drawenv.clip.w != second->drawenv.clip.w || first->drawenv.clip.h != second->drawenv.clip.h ||
-	    first->dispenv.disp.x != second->dispenv.disp.x || first->dispenv.disp.y != second->dispenv.disp.y ||
-	    first->dispenv.disp.w != second->dispenv.disp.w || first->dispenv.disp.h != second->dispenv.disp.h ||
-	    first->dispenv.isinter != second->dispenv.isinter)
+		first->drawenv.clip.w != second->drawenv.clip.w || first->drawenv.clip.h != second->drawenv.clip.h ||
+		first->dispenv.disp.x != second->dispenv.disp.x || first->dispenv.disp.y != second->dispenv.disp.y ||
+		first->dispenv.disp.w != second->dispenv.disp.w || first->dispenv.disp.h != second->dispenv.disp.h ||
+		first->dispenv.isinter != second->dispenv.isinter)
 	{
 		return false;
 	}
 
 	if (first->texFormat == TF_32_BIT_RGBA &&
-	    (first->drawenv.tw.w != second->drawenv.tw.w || first->drawenv.tw.h != second->drawenv.tw.h))
+		(first->drawenv.tw.w != second->drawenv.tw.w || first->drawenv.tw.h != second->drawenv.tw.h))
 	{
 		return false;
 	}
@@ -1781,7 +1781,7 @@ internal bool NativeGpu_DepthPassStateCompatible(const GPUDrawSplit *first, int 
 #endif
 
 internal void NativeGpu_DrawSplitRangePass(const GPUDrawSplit *split, int semiTransPass, BlendMode blendMode, bool depthWrite, int startVertex,
-                                           int numVerts)
+	int numVerts)
 {
 	if (split->debugText)
 	{
@@ -1876,7 +1876,7 @@ internal bool NativeGpu_SplitsShareReorderDomain(const GPUDrawSplit *first, cons
 	if (!first->drawenv.dfe)
 	{
 		return first->drawenv.clip.x == second->drawenv.clip.x && first->drawenv.clip.y == second->drawenv.clip.y &&
-		       first->drawenv.clip.w == second->drawenv.clip.w && first->drawenv.clip.h == second->drawenv.clip.h;
+			first->drawenv.clip.w == second->drawenv.clip.w && first->drawenv.clip.h == second->drawenv.clip.h;
 	}
 
 	return true;
@@ -2112,22 +2112,22 @@ internal bool NativeGpu_BoundsOverlap(const struct NativeGpuSplitBounds *a, cons
 internal bool NativeGpu_BlendScissorStateCompatible(const GPUDrawSplit *first, const GPUDrawSplit *second)
 {
 	return first->drawenv.clip.x == second->drawenv.clip.x && first->drawenv.clip.y == second->drawenv.clip.y &&
-	       first->drawenv.clip.w == second->drawenv.clip.w && first->drawenv.clip.h == second->drawenv.clip.h &&
-	       first->dispenv.disp.x == second->dispenv.disp.x && first->dispenv.disp.y == second->dispenv.disp.y &&
-	       first->dispenv.disp.w == second->dispenv.disp.w && first->dispenv.disp.h == second->dispenv.disp.h &&
-	       first->dispenv.isinter == second->dispenv.isinter;
+		first->drawenv.clip.w == second->drawenv.clip.w && first->drawenv.clip.h == second->drawenv.clip.h &&
+		first->dispenv.disp.x == second->dispenv.disp.x && first->dispenv.disp.y == second->dispenv.disp.y &&
+		first->dispenv.disp.w == second->dispenv.disp.w && first->dispenv.disp.h == second->dispenv.disp.h &&
+		first->dispenv.isinter == second->dispenv.isinter;
 }
 
 internal bool NativeGpu_BlendPassStateCompatible(const GPUDrawSplit *first, int firstSemiTransPass, const GPUDrawSplit *second,
-                                                  int secondSemiTransPass)
+	int secondSemiTransPass)
 {
 	if (firstSemiTransPass != secondSemiTransPass || first->blendMode != second->blendMode || first->textureId != second->textureId ||
-	    first->texFormat != second->texFormat || first->psxTextureOutputSTP != second->psxTextureOutputSTP ||
-	    first->psxDrawMaskSet != second->psxDrawMaskSet || first->psxTextureFullyOpaque != second->psxTextureFullyOpaque ||
-	    first->p4CacheEligible != second->p4CacheEligible ||
-	    (first->p4CacheEligible &&
-	     (first->p4Page != second->p4Page || first->p4Clut != second->p4Clut || first->p4SuperTurboTint != second->p4SuperTurboTint)) ||
-	    first->debugText != second->debugText || first->drawenv.dfe != second->drawenv.dfe)
+		first->texFormat != second->texFormat || first->psxTextureOutputSTP != second->psxTextureOutputSTP ||
+		first->psxDrawMaskSet != second->psxDrawMaskSet || first->psxTextureFullyOpaque != second->psxTextureFullyOpaque ||
+		first->p4CacheEligible != second->p4CacheEligible ||
+		(first->p4CacheEligible &&
+		(first->p4Page != second->p4Page || first->p4Clut != second->p4Clut || first->p4SuperTurboTint != second->p4SuperTurboTint)) ||
+		first->debugText != second->debugText || first->drawenv.dfe != second->drawenv.dfe)
 	{
 		return false;
 	}
@@ -2138,7 +2138,7 @@ internal bool NativeGpu_BlendPassStateCompatible(const GPUDrawSplit *first, int 
 	}
 
 	if (first->texFormat == TF_32_BIT_RGBA &&
-	    (first->drawenv.tw.w != second->drawenv.tw.w || first->drawenv.tw.h != second->drawenv.tw.h))
+		(first->drawenv.tw.w != second->drawenv.tw.w || first->drawenv.tw.h != second->drawenv.tw.h))
 	{
 		return false;
 	}
@@ -2165,7 +2165,7 @@ internal void NativeGpu_AppendBlendBatch(NativeGpuBlendBatch *batch, int splitIn
 	{
 		const GPUDrawSplit *representative = &s_gpuDrawSplits[batch->representativeSplit];
 		if (batch->startVertex + batch->numVerts == split->startVertex &&
-		    NativeGpu_BlendPassStateCompatible(representative, batch->semiTransPass, split, semiTransPass))
+			NativeGpu_BlendPassStateCompatible(representative, batch->semiTransPass, split, semiTransPass))
 		{
 			batch->numVerts += split->numVerts;
 			return;
@@ -2201,7 +2201,7 @@ internal int NativeGpu_BlendCandidateScore(const NativeGpuBlendNode *candidate, 
 		score += 1 << 20;
 	}
 	if (candidateSplit->p4CacheEligible && previousSplit->p4CacheEligible && candidateSplit->p4Page == previousSplit->p4Page &&
-	    candidateSplit->p4Clut == previousSplit->p4Clut && candidateSplit->p4SuperTurboTint == previousSplit->p4SuperTurboTint)
+		candidateSplit->p4Clut == previousSplit->p4Clut && candidateSplit->p4SuperTurboTint == previousSplit->p4SuperTurboTint)
 	{
 		score += 1 << 18;
 	}
@@ -2222,7 +2222,7 @@ internal int NativeGpu_BlendCandidateScore(const NativeGpuBlendNode *candidate, 
 		score += 1 << 10;
 	}
 	if (candidateSplit->psxTextureOutputSTP == previousSplit->psxTextureOutputSTP &&
-	    candidateSplit->psxDrawMaskSet == previousSplit->psxDrawMaskSet)
+		candidateSplit->psxDrawMaskSet == previousSplit->psxDrawMaskSet)
 	{
 		score += 1 << 8;
 	}
@@ -2298,7 +2298,7 @@ internal void NativeGpu_DrawScheduledBlendPasses(int firstSplit, int lastSplit)
 
 			const int score = NativeGpu_BlendCandidateScore(candidate, previous);
 			if (bestNode < 0 || score > bestScore ||
-			    (score == bestScore && candidate->splitIndex < s_gpuBlendNodes[bestNode].splitIndex))
+				(score == bestScore && candidate->splitIndex < s_gpuBlendNodes[bestNode].splitIndex))
 			{
 				bestNode = nodeIndex;
 				bestScore = score;
@@ -2424,18 +2424,18 @@ internal bool NativeGpu_GetSplitBounds(const GPUDrawSplit *split, struct NativeG
 internal bool NativeGpu_SemiTransSplitsCanMerge(const GPUDrawSplit *first, const GPUDrawSplit *second)
 {
 	if (!first->psxTexturedSemiTrans || !second->psxTexturedSemiTrans || first->startVertex + first->numVerts != second->startVertex ||
-	    (u32)first->numVerts + second->numVerts > 0xffffu)
+		(u32)first->numVerts + second->numVerts > 0xffffu)
 	{
 		return false;
 	}
 
 	if (first->blendMode != second->blendMode || first->texFormat != second->texFormat || first->textureId != second->textureId ||
-	    first->drawPrimMode != second->drawPrimMode || first->psxTextureOutputSTP != second->psxTextureOutputSTP ||
-	    first->psxDrawMaskSet != second->psxDrawMaskSet || first->p4CacheEligible != second->p4CacheEligible ||
-	    (first->p4CacheEligible &&
-	     (first->p4Page != second->p4Page || first->p4Clut != second->p4Clut || first->p4SuperTurboTint != second->p4SuperTurboTint)) ||
-	    first->debugText != second->debugText ||
-	    memcmp(&first->drawenv, &second->drawenv, sizeof(first->drawenv)) != 0 || memcmp(&first->dispenv, &second->dispenv, sizeof(first->dispenv)) != 0)
+		first->drawPrimMode != second->drawPrimMode || first->psxTextureOutputSTP != second->psxTextureOutputSTP ||
+		first->psxDrawMaskSet != second->psxDrawMaskSet || first->p4CacheEligible != second->p4CacheEligible ||
+		(first->p4CacheEligible &&
+		(first->p4Page != second->p4Page || first->p4Clut != second->p4Clut || first->p4SuperTurboTint != second->p4SuperTurboTint)) ||
+		first->debugText != second->debugText ||
+		memcmp(&first->drawenv, &second->drawenv, sizeof(first->drawenv)) != 0 || memcmp(&first->dispenv, &second->dispenv, sizeof(first->dispenv)) != 0)
 	{
 		return false;
 	}
@@ -2450,7 +2450,7 @@ internal bool NativeGpu_SemiTransSplitsCanMerge(const GPUDrawSplit *first, const
 	// Preserve exact primitive ordering whenever their covered regions can
 	// overlap. Disjoint primitives may share the same opaque/STP draw pair.
 	return firstBounds.maxX <= secondBounds.minX || secondBounds.maxX <= firstBounds.minX || firstBounds.maxY <= secondBounds.minY ||
-	       secondBounds.maxY <= firstBounds.minY;
+		secondBounds.maxY <= firstBounds.minY;
 }
 
 internal void NativeGpu_CoalesceNonOverlappingSemiTransSplits(void)
@@ -2519,7 +2519,7 @@ internal void NativeGpu_ClassifyOpaqueTextureSplits(void)
 					split->psxSemiTransPassMask &= ~2;
 				}
 				if ((split->psxSemiTransPassMask == 1 || split->psxSemiTransPassMask == 2) &&
-				    (paletteProperties & NATIVE_PALETTE_HAS_TRANSPARENT) == 0)
+					(paletteProperties & NATIVE_PALETTE_HAS_TRANSPARENT) == 0)
 				{
 					split->psxTextureFullyOpaque = true;
 				}
@@ -2637,7 +2637,7 @@ internal bool NativeGpu_IsValidOTLink(uintptr_t link)
 {
 	if (NativeGpuLinks_IsRegisteredHostPointer((const void *)link))
 	{
-		return (link & (sizeof(u32) - 1)) == 0;
+		return (link & (sizeof(u32)-1)) == 0;
 	}
 
 	return false;
@@ -2649,12 +2649,12 @@ internal u32 NativeGpu_ReadPacketWordForLog(uintptr_t packet, int wordIndex)
 	const uintptr_t word = packet + (uintptr_t)wordIndex * sizeof(u32);
 	const uintptr_t end = word + sizeof(u32);
 
-	if ((NativeGpuLinks_IsRegisteredHostRange((const void *)word, sizeof(u32))) && ((word & (sizeof(u32) - 1)) == 0))
+	if ((NativeGpuLinks_IsRegisteredHostRange((const void *)word, sizeof(u32))) && ((word & (sizeof(u32)-1)) == 0))
 	{
 		return *(const u32 *)word;
 	}
 
-	if ((word < (uintptr_t)arena->base) || (end > (uintptr_t)arena->endOfMemory) || ((word & (sizeof(u32) - 1)) != 0))
+	if ((word < (uintptr_t)arena->base) || (end >(uintptr_t)arena->endOfMemory) || ((word & (sizeof(u32)-1)) != 0))
 	{
 		return 0xffffffffu;
 	}
@@ -2731,9 +2731,9 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 		char packetRegion[64];
 		NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), (uintptr_t)p);
 		NATIVE_GPU_ERROR("unregistered linked DrawOTag packet: packet=%p region=%s addr=%06x len=%d code=%02x words=%08x %08x %08x %08x\n", (void *)p,
-		                 packetRegion, getaddr(p), getlen(p), getcode(p), NativeGpu_ReadPacketWordForLog((uintptr_t)p, 0),
-		                 NativeGpu_ReadPacketWordForLog((uintptr_t)p, 1), NativeGpu_ReadPacketWordForLog((uintptr_t)p, 2),
-		                 NativeGpu_ReadPacketWordForLog((uintptr_t)p, 3));
+			packetRegion, getaddr(p), getlen(p), getcode(p), NativeGpu_ReadPacketWordForLog((uintptr_t)p, 0),
+			NativeGpu_ReadPacketWordForLog((uintptr_t)p, 1), NativeGpu_ReadPacketWordForLog((uintptr_t)p, 2),
+			NativeGpu_ReadPacketWordForLog((uintptr_t)p, 3));
 		NativePerf_EndScope(NATIVE_PERF_BUCKET_DRAW_OTAG_PARSE);
 		return;
 	}
@@ -2764,9 +2764,9 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 					char packetRegion[64];
 					NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), (uintptr_t)basePacket);
 					NATIVE_GPU_ERROR("got invalid tag length %d, code %d packet=%p region=%s words=%08x %08x %08x %08x\n", tagLength,
-					                 ((P_TAG *)basePacket)->code, (void *)basePacket, packetRegion, NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0),
-					                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2),
-					                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
+						((P_TAG *)basePacket)->code, (void *)basePacket, packetRegion, NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0),
+						NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2),
+						NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
 					break;
 				}
 
@@ -2790,9 +2790,9 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 					char packetRegion[64];
 					NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), (uintptr_t)basePacket);
 					NATIVE_GPU_ERROR("did not output valid primitive or ptag length is not valid (diff=%d packet=%p region=%s words=%08x %08x %08x %08x)\n",
-					                 endPacket - currentPacket, (void *)basePacket, packetRegion, NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0),
-					                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2),
-					                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
+						endPacket - currentPacket, (void *)basePacket, packetRegion, NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0),
+						NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2),
+						NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
 				}
 			}
 
@@ -2812,9 +2812,9 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 				NativeGpu_FormatPointerRegion(packetRegion, sizeof(packetRegion), (uintptr_t)basePacket);
 				NativeGpu_FormatPointerRegion(nextRegion, sizeof(nextRegion), (uintptr_t)nextPacket);
 				NATIVE_GPU_ERROR("invalid OT link: packet=%p region=%s addr=%06x next=%p nextRegion=%s len=%d code=%02x words=%08x %08x %08x %08x\n",
-				                 (void *)basePacket, packetRegion, getaddr(basePacket), (void *)nextPacket, nextRegion, getlen(basePacket), getcode(basePacket),
-				                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1),
-				                 NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
+					(void *)basePacket, packetRegion, getaddr(basePacket), (void *)nextPacket, nextRegion, getlen(basePacket), getcode(basePacket),
+					NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 0), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 1),
+					NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 2), NativeGpu_ReadPacketWordForLog((uintptr_t)basePacket, 3));
 				break;
 			}
 
@@ -2840,127 +2840,127 @@ internal int ProcessFlatLines(P_TAG *polyTag)
 	{
 	case 0x0:
 	{
-		LINE_F2 *poly = (LINE_F2 *)polyTag;
+				LINE_F2 *poly = (LINE_F2 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				AddSplit(semiTrans, false, false, 0);
 
-		VERTTYPE *p0 = &poly->x0;
-		VERTTYPE *p1 = &poly->x1;
-		u8 *c0 = &poly->r0;
-		u8 *c1 = c0;
+				VERTTYPE *p0 = &poly->x0;
+				VERTTYPE *p1 = &poly->x1;
+				u8 *c0 = &poly->r0;
+				u8 *c1 = c0;
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		LineSwapSourceVerts(&p0, &p1, &c0, &c1);
-		MakeLineArray(firstVertex, p0, p1);
-		MakeTexcoordLineZero(firstVertex, 0);
-		MakeColourLine(firstVertex, shadeTexOn, c0, c1);
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				LineSwapSourceVerts(&p0, &p1, &c0, &c1);
+				MakeLineArray(firstVertex, p0, p1);
+				MakeTexcoordLineZero(firstVertex, 0);
+				MakeColourLine(firstVertex, shadeTexOn, c0, c1);
 
-		TriangulateQuad();
+				TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				s_gpu.vertexIndex += 6;
 
-		return 3;
+				return 3;
 	}
 	case 0x8: // TODO (unused)
 	{
-		LINE_F3 *poly = (LINE_F3 *)polyTag;
+				  LINE_F3 *poly = (LINE_F3 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				  AddSplit(semiTrans, false, false, 0);
 
-		{
-			VERTTYPE *p0 = &poly->x0;
-			VERTTYPE *p1 = &poly->x1;
-			u8 *c0 = &poly->r0;
-			u8 *c1 = c0;
+				  {
+					  VERTTYPE *p0 = &poly->x0;
+					  VERTTYPE *p1 = &poly->x1;
+					  u8 *c0 = &poly->r0;
+					  u8 *c1 = c0;
 
-			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-			LineSwapSourceVerts(&p0, &p1, &c0, &c1);
-			MakeLineArray(firstVertex, p0, p1);
-			MakeTexcoordLineZero(firstVertex, 0);
-			MakeColourLine(firstVertex, shadeTexOn, c0, c1);
+					  GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+					  LineSwapSourceVerts(&p0, &p1, &c0, &c1);
+					  MakeLineArray(firstVertex, p0, p1);
+					  MakeTexcoordLineZero(firstVertex, 0);
+					  MakeColourLine(firstVertex, shadeTexOn, c0, c1);
 
-			TriangulateQuad();
+					  TriangulateQuad();
 
-			s_gpu.vertexIndex += 6;
-		}
+					  s_gpu.vertexIndex += 6;
+				  }
 
-		{
-			VERTTYPE *p0 = &poly->x1;
-			VERTTYPE *p1 = &poly->x2;
-			u8 *c0 = &poly->r0;
-			u8 *c1 = c0;
+				  {
+					  VERTTYPE *p0 = &poly->x1;
+					  VERTTYPE *p1 = &poly->x2;
+					  u8 *c0 = &poly->r0;
+					  u8 *c1 = c0;
 
-			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-			LineSwapSourceVerts(&p0, &p1, &c0, &c1);
-			MakeLineArray(firstVertex, p0, p1);
-			MakeTexcoordLineZero(firstVertex, 0);
-			MakeColourLine(firstVertex, shadeTexOn, c0, c1);
+					  GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+					  LineSwapSourceVerts(&p0, &p1, &c0, &c1);
+					  MakeLineArray(firstVertex, p0, p1);
+					  MakeTexcoordLineZero(firstVertex, 0);
+					  MakeColourLine(firstVertex, shadeTexOn, c0, c1);
 
-			TriangulateQuad();
+					  TriangulateQuad();
 
-			s_gpu.vertexIndex += 6;
-		}
+					  s_gpu.vertexIndex += 6;
+				  }
 
-		return 5;
+				  return 5;
 	}
 	case 0xc:
 	{
-		LINE_F4 *poly = (LINE_F4 *)polyTag;
+				LINE_F4 *poly = (LINE_F4 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				AddSplit(semiTrans, false, false, 0);
 
-		{
-			VERTTYPE *p0 = &poly->x0;
-			VERTTYPE *p1 = &poly->x1;
-			u8 *c0 = &poly->r0;
-			u8 *c1 = c0;
+				{
+					VERTTYPE *p0 = &poly->x0;
+					VERTTYPE *p1 = &poly->x1;
+					u8 *c0 = &poly->r0;
+					u8 *c1 = c0;
 
-			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-			LineSwapSourceVerts(&p0, &p1, &c0, &c1);
-			MakeLineArray(firstVertex, p0, p1);
-			MakeTexcoordLineZero(firstVertex, 0);
-			MakeColourLine(firstVertex, shadeTexOn, c0, c1);
+					GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+					LineSwapSourceVerts(&p0, &p1, &c0, &c1);
+					MakeLineArray(firstVertex, p0, p1);
+					MakeTexcoordLineZero(firstVertex, 0);
+					MakeColourLine(firstVertex, shadeTexOn, c0, c1);
 
-			TriangulateQuad();
+					TriangulateQuad();
 
-			s_gpu.vertexIndex += 6;
-		}
+					s_gpu.vertexIndex += 6;
+				}
 
-		{
-			VERTTYPE *p0 = &poly->x1;
-			VERTTYPE *p1 = &poly->x2;
-			u8 *c0 = &poly->r0;
-			u8 *c1 = c0;
+				{
+					VERTTYPE *p0 = &poly->x1;
+					VERTTYPE *p1 = &poly->x2;
+					u8 *c0 = &poly->r0;
+					u8 *c1 = c0;
 
-			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-			LineSwapSourceVerts(&p0, &p1, &c0, &c1);
-			MakeLineArray(firstVertex, p0, p1);
-			MakeTexcoordLineZero(firstVertex, 0);
-			MakeColourLine(firstVertex, shadeTexOn, c0, c1);
+					GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+					LineSwapSourceVerts(&p0, &p1, &c0, &c1);
+					MakeLineArray(firstVertex, p0, p1);
+					MakeTexcoordLineZero(firstVertex, 0);
+					MakeColourLine(firstVertex, shadeTexOn, c0, c1);
 
-			TriangulateQuad();
+					TriangulateQuad();
 
-			s_gpu.vertexIndex += 6;
-		}
+					s_gpu.vertexIndex += 6;
+				}
 
-		{
-			VERTTYPE *p0 = &poly->x2;
-			VERTTYPE *p1 = &poly->x3;
-			u8 *c0 = &poly->r0;
-			u8 *c1 = c0;
+				{
+					VERTTYPE *p0 = &poly->x2;
+					VERTTYPE *p1 = &poly->x3;
+					u8 *c0 = &poly->r0;
+					u8 *c1 = c0;
 
-			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-			LineSwapSourceVerts(&p0, &p1, &c0, &c1);
-			MakeLineArray(firstVertex, p0, p1);
-			MakeTexcoordLineZero(firstVertex, 0);
-			MakeColourLine(firstVertex, shadeTexOn, c0, c1);
+					GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+					LineSwapSourceVerts(&p0, &p1, &c0, &c1);
+					MakeLineArray(firstVertex, p0, p1);
+					MakeTexcoordLineZero(firstVertex, 0);
+					MakeColourLine(firstVertex, shadeTexOn, c0, c1);
 
-			TriangulateQuad();
+					TriangulateQuad();
 
-			s_gpu.vertexIndex += 6;
-		}
+					s_gpu.vertexIndex += 6;
+				}
 
-		return 6;
+				return 6;
 	}
 	}
 	return 0;
@@ -2976,36 +2976,36 @@ internal int ProcessGouraudLines(P_TAG *polyTag)
 	{
 	case 0x0:
 	{
-		LINE_G2 *poly = (LINE_G2 *)polyTag;
+				LINE_G2 *poly = (LINE_G2 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				AddSplit(semiTrans, false, false, 0);
 
-		VERTTYPE *p0 = &poly->x0;
-		VERTTYPE *p1 = &poly->x1;
-		u8 *c0 = &poly->r0;
-		u8 *c1 = &poly->r1;
+				VERTTYPE *p0 = &poly->x0;
+				VERTTYPE *p1 = &poly->x1;
+				u8 *c0 = &poly->r0;
+				u8 *c1 = &poly->r1;
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		LineSwapSourceVerts(&p0, &p1, &c0, &c1);
-		MakeLineArray(firstVertex, p0, p1);
-		MakeTexcoordLineZero(firstVertex, 0);
-		MakeColourLine(firstVertex, shadeTexOn, c0, c1);
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				LineSwapSourceVerts(&p0, &p1, &c0, &c1);
+				MakeLineArray(firstVertex, p0, p1);
+				MakeTexcoordLineZero(firstVertex, 0);
+				MakeColourLine(firstVertex, shadeTexOn, c0, c1);
 
-		TriangulateQuad();
+				TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				s_gpu.vertexIndex += 6;
 
-		return 4;
+				return 4;
 	}
 	case 0x8:
 	{
-		// TODO: LINE_G3
-		return 7;
+				// TODO: LINE_G3
+				return 7;
 	}
 	case 0xC:
 	{
-		// TODO: LINE_G4
-		return 9;
+				// TODO: LINE_G4
+				return 9;
 	}
 	}
 	return 0;
@@ -3021,73 +3021,73 @@ internal int ProcessFlatPoly(P_TAG *polyTag)
 	{
 	case 0x0:
 	{
-		POLY_F3 *poly = (POLY_F3 *)polyTag;
+				POLY_F3 *poly = (POLY_F3 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				AddSplit(semiTrans, false, false, 0);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexTriangle(firstVertex, &poly->x0, &poly->x1, &poly->x2);
-		MakeTexcoordTriangleZero(firstVertex, 0);
-		MakeColourTriangle(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0);
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				MakeVertexTriangle(firstVertex, &poly->x0, &poly->x1, &poly->x2);
+				MakeTexcoordTriangleZero(firstVertex, 0);
+				MakeColourTriangle(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0);
 
-		s_gpu.vertexIndex += 3;
+				s_gpu.vertexIndex += 3;
 
-		return 4;
+				return 4;
 	}
 	case 0x4:
 	{
-		POLY_FT3 *poly = (POLY_FT3 *)polyTag;
-		activeDrawEnv.tpage = poly->tpage;
+				POLY_FT3 *poly = (POLY_FT3 *)polyTag;
+				activeDrawEnv.tpage = poly->tpage;
 
-		// It is an official hack from SCE devs to not use DR_TPAGE and instead use null polygon
-		if (!IsNull(poly))
-		{
-			AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(poly->tpage), poly->clut);
+				// It is an official hack from SCE devs to not use DR_TPAGE and instead use null polygon
+				if (!IsNull(poly))
+				{
+					AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(poly->tpage), poly->clut);
 
-			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-			MakeVertexTriangle(firstVertex, &poly->x0, &poly->x1, &poly->x2);
-			MakeTexcoordTriangle(firstVertex, &poly->u0, &poly->u1, &poly->u2, poly->tpage, poly->clut,
-			                     GET_TPAGE_DITHER(activeDrawEnv.tpage) || activeDrawEnv.dtd);
-			MakeColourTriangle(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0);
+					GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+					MakeVertexTriangle(firstVertex, &poly->x0, &poly->x1, &poly->x2);
+					MakeTexcoordTriangle(firstVertex, &poly->u0, &poly->u1, &poly->u2, poly->tpage, poly->clut,
+						GET_TPAGE_DITHER(activeDrawEnv.tpage) || activeDrawEnv.dtd);
+					MakeColourTriangle(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0);
 
-			s_gpu.vertexIndex += 3;
-		}
-		return 7;
+					s_gpu.vertexIndex += 3;
+				}
+				return 7;
 	}
 	case 0x8:
 	{
-		POLY_F4 *poly = (POLY_F4 *)polyTag;
+				POLY_F4 *poly = (POLY_F4 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				AddSplit(semiTrans, false, false, 0);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexQuad(firstVertex, &poly->x0, &poly->x1, &poly->x3, &poly->x2);
-		MakeTexcoordQuadZero(firstVertex, 0);
-		MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				MakeVertexQuad(firstVertex, &poly->x0, &poly->x1, &poly->x3, &poly->x2);
+				MakeTexcoordQuadZero(firstVertex, 0);
+				MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
-		TriangulateQuad();
+				TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
-		return 5;
+				s_gpu.vertexIndex += 6;
+				return 5;
 	}
 	case 0xC:
 	{
-		POLY_FT4 *poly = (POLY_FT4 *)polyTag;
-		activeDrawEnv.tpage = poly->tpage;
+				POLY_FT4 *poly = (POLY_FT4 *)polyTag;
+				activeDrawEnv.tpage = poly->tpage;
 
-		AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(poly->tpage), poly->clut);
+				AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(poly->tpage), poly->clut);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexQuad(firstVertex, &poly->x0, &poly->x1, &poly->x3, &poly->x2);
-		MakeTexcoordQuad(firstVertex, &poly->u0, &poly->u1, &poly->u3, &poly->u2, poly->tpage, poly->clut,
-		                 GET_TPAGE_DITHER(activeDrawEnv.tpage) || activeDrawEnv.dtd);
-		MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				MakeVertexQuad(firstVertex, &poly->x0, &poly->x1, &poly->x3, &poly->x2);
+				MakeTexcoordQuad(firstVertex, &poly->u0, &poly->u1, &poly->u3, &poly->u2, poly->tpage, poly->clut,
+					GET_TPAGE_DITHER(activeDrawEnv.tpage) || activeDrawEnv.dtd);
+				MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
-		TriangulateQuad();
+				TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				s_gpu.vertexIndex += 6;
 
-		return 9;
+				return 9;
 	}
 	}
 	return 0;
@@ -3103,78 +3103,78 @@ internal int ProcessGouraudPoly(P_TAG *polyTag)
 	{
 	case 0x0:
 	{
-		POLY_G3 *poly = (POLY_G3 *)polyTag;
+				POLY_G3 *poly = (POLY_G3 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				AddSplit(semiTrans, false, false, 0);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexTriangle(firstVertex, &poly->x0, &poly->x1, &poly->x2);
-		MakeTexcoordTriangleZero(firstVertex, 1);
-		MakeColourTriangle(firstVertex, shadeTexOn, &poly->r0, &poly->r1, &poly->r2);
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				MakeVertexTriangle(firstVertex, &poly->x0, &poly->x1, &poly->x2);
+				MakeTexcoordTriangleZero(firstVertex, 1);
+				MakeColourTriangle(firstVertex, shadeTexOn, &poly->r0, &poly->r1, &poly->r2);
 
-		s_gpu.vertexIndex += 3;
+				s_gpu.vertexIndex += 3;
 
-		return 6;
+				return 6;
 	}
 	case 0x4:
 	{
-		POLY_GT3 *poly = (POLY_GT3 *)polyTag;
-		activeDrawEnv.tpage = poly->tpage;
+				POLY_GT3 *poly = (POLY_GT3 *)polyTag;
+				activeDrawEnv.tpage = poly->tpage;
 
-		AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(poly->tpage), poly->clut);
+				AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(poly->tpage), poly->clut);
 
-			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-			MakeVertexTriangle(firstVertex, &poly->x0, &poly->x1, &poly->x2);
-			MakeTexcoordTriangle(firstVertex, &poly->u0, &poly->u1, &poly->u2, poly->tpage, poly->clut, GET_TPAGE_DITHER(activeDrawEnv.tpage) || activeDrawEnv.dtd);
-			MakeColourTriangle(firstVertex, shadeTexOn, &poly->r0, &poly->r1, &poly->r2);
-			if (((u32)poly->tpage & NATIVE_GPU_TPAGE_SUPER_TURBO_TINT) != 0)
-			{
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				MakeVertexTriangle(firstVertex, &poly->x0, &poly->x1, &poly->x2);
+				MakeTexcoordTriangle(firstVertex, &poly->u0, &poly->u1, &poly->u2, poly->tpage, poly->clut, GET_TPAGE_DITHER(activeDrawEnv.tpage) || activeDrawEnv.dtd);
+				MakeColourTriangle(firstVertex, shadeTexOn, &poly->r0, &poly->r1, &poly->r2);
+				if (((u32)poly->tpage & NATIVE_GPU_TPAGE_SUPER_TURBO_TINT) != 0)
+				{
 					MakeColourSuperTurboTint(firstVertex, 3);
-			}
+				}
 
-		s_gpu.vertexIndex += 3;
+				s_gpu.vertexIndex += 3;
 
-		return 9;
+				return 9;
 	}
 	case 0x8:
 	{
-		POLY_G4 *poly = (POLY_G4 *)polyTag;
+				POLY_G4 *poly = (POLY_G4 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				AddSplit(semiTrans, false, false, 0);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexQuad(firstVertex, &poly->x0, &poly->x1, &poly->x3, &poly->x2);
-		MakeTexcoordQuadZero(firstVertex, 1);
-		MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r1, &poly->r3, &poly->r2);
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				MakeVertexQuad(firstVertex, &poly->x0, &poly->x1, &poly->x3, &poly->x2);
+				MakeTexcoordQuadZero(firstVertex, 1);
+				MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r1, &poly->r3, &poly->r2);
 
-		TriangulateQuad();
+				TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				s_gpu.vertexIndex += 6;
 
-		return 8;
+				return 8;
 	}
 	case 0xC:
 	{
-		POLY_GT4 *poly = (POLY_GT4 *)polyTag;
-		activeDrawEnv.tpage = poly->tpage;
+				POLY_GT4 *poly = (POLY_GT4 *)polyTag;
+				activeDrawEnv.tpage = poly->tpage;
 
-		AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(poly->tpage), poly->clut);
+				AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(poly->tpage), poly->clut);
 
-			GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-			MakeVertexQuad(firstVertex, &poly->x0, &poly->x1, &poly->x3, &poly->x2);
-			MakeTexcoordQuad(firstVertex, &poly->u0, &poly->u1, &poly->u3, &poly->u2, poly->tpage, poly->clut,
-			                 GET_TPAGE_DITHER(activeDrawEnv.tpage) || activeDrawEnv.dtd);
-			MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r1, &poly->r3, &poly->r2);
-			if (((u32)poly->tpage & NATIVE_GPU_TPAGE_SUPER_TURBO_TINT) != 0)
-			{
+				GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				MakeVertexQuad(firstVertex, &poly->x0, &poly->x1, &poly->x3, &poly->x2);
+				MakeTexcoordQuad(firstVertex, &poly->u0, &poly->u1, &poly->u3, &poly->u2, poly->tpage, poly->clut,
+					GET_TPAGE_DITHER(activeDrawEnv.tpage) || activeDrawEnv.dtd);
+				MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r1, &poly->r3, &poly->r2);
+				if (((u32)poly->tpage & NATIVE_GPU_TPAGE_SUPER_TURBO_TINT) != 0)
+				{
 					MakeColourSuperTurboTint(firstVertex, 4);
-			}
+				}
 
-		TriangulateQuad();
+				TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				s_gpu.vertexIndex += 6;
 
-		return 12;
+				return 12;
 	}
 	}
 	return 0;
@@ -3190,98 +3190,98 @@ internal int ProcessTileAndSprt(P_TAG *polyTag)
 	{
 	case 0x60:
 	{
-		TILE *poly = (TILE *)polyTag;
+				 TILE *poly = (TILE *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				 AddSplit(semiTrans, false, false, 0);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexRect(firstVertex, &poly->x0, poly->w, poly->h);
-		MakeTexcoordQuadZero(firstVertex, 0);
-		MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
+				 GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				 MakeVertexRect(firstVertex, &poly->x0, poly->w, poly->h);
+				 MakeTexcoordQuadZero(firstVertex, 0);
+				 MakeColourQuad(firstVertex, shadeTexOn, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
-		TriangulateQuad();
+				 TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				 s_gpu.vertexIndex += 6;
 
-		return 3;
+				 return 3;
 	}
 	case 0x64:
 	{
-		SPRT *poly = (SPRT *)polyTag;
+				 SPRT *poly = (SPRT *)polyTag;
 
-		AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(activeDrawEnv.tpage), poly->clut);
-		s_gpu.vertexIndex += NativeGpu_EmitTexturedSprite(&poly->x0, &poly->u0, activeDrawEnv.tpage, poly->clut, poly->w, poly->h, shadeTexOn, &poly->r0);
+				 AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(activeDrawEnv.tpage), poly->clut);
+				 s_gpu.vertexIndex += NativeGpu_EmitTexturedSprite(&poly->x0, &poly->u0, activeDrawEnv.tpage, poly->clut, poly->w, poly->h, shadeTexOn, &poly->r0);
 
-		return 4;
+				 return 4;
 	}
 	case 0x68:
 	{
-		TILE_1 *poly = (TILE_1 *)polyTag;
+				 TILE_1 *poly = (TILE_1 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				 AddSplit(semiTrans, false, false, 0);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexRect(firstVertex, &poly->x0, 1, 1);
-		MakeTexcoordQuadZero(firstVertex, 0);
-		MakeColourQuad(firstVertex, true, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
+				 GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				 MakeVertexRect(firstVertex, &poly->x0, 1, 1);
+				 MakeTexcoordQuadZero(firstVertex, 0);
+				 MakeColourQuad(firstVertex, true, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
-		TriangulateQuad();
+				 TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				 s_gpu.vertexIndex += 6;
 
-		return 2;
+				 return 2;
 	}
 	case 0x70:
 	{
-		TILE_8 *poly = (TILE_8 *)polyTag;
+				 TILE_8 *poly = (TILE_8 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				 AddSplit(semiTrans, false, false, 0);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexRect(firstVertex, &poly->x0, 8, 8);
-		MakeTexcoordQuadZero(firstVertex, 0);
-		MakeColourQuad(firstVertex, true, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
+				 GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				 MakeVertexRect(firstVertex, &poly->x0, 8, 8);
+				 MakeTexcoordQuadZero(firstVertex, 0);
+				 MakeColourQuad(firstVertex, true, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
-		TriangulateQuad();
+				 TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				 s_gpu.vertexIndex += 6;
 
-		return 2;
+				 return 2;
 	}
 	case 0x74:
 	{
-		SPRT_8 *poly = (SPRT_8 *)polyTag;
+				 SPRT_8 *poly = (SPRT_8 *)polyTag;
 
-		AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(activeDrawEnv.tpage), poly->clut);
-		s_gpu.vertexIndex += NativeGpu_EmitTexturedSprite(&poly->x0, &poly->u0, activeDrawEnv.tpage, poly->clut, 8, 8, shadeTexOn, &poly->r0);
+				 AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(activeDrawEnv.tpage), poly->clut);
+				 s_gpu.vertexIndex += NativeGpu_EmitTexturedSprite(&poly->x0, &poly->u0, activeDrawEnv.tpage, poly->clut, 8, 8, shadeTexOn, &poly->r0);
 
-		return 3;
+				 return 3;
 	}
 	case 0x78:
 	{
-		TILE_16 *poly = (TILE_16 *)polyTag;
+				 TILE_16 *poly = (TILE_16 *)polyTag;
 
-		AddSplit(semiTrans, false, false, 0);
+				 AddSplit(semiTrans, false, false, 0);
 
-		GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
-		MakeVertexRect(firstVertex, &poly->x0, 16, 16);
-		MakeTexcoordQuadZero(firstVertex, 0);
-		MakeColourQuad(firstVertex, true, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
+				 GrVertex *firstVertex = &s_gpu.vertexBuffer[s_gpu.vertexIndex];
+				 MakeVertexRect(firstVertex, &poly->x0, 16, 16);
+				 MakeTexcoordQuadZero(firstVertex, 0);
+				 MakeColourQuad(firstVertex, true, &poly->r0, &poly->r0, &poly->r0, &poly->r0);
 
-		TriangulateQuad();
+				 TriangulateQuad();
 
-		s_gpu.vertexIndex += 6;
+				 s_gpu.vertexIndex += 6;
 
-		return 2;
+				 return 2;
 	}
 	case 0x7C:
 	{
-		SPRT_16 *poly = (SPRT_16 *)polyTag;
+				 SPRT_16 *poly = (SPRT_16 *)polyTag;
 
-		AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(activeDrawEnv.tpage), poly->clut);
-		s_gpu.vertexIndex += NativeGpu_EmitTexturedSprite(&poly->x0, &poly->u0, activeDrawEnv.tpage, poly->clut, 16, 16, shadeTexOn, &poly->r0);
+				 AddSplit(semiTrans, true, NativeGpu_TPageOverlapsActiveDrawPage(activeDrawEnv.tpage), poly->clut);
+				 s_gpu.vertexIndex += NativeGpu_EmitTexturedSprite(&poly->x0, &poly->u0, activeDrawEnv.tpage, poly->clut, 16, 16, shadeTexOn, &poly->r0);
 
-		return 3;
+				 return 3;
 	}
 	}
 	return 0;
@@ -3294,7 +3294,7 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 	bool fullDrawEnvPacket = false;
 	for (int i = 0; i < polyTag->len; ++i)
 	{
-		const u32 code = codePtr[i];
+		const u32 code = CTR_ReadU32LE(&codePtr[i]);
 		const int primType = code >> 24 & 0xF0;
 		const int primSubType = code >> 24 & 0x0F;
 
@@ -3310,58 +3310,58 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 		{
 		case 0x1:
 		{
-			// DR_TPAGE
-			activeDrawEnv.tpage = (code & 0x1FF);
-			activeDrawEnv.dtd = (code >> 9) & 1;
-			// NOTE(aalhendi): Standalone DR_TPAGE packets use the same E1 word
-			// for blend changes; only full DRAWENV packets retarget native
-			// on-screen/offscreen rendering.
-			if (fullDrawEnvPacket)
-			{
-				activeDrawEnv.dfe = (code >> 10) & 1;
-			}
-			break;
+					// DR_TPAGE
+					activeDrawEnv.tpage = (code & 0x1FF);
+					activeDrawEnv.dtd = (code >> 9) & 1;
+					// NOTE(aalhendi): Standalone DR_TPAGE packets use the same E1 word
+					// for blend changes; only full DRAWENV packets retarget native
+					// on-screen/offscreen rendering.
+					if (fullDrawEnvPacket)
+					{
+						activeDrawEnv.dfe = (code >> 10) & 1;
+					}
+					break;
 		}
 		case 0x2:
 		{
-			// DR_TWIN
-			activeDrawEnv.tw.w = (code & 0x1F);
-			activeDrawEnv.tw.h = ((code >> 5) & 0x1F);
-			activeDrawEnv.tw.x = ((code >> 10) & 0x1F);
-			activeDrawEnv.tw.y = ((code >> 15) & 0x1F);
-			break;
+					// DR_TWIN
+					activeDrawEnv.tw.w = (code & 0x1F);
+					activeDrawEnv.tw.h = ((code >> 5) & 0x1F);
+					activeDrawEnv.tw.x = ((code >> 10) & 0x1F);
+					activeDrawEnv.tw.y = ((code >> 15) & 0x1F);
+					break;
 		}
 		case 0x3:
 		{
-			// DR_AREA
-			activeDrawEnv.clip.x = code & 1023;
-			activeDrawEnv.clip.y = (code >> 10) & 1023;
-			fullDrawEnvPacket = true;
-			break;
+					// DR_AREA
+					activeDrawEnv.clip.x = code & 1023;
+					activeDrawEnv.clip.y = (code >> 10) & 1023;
+					fullDrawEnvPacket = true;
+					break;
 		}
 		case 0x4:
 		{
-			// DR_AREA (second part)
-			activeDrawEnv.clip.w = code & 1023;
-			activeDrawEnv.clip.h = (code >> 10) & 1023;
+					// DR_AREA (second part)
+					activeDrawEnv.clip.w = code & 1023;
+					activeDrawEnv.clip.h = (code >> 10) & 1023;
 
-			activeDrawEnv.clip.w = activeDrawEnv.clip.w - activeDrawEnv.clip.x + 1;
-			activeDrawEnv.clip.h = activeDrawEnv.clip.h - activeDrawEnv.clip.y + 1;
-			fullDrawEnvPacket = true;
-			break;
+					activeDrawEnv.clip.w = activeDrawEnv.clip.w - activeDrawEnv.clip.x + 1;
+					activeDrawEnv.clip.h = activeDrawEnv.clip.h - activeDrawEnv.clip.y + 1;
+					fullDrawEnvPacket = true;
+					break;
 		}
 		case 0x5:
 		{
-			// DR_OFFSET
-			activeDrawEnv.ofs[0] = NativeGpu_SignExtend11(code);
-			activeDrawEnv.ofs[1] = NativeGpu_SignExtend11(code >> 11);
-			fullDrawEnvPacket = true;
-			break;
+					// DR_OFFSET
+					activeDrawEnv.ofs[0] = NativeGpu_SignExtend11(code);
+					activeDrawEnv.ofs[1] = NativeGpu_SignExtend11(code >> 11);
+					fullDrawEnvPacket = true;
+					break;
 		}
 		case 0x6:
 		{
-			SetPSXMaskState(code);
-			break;
+					SetPSXMaskState(code);
+					break;
 		}
 		case 0:
 			// NOTE(aalhendi): ctr-native local divergence for CTR OTs. A zero
@@ -3424,18 +3424,18 @@ internal int ProcessPsyXPrims(P_TAG *polyTag)
 	{
 	case 0x01:
 	{
-		DR_PSYX_TEX *psytex = (DR_PSYX_TEX *)polyTag;
-		s_gpu.overrideTexture = psytex->code[0] & 0xFFFFFF;
-		s_gpu.overrideTextureWidth = psytex->code[1] & 0xFFF;
-		s_gpu.overrideTextureHeight = psytex->code[1] >> 16 & 0xFFF;
-		return 2;
+				 DR_PSYX_TEX *psytex = (DR_PSYX_TEX *)polyTag;
+				 s_gpu.overrideTexture = psytex->code[0] & 0xFFFFFF;
+				 s_gpu.overrideTextureWidth = psytex->code[1] & 0xFFF;
+				 s_gpu.overrideTextureHeight = psytex->code[1] >> 16 & 0xFFF;
+				 return 2;
 	}
 	case 0x02:
 	{
-		// [A] Psy-X custom debug marker packet
-		DR_PSYX_DBGMARKER *psydbg = (DR_PSYX_DBGMARKER *)polyTag;
-		s_gpu.currentSplitDebugText = psydbg->text;
-		return 2;
+				 // [A] Psy-X custom debug marker packet
+				 DR_PSYX_DBGMARKER *psydbg = (DR_PSYX_DBGMARKER *)polyTag;
+				 s_gpu.currentSplitDebugText = psydbg->text;
+				 return 2;
 	}
 	}
 
@@ -3455,114 +3455,114 @@ int ParsePrimitive(P_TAG *polyTag)
 	{
 	case 0x00:
 	{
-		const int primSubType = polyTag->code & 0x0F;
-		const u32 *codePtr = (u32 *)&polyTag->pad0;
-		// NOTE(aalhendi): ctr-native local divergence. CTR RenderWeather can
-		// emit a retail length-2 zero packet when weather is enabled but the
-		// level has no fill-mode payload. The PSX consumes it by tag length;
-		// the native parser must advance past it too.
-		if (polyTag->len == 2 && codePtr[0] == 0 && codePtr[1] == 0)
-		{
-			primLength = 2;
-		}
-		else if (polyTag->len == 0 && *(u32 *)polyTag == 0)
-		{
-			// CTR ghost transparency packets include raw GPU NOP words between
-			// draw-mode changes and triangle commands. They consume exactly one
-			// command word; ParsePrimitivesLinkedList adds P_LEN to the return.
-			handledZeroLength = true;
-		}
-		else if (primSubType == 0x0)
-		{
-			primLength = 3;
-		}
-		else if (primSubType == 0x1)
-		{
-			DR_MOVE *drmove = (DR_MOVE *)polyTag;
-			const u32 rectPos = drmove->code[2];
-			const u32 rectSize = drmove->code[4];
+				 const int primSubType = polyTag->code & 0x0F;
+				 const u32 *codePtr = (u32 *)&polyTag->pad0;
+				 // NOTE(aalhendi): ctr-native local divergence. CTR RenderWeather can
+				 // emit a retail length-2 zero packet when weather is enabled but the
+				 // level has no fill-mode payload. The PSX consumes it by tag length;
+				 // the native parser must advance past it too.
+				 if (polyTag->len == 2 && codePtr[0] == 0 && codePtr[1] == 0)
+				 {
+					 primLength = 2;
+				 }
+				 else if (polyTag->len == 0 && *(u32 *)polyTag == 0)
+				 {
+					 // CTR ghost transparency packets include raw GPU NOP words between
+					 // draw-mode changes and triangle commands. They consume exactly one
+					 // command word; ParsePrimitivesLinkedList adds P_LEN to the return.
+					 handledZeroLength = true;
+				 }
+				 else if (primSubType == 0x0)
+				 {
+					 primLength = 3;
+				 }
+				 else if (primSubType == 0x1)
+				 {
+					 DR_MOVE *drmove = (DR_MOVE *)polyTag;
+					 const u32 rectPos = drmove->code[2];
+					 const u32 rectSize = drmove->code[4];
 
-			const int y = drmove->code[3] >> 0x10 & 0xFFFF;
-			const int x = drmove->code[3] & 0xFFFF;
+					 const int y = drmove->code[3] >> 0x10 & 0xFFFF;
+					 const int x = drmove->code[3] & 0xFFFF;
 
-			RECT16 rect;
-			rect.x = (s16)(rectPos & 0xffff);
-			rect.y = (s16)(rectPos >> 16);
-			rect.w = (s16)(rectSize & 0xffff);
-			rect.h = (s16)(rectSize >> 16);
-
-#ifdef __vita__
-			NativeGpu_ForceSynchronousFrame();
-			NativeGpu_FlushFrontendSplitsSync();
-#else
-			if (NativeGpu_HasPendingSplits())
-			{
-				DrawAllSplits();
-			}
-#endif
-			MoveImage(&rect, x, y);
-			primLength = 5;
-		}
-		else if (primSubType == 0x2)
-		{
-			// NOTE(aalhendi): ctr-native local divergence. CTR emits retail
-			// FILL packets in OTs; the old PsyCross parser did not consume them, which caused
-			// zero-length primitive spam.
-			TILE *fill = (TILE *)polyTag;
-			RECT16 rect;
-
-			rect.x = fill->x0;
-			rect.y = fill->y0;
-			rect.w = fill->w;
-			rect.h = fill->h;
+					 RECT16 rect;
+					 rect.x = (s16)(rectPos & 0xffff);
+					 rect.y = (s16)(rectPos >> 16);
+					 rect.w = (s16)(rectSize & 0xffff);
+					 rect.h = (s16)(rectSize >> 16);
 
 #ifdef __vita__
-			const DRAWENV *frameDrawEnv = s_gpuFrontendFramePrepared ? &s_gpuFramePackets[s_gpuFrontendPacketIndex].drawEnv : &activeDrawEnv;
-			const bool fillTargetsFrameBuffer =
-			    activeDrawEnv.dfe && frameDrawEnv->dfe &&
-			    rect.x >= frameDrawEnv->clip.x && rect.y >= frameDrawEnv->clip.y &&
-			    rect.x + rect.w <= frameDrawEnv->clip.x + frameDrawEnv->clip.w &&
-			    rect.y + rect.h <= frameDrawEnv->clip.y + frameDrawEnv->clip.h;
+					 NativeGpu_ForceSynchronousFrame();
+					 NativeGpu_FlushFrontendSplitsSync();
 #else
-			const bool fillTargetsFrameBuffer =
-			    activeDrawEnv.dfe && rect.x >= activeDrawEnv.clip.x && rect.y >= activeDrawEnv.clip.y &&
-			    rect.x + rect.w <= activeDrawEnv.clip.x + activeDrawEnv.clip.w && rect.y + rect.h <= activeDrawEnv.clip.y + activeDrawEnv.clip.h;
+					 if (NativeGpu_HasPendingSplits())
+					 {
+						 DrawAllSplits();
+					 }
+#endif
+					 MoveImage(&rect, x, y);
+					 primLength = 5;
+				 }
+				 else if (primSubType == 0x2)
+				 {
+					 // NOTE(aalhendi): ctr-native local divergence. CTR emits retail
+					 // FILL packets in OTs; the old PsyCross parser did not consume them, which caused
+					 // zero-length primitive spam.
+					 TILE *fill = (TILE *)polyTag;
+					 RECT16 rect;
+
+					 rect.x = fill->x0;
+					 rect.y = fill->y0;
+					 rect.w = fill->w;
+					 rect.h = fill->h;
+
+#ifdef __vita__
+					 const DRAWENV *frameDrawEnv = s_gpuFrontendFramePrepared ? &s_gpuFramePackets[s_gpuFrontendPacketIndex].drawEnv : &activeDrawEnv;
+					 const bool fillTargetsFrameBuffer =
+						 activeDrawEnv.dfe && frameDrawEnv->dfe &&
+						 rect.x >= frameDrawEnv->clip.x && rect.y >= frameDrawEnv->clip.y &&
+						 rect.x + rect.w <= frameDrawEnv->clip.x + frameDrawEnv->clip.w &&
+						 rect.y + rect.h <= frameDrawEnv->clip.y + frameDrawEnv->clip.h;
+#else
+					 const bool fillTargetsFrameBuffer =
+						 activeDrawEnv.dfe && rect.x >= activeDrawEnv.clip.x && rect.y >= activeDrawEnv.clip.y &&
+						 rect.x + rect.w <= activeDrawEnv.clip.x + activeDrawEnv.clip.w && rect.y + rect.h <= activeDrawEnv.clip.y + activeDrawEnv.clip.h;
 #endif
 
-			if (fillTargetsFrameBuffer)
-			{
+					 if (fillTargetsFrameBuffer)
+					 {
 #ifdef __vita__
-				if (!NativeGpu_AppendClearSplit(&rect, fill->r0, fill->g0, fill->b0))
-				{
-					NativeGpu_ForceSynchronousFrame();
-					NativeGpu_FlushFrontendSplitsSync();
-					NativeGpuBackendRectTask task = {rect.x, rect.y, rect.w, rect.h, fill->r0, fill->g0, fill->b0};
-					NativeGpu_RunBackendTaskSync(NativeGpu_BackendClearTask, &task);
-				}
+						 if (!NativeGpu_AppendClearSplit(&rect, fill->r0, fill->g0, fill->b0))
+						 {
+							 NativeGpu_ForceSynchronousFrame();
+							 NativeGpu_FlushFrontendSplitsSync();
+							 NativeGpuBackendRectTask task = { rect.x, rect.y, rect.w, rect.h, fill->r0, fill->g0, fill->b0 };
+							 NativeGpu_RunBackendTaskSync(NativeGpu_BackendClearTask, &task);
+						 }
 #else
-				if (NativeGpu_HasPendingSplits())
-				{
-					DrawAllSplits();
-				}
-				NativeRenderer_Clear(rect.x, rect.y, rect.w, rect.h, fill->r0, fill->g0, fill->b0);
+						 if (NativeGpu_HasPendingSplits())
+						 {
+							 DrawAllSplits();
+						 }
+						 NativeRenderer_Clear(rect.x, rect.y, rect.w, rect.h, fill->r0, fill->g0, fill->b0);
 #endif
-			}
-			else
-			{
+					 }
+					 else
+					 {
 #ifdef __vita__
-				NativeGpu_ForceSynchronousFrame();
-				NativeGpu_FlushFrontendSplitsSync();
+						 NativeGpu_ForceSynchronousFrame();
+						 NativeGpu_FlushFrontendSplitsSync();
 #else
-				if (NativeGpu_HasPendingSplits())
-				{
-					DrawAllSplits();
-				}
+						 if (NativeGpu_HasPendingSplits())
+						 {
+							 DrawAllSplits();
+						 }
 #endif
-				ClearImage(&rect, fill->r0, fill->g0, fill->b0);
-			}
-			primLength = 3;
-		}
-		break;
+						 ClearImage(&rect, fill->r0, fill->g0, fill->b0);
+					 }
+					 primLength = 3;
+				 }
+				 break;
 	}
 	case 0x20:
 		// Flat polygons
@@ -3587,29 +3587,29 @@ int ParsePrimitive(P_TAG *polyTag)
 		break;
 	case 0xA0:
 		// DR_LOAD
-		{
-			DR_LOAD *drload = (DR_LOAD *)polyTag;
-			const u32 rectPos = drload->code[1];
-			const u32 rectSize = drload->code[2];
+	{
+				 DR_LOAD *drload = (DR_LOAD *)polyTag;
+				 const u32 rectPos = drload->code[1];
+				 const u32 rectSize = drload->code[2];
 
-			RECT16 rect;
-			rect.x = (s16)(rectPos & 0xffff);
-			rect.y = (s16)(rectPos >> 16);
-			rect.w = (s16)(rectSize & 0xffff);
-			rect.h = (s16)(rectSize >> 16);
+				 RECT16 rect;
+				 rect.x = (s16)(rectPos & 0xffff);
+				 rect.y = (s16)(rectPos >> 16);
+				 rect.w = (s16)(rectSize & 0xffff);
+				 rect.h = (s16)(rectSize >> 16);
 
 #ifdef __vita__
-			if (NativeGpu_HasPendingSplits())
-			{
-				NativeGpu_ForceSynchronousFrame();
-				NativeGpu_FlushFrontendSplitsSync();
-			}
+				 if (NativeGpu_HasPendingSplits())
+				 {
+					 NativeGpu_ForceSynchronousFrame();
+					 NativeGpu_FlushFrontendSplitsSync();
+				 }
 #endif
-			LoadImage(&rect, (uint32_t *)drload->p);
+				 LoadImage(&rect, (uint32_t *)drload->p);
 
-			// TODO(aalhendi): Audit whether CTR ever appends additional GPU
-			// commands after a DR_LOAD payload in the same packet.
-		}
+				 // TODO(aalhendi): Audit whether CTR ever appends additional GPU
+				 // commands after a DR_LOAD payload in the same packet.
+	}
 		primLength = getlen(polyTag);
 		break;
 	case 0xB0:
@@ -3634,7 +3634,7 @@ int ParsePrimitive(P_TAG *polyTag)
 
 int ParseTaglessPrimitive(u32 *command)
 {
-	const u32 code = *command;
+	const u32 code = CTR_ReadU32LE(command);
 	const int primType = (code >> 24) & 0xF0;
 
 	if (code == 0)
