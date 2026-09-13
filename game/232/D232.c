@@ -257,13 +257,12 @@ struct OverlayDATA_232
 
             .emSet_maskSpawn = {[0] = {.flags = 1,
                                        .initOffset = 12,
-                                       .InitTypes.FuncInit =
-                                           {
+                                       .InitTypes = {.FuncInit = {
                                                .particle_funcPtr = 0x00000000,
                                                .particle_colorFlags = 0xA1,
                                                .particle_lifespan = 0x14,
                                                .particle_Type = 0,
-                                           }},
+                                           }}},
 
                                 [1] =
                                     {
@@ -272,19 +271,15 @@ struct OverlayDATA_232
                                         // posX
                                         .initOffset = 0,
 
-                                        .InitTypes.AxisInit = {.baseValue =
-                                                                   {
+                                        .InitTypes = {.AxisInit = {.baseValue = {
                                                                        .startVal = -0x1900,
                                                                        .velocity = -0x640,
                                                                        .accel = 0,
-                                                                   },
-
-                                                               .rngSeed =
-                                                                   {
+                                                                   }, .rngSeed = {
                                                                        .startVal = 0x3200,
                                                                        .velocity = 0xc80,
                                                                        .accel = 0,
-                                                                   }}
+                                                                   }}}
 
                                         // last 0x10 are blank
                                     },
@@ -296,19 +291,15 @@ struct OverlayDATA_232
                                         // posZ
                                         .initOffset = 2,
 
-                                        .InitTypes.AxisInit = {.baseValue =
-                                                                   {
+                                        .InitTypes = {.AxisInit = {.baseValue = {
                                                                        .startVal = -0x1900,
                                                                        .velocity = -0x640,
                                                                        .accel = 0,
-                                                                   },
-
-                                                               .rngSeed =
-                                                                   {
+                                                                   }, .rngSeed = {
                                                                        .startVal = 0x3200,
                                                                        .velocity = 0xc80,
                                                                        .accel = 0,
-                                                                   }}
+                                                                   }}}
 
                                         // last 0x10 are blank
                                     },
@@ -320,19 +311,15 @@ struct OverlayDATA_232
                                         // posY
                                         .initOffset = 1,
 
-                                        .InitTypes.AxisInit = {.baseValue =
-                                                                   {
+                                        .InitTypes = {.AxisInit = {.baseValue = {
                                                                        .startVal = -0xC80,
                                                                        .velocity = 0x190,
                                                                        .accel = 0,
-                                                                   },
-
-                                                               .rngSeed =
-                                                                   {
+                                                                   }, .rngSeed = {
                                                                        .startVal = 0x1900,
                                                                        .velocity = 0x640,
                                                                        .accel = 0,
-                                                                   }}
+                                                                   }}}
 
                                         // last 0x10 are blank
                                     },
@@ -345,8 +332,7 @@ struct OverlayDATA_232
                                         .initOffset = 5,
 
                                         // 50% scale
-                                        .InitTypes.AxisInit.baseValue.startVal = 0x800,
-                                        .InitTypes.AxisInit.baseValue.velocity = -0x20,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x800, .velocity = -0x20}}},
 
                                         // all the rest is untouched
                                     },
@@ -358,8 +344,7 @@ struct OverlayDATA_232
                                         // RotX?
                                         .initOffset = 4,
 
-                                        .InitTypes.AxisInit.baseValue.startVal = 1,
-                                        .InitTypes.AxisInit.rngSeed.startVal = 0x1000,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1}, .rngSeed = {.startVal = 0x1000}}},
 
                                         // all the rest is untouched
                                     },
@@ -371,8 +356,7 @@ struct OverlayDATA_232
                                         // colorR
                                         .initOffset = 7,
 
-                                        .InitTypes.AxisInit.baseValue.startVal = 0x8000,
-                                        .InitTypes.AxisInit.baseValue.accel = -0x100,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
 
                                         // all the rest is untouched
                                     },
@@ -384,8 +368,7 @@ struct OverlayDATA_232
                                         // colorG
                                         .initOffset = 8,
 
-                                        .InitTypes.AxisInit.baseValue.startVal = 0x8000,
-                                        .InitTypes.AxisInit.baseValue.accel = -0x100,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
 
                                         // all the rest is untouched
                                     },
@@ -397,8 +380,7 @@ struct OverlayDATA_232
                                         // colorB
                                         .initOffset = 9,
 
-                                        .InitTypes.AxisInit.baseValue.startVal = 0x8000,
-                                        .InitTypes.AxisInit.baseValue.accel = -0x100,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
 
                                         // all the rest is untouched
                                     },
@@ -408,13 +390,12 @@ struct OverlayDATA_232
 
             .emSet_maskLeave = {[0] = {.flags = 1,
                                        .initOffset = 12,
-                                       .InitTypes.FuncInit =
-                                           {
+                                       .InitTypes = {.FuncInit = {
                                                .particle_funcPtr = 0x00000000,
                                                .particle_colorFlags = 0xA1,
                                                .particle_lifespan = 0x14,
                                                .particle_Type = 0,
-                                           }},
+                                           }}},
 
                                 [1] =
                                     {
@@ -423,19 +404,15 @@ struct OverlayDATA_232
                                         // posX
                                         .initOffset = 0,
 
-                                        .InitTypes.AxisInit = {.baseValue =
-                                                                   {
+                                        .InitTypes = {.AxisInit = {.baseValue = {
                                                                        .startVal = -0x640,
                                                                        .velocity = -0xC80,
                                                                        .accel = 0,
-                                                                   },
-
-                                                               .rngSeed =
-                                                                   {
+                                                                   }, .rngSeed = {
                                                                        .startVal = 0xc80,
                                                                        .velocity = 0x1900,
                                                                        .accel = 0,
-                                                                   }}
+                                                                   }}}
 
                                         // last 0x10 are blank
                                     },
@@ -447,19 +424,15 @@ struct OverlayDATA_232
                                         // posZ
                                         .initOffset = 2,
 
-                                        .InitTypes.AxisInit = {.baseValue =
-                                                                   {
+                                        .InitTypes = {.AxisInit = {.baseValue = {
                                                                        .startVal = -0x640,
                                                                        .velocity = -0xC80,
                                                                        .accel = 0,
-                                                                   },
-
-                                                               .rngSeed =
-                                                                   {
+                                                                   }, .rngSeed = {
                                                                        .startVal = 0xc80,
                                                                        .velocity = 0x1900,
                                                                        .accel = 0,
-                                                                   }}
+                                                                   }}}
 
                                         // last 0x10 are blank
                                     },
@@ -471,19 +444,15 @@ struct OverlayDATA_232
                                         // posY
                                         .initOffset = 1,
 
-                                        .InitTypes.AxisInit = {.baseValue =
-                                                                   {
+                                        .InitTypes = {.AxisInit = {.baseValue = {
                                                                        .startVal = -0x190,
                                                                        .velocity = -0x4B0,
                                                                        .accel = 0,
-                                                                   },
-
-                                                               .rngSeed =
-                                                                   {
+                                                                   }, .rngSeed = {
                                                                        .startVal = 0xc80,
                                                                        .velocity = 0xc80,
                                                                        .accel = 0,
-                                                                   }}
+                                                                   }}}
 
                                         // last 0x10 are blank
                                     },
@@ -496,8 +465,7 @@ struct OverlayDATA_232
                                         .initOffset = 5,
 
                                         // 100% scale
-                                        .InitTypes.AxisInit.baseValue.startVal = 0x1000,
-                                        .InitTypes.AxisInit.baseValue.velocity = -0x80,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x1000, .velocity = -0x80}}},
 
                                         // all the rest is untouched
                                     },
@@ -509,8 +477,7 @@ struct OverlayDATA_232
                                         // RotX?
                                         .initOffset = 4,
 
-                                        .InitTypes.AxisInit.baseValue.startVal = 1,
-                                        .InitTypes.AxisInit.rngSeed.startVal = 0x1000,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1}, .rngSeed = {.startVal = 0x1000}}},
 
                                         // all the rest is untouched
                                     },
@@ -522,8 +489,7 @@ struct OverlayDATA_232
                                         // colorR
                                         .initOffset = 7,
 
-                                        .InitTypes.AxisInit.baseValue.startVal = 0x8000,
-                                        .InitTypes.AxisInit.baseValue.accel = -0x100,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
 
                                         // all the rest is untouched
                                     },
@@ -535,8 +501,7 @@ struct OverlayDATA_232
                                         // colorG
                                         .initOffset = 8,
 
-                                        .InitTypes.AxisInit.baseValue.startVal = 0x8000,
-                                        .InitTypes.AxisInit.baseValue.accel = -0x100,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
 
                                         // all the rest is untouched
                                     },
@@ -548,8 +513,7 @@ struct OverlayDATA_232
                                         // colorB
                                         .initOffset = 9,
 
-                                        .InitTypes.AxisInit.baseValue.startVal = 0x8000,
-                                        .InitTypes.AxisInit.baseValue.accel = -0x100,
+                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
 
                                         // all the rest is untouched
                                     },

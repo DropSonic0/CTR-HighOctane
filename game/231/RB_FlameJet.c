@@ -16,13 +16,12 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
                                                     // invalid axis, assume FuncInit
                                                     .initOffset = 0xC,
 
-                                                    .InitTypes.FuncInit =
-                                                        {
+                                                    .InitTypes = { .FuncInit = {
                                                             .particle_funcPtr = 0,
                                                             .particle_colorFlags = 0xA1,
                                                             .particle_lifespan = 6,
                                                             .particle_Type = 1,
-                                                        }
+                                                        } }
 
                                                     // last 0x10 bytes are blank
                                                 },
@@ -34,11 +33,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
                                                     // posX
                                                     .initOffset = 0,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = -0x40,
-                                                    .InitTypes.AxisInit.baseValue.velocity = -0x320,
-
-                                                    .InitTypes.AxisInit.rngSeed.startVal = 0x80,
-                                                    .InitTypes.AxisInit.rngSeed.velocity = 0x640,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = -0x40, .velocity = -0x320}, .rngSeed = {.startVal = 0x80, .velocity = 0x640}}},
                                                 },
 
                                             [2] =
@@ -48,11 +43,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
                                                     // posZ
                                                     .initOffset = 2,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = -0x40,
-                                                    .InitTypes.AxisInit.baseValue.velocity = -0x320,
-
-                                                    .InitTypes.AxisInit.rngSeed.startVal = 0x80,
-                                                    .InitTypes.AxisInit.rngSeed.velocity = 0x640,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = -0x40, .velocity = -0x320}, .rngSeed = {.startVal = 0x80, .velocity = 0x640}}},
                                                 },
 
                                             [3] =
@@ -62,8 +53,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
                                                     // posY
                                                     .initOffset = 1,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = -0x40,
-                                                    .InitTypes.AxisInit.baseValue.accel = 1,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = -0x40, .accel = 1}}},
                                                 },
 
                                             [4] =
@@ -72,10 +62,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
 
                                                     .initOffset = 3,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = 0x1200,
-                                                    .InitTypes.AxisInit.baseValue.velocity = 1,
-
-                                                    .InitTypes.AxisInit.rngSeed.startVal = 0x1000,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x1200, .velocity = 1}, .rngSeed = {.startVal = 0x1000}}},
                                                 },
 
                                             [5] =
@@ -84,8 +71,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
 
                                                     .initOffset = 4,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = 1,
-                                                    .InitTypes.AxisInit.baseValue.velocity = 1,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1, .velocity = 1}}},
                                                 },
 
                                             [6] =
@@ -94,8 +80,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
 
                                                     .initOffset = 5,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = 1,
-                                                    .InitTypes.AxisInit.baseValue.velocity = 1,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1, .velocity = 1}}},
                                                 },
 
                                             [7] =
@@ -104,7 +89,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
 
                                                     .initOffset = 7,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = 0x8000,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000}}},
                                                 },
 
                                             [8] =
@@ -113,7 +98,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
 
                                                     .initOffset = 8,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = 0x8000,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000}}},
                                                 },
 
                                             [9] =
@@ -122,7 +107,7 @@ struct ParticleEmitter emSet_fjHeat[0xb] = {[0] =
 
                                                     .initOffset = 9,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = 0x8000,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000}}},
                                                 },
 
                                             // null terminator
@@ -135,13 +120,12 @@ struct ParticleEmitter emSet_fjFire[0x8] = {[0] =
                                                     // invalid axis, assume FuncInit
                                                     .initOffset = 0xC,
 
-                                                    .InitTypes.FuncInit =
-                                                        {
+                                                    .InitTypes = { .FuncInit = {
                                                             .particle_funcPtr = 0,
                                                             .particle_colorFlags = 0xA1,
                                                             .particle_lifespan = 7,
                                                             .particle_Type = 0,
-                                                        }
+                                                        } }
 
                                                     // last 0x10 bytes are blank
                                                 },
@@ -153,11 +137,7 @@ struct ParticleEmitter emSet_fjFire[0x8] = {[0] =
                                                     // posX
                                                     .initOffset = 0,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = -0x40,
-                                                    .InitTypes.AxisInit.baseValue.velocity = -0x320,
-
-                                                    .InitTypes.AxisInit.rngSeed.startVal = 0x80,
-                                                    .InitTypes.AxisInit.rngSeed.velocity = 0x640,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = -0x40, .velocity = -0x320}, .rngSeed = {.startVal = 0x80, .velocity = 0x640}}},
                                                 },
 
                                             [2] =
@@ -167,11 +147,7 @@ struct ParticleEmitter emSet_fjFire[0x8] = {[0] =
                                                     // posZ
                                                     .initOffset = 2,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = -0x40,
-                                                    .InitTypes.AxisInit.baseValue.velocity = -0x320,
-
-                                                    .InitTypes.AxisInit.rngSeed.startVal = 0x80,
-                                                    .InitTypes.AxisInit.rngSeed.velocity = 0x640,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = -0x40, .velocity = -0x320}, .rngSeed = {.startVal = 0x80, .velocity = 0x640}}},
                                                 },
 
                                             [3] =
@@ -181,8 +157,7 @@ struct ParticleEmitter emSet_fjFire[0x8] = {[0] =
                                                     // posY
                                                     .initOffset = 1,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = -0x40,
-                                                    .InitTypes.AxisInit.baseValue.accel = 1,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = -0x40, .accel = 1}}},
                                                 },
 
                                             [4] =
@@ -191,10 +166,7 @@ struct ParticleEmitter emSet_fjFire[0x8] = {[0] =
 
                                                     .initOffset = 4,
 
-                                                    .InitTypes.AxisInit.baseValue.velocity = 0x10,
-
-                                                    .InitTypes.AxisInit.rngSeed.startVal = 0x800,
-                                                    .InitTypes.AxisInit.rngSeed.velocity = 0x10,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.velocity = 0x10}, .rngSeed = {.startVal = 0x800, .velocity = 0x10}}},
                                                 },
 
                                             [5] =
@@ -203,10 +175,7 @@ struct ParticleEmitter emSet_fjFire[0x8] = {[0] =
 
                                                     .initOffset = 5,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = 0x4e2,
-                                                    .InitTypes.AxisInit.baseValue.velocity = 0x100,
-
-                                                    .InitTypes.AxisInit.rngSeed.startVal = 0x80,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x4e2, .velocity = 0x100}, .rngSeed = {.startVal = 0x80}}},
                                                 },
 
                                             [6] =
@@ -215,10 +184,7 @@ struct ParticleEmitter emSet_fjFire[0x8] = {[0] =
 
                                                     .initOffset = 7,
 
-                                                    .InitTypes.AxisInit.baseValue.startVal = 0x8000,
-                                                    .InitTypes.AxisInit.baseValue.accel = -0x800,
-
-                                                    .InitTypes.AxisInit.rngSeed.startVal = 0x5f00,
+                                                    .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x800}, .rngSeed = {.startVal = 0x5f00}}},
                                                 },
 
                                             // null terminator
