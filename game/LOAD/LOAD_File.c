@@ -102,7 +102,7 @@ void *LOAD_ReadDirectory(char *filename)
 	bh->cdpos = CdPosToInt(&cdlFile.pos);
 
 	// undo header allocation, only use "needed" size
-	MEMPACK_ReallocMem(sizeof(struct BigHeader) + sizeof(struct BigEntry) * bh->numEntry);
+	MEMPACK_ReallocMem(sizeof(struct BigHeader) + sizeof(struct BigEntry) * (int)CTR_ReadU32LE(&bh->numEntry));
 
 	sdata->ptrBigfileCdPos_2 = bh;
 	return bh;
@@ -195,31 +195,50 @@ void LOAD_VramFileCallback(struct LoadQueueSlot *lqs)
 {
 	int *vramBuf = lqs->ptrDestination;
 
+	if (vramBuf == NULL)
+	{
+		sdata->frameFinishedVRAM = sdata->gGT->frameTimer_VsyncCallback;
+		return;
+	}
+
+	u32 headerMagic = CTR_ReadU32LE(&vramBuf[0]);
 	struct VramHeader *vh = (struct VramHeader *)vramBuf;
 
 	// if just one TIM
-	if ((vramBuf != NULL) && (vramBuf[0] != 0x20))
+	if (headerMagic != 0x20)
 	{
-		LoadImage(&vh->rect, VRAMHEADER_GETPIXLES(vh));
+		RECT rect;
+		rect.x = (s16)CTR_ReadU16LE(&vh->rect.x);
+		rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
+		rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
+		rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
+
+		LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
 	}
 
 	// if multiple TIMs are packed together
-	if ((vramBuf != NULL) && (vramBuf[0] == 0x20))
+	if (headerMagic == 0x20)
 	{
 		int size;
 		vramBuf++;
 
-		size = vramBuf[0];
+		size = (int)CTR_ReadU32LE(&vramBuf[0]);
 		vh = (struct VramHeader *)&vramBuf[1];
 
 		while (size != 0)
 		{
-			LoadImage(&vh->rect, VRAMHEADER_GETPIXLES(vh));
+			RECT rect;
+			rect.x = (s16)CTR_ReadU16LE(&vh->rect.x);
+			rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
+			rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
+			rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
+
+			LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
 
 			// goto next
 			vramBuf = (int *)((u8 *)vh + (size & ~3));
 
-			size = vramBuf[0];
+			size = (int)CTR_ReadU32LE(&vramBuf[0]);
 			vh = (struct VramHeader *)&vramBuf[1];
 		}
 	}
@@ -343,8 +362,8 @@ void *LOAD_ReadFile_ex(struct BigHeader *bigfile, u32 loadType, int subfileIndex
 
 	// get size and offset of subfile
 	struct BigEntry *entry = BIG_GETENTRY(bigfile);
-	int eSize = entry[subfileIndex].size;
-	int eOffs = entry[subfileIndex].offset;
+	int eSize = (int)CTR_ReadU32LE(&entry[subfileIndex].size);
+	int eOffs = (int)CTR_ReadU32LE(&entry[subfileIndex].offset);
 
 	*sizePtr = eSize;
 

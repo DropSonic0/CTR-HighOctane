@@ -36,8 +36,9 @@ u32 SongPool_CalculateTempo(s16 const60, s16 tpqn, s16 bpm)
 void SongPool_ChangeTempo(struct Song *song, s16 deltaBPM)
 {
 	struct CseqSongHeader *csh = GetCseqSongHeader(song->id);
+	s16 cshBpm = (s16)CTR_ReadU16LE(&csh->bpm);
 
-	song->bpm = (s16)CTR_MipsAddLo((u16)csh->bpm, deltaBPM);
+	song->bpm = (s16)CTR_MipsAddLo((u16)cshBpm, deltaBPM);
 
 	song->tempo = SongPool_CalculateTempo(60, song->tpqn, song->bpm);
 }
@@ -71,8 +72,9 @@ void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, b32 boolLoopAtE
 		song->songSetActiveBits = songSetActiveBits;
 	}
 
-	song->tpqn = csh->tpqn;
-	song->bpm = (s16)CTR_MipsAddLo((u16)csh->bpm, deltaBPM);
+	song->tpqn = (s16)CTR_ReadU16LE(&csh->tpqn);
+	s16 cshBpm = (s16)CTR_ReadU16LE(&csh->bpm);
+	song->bpm = (s16)CTR_MipsAddLo((u16)cshBpm, deltaBPM);
 
 	song->tempo = SongPool_CalculateTempo(60, song->tpqn, song->bpm);
 
@@ -122,7 +124,8 @@ void SongPool_Start(struct Song *song, u16 songID, s16 deltaBPM, b32 boolLoopAtE
 
 	for (i = 0; i < numSeqs; i++)
 	{
-		cnhCurr = (struct SongNoteHeader *)&cnhFirst[seqOffsetArr[i]];
+		u16 seqOffset = CTR_ReadU16LE(&seqOffsetArr[i]);
+		cnhCurr = (struct SongNoteHeader *)&cnhFirst[seqOffset];
 
 		seqCurr = SongPool_FindFreeChannel();
 		if (seqCurr == NULL)

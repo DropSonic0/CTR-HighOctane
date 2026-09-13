@@ -233,7 +233,7 @@ void LOAD_LangFile(int bigfilePtr, int lang)
 
 		for (int i = 0; i < (BI_RACERMODELHI - BI_LANGUAGEFILE); i++)
 		{
-			u32 fileSize = (u32)entries[BI_LANGUAGEFILE + i].size;
+			u32 fileSize = CTR_ReadU32LE(&entries[BI_LANGUAGEFILE + i].size);
 			u32 readSize = (fileSize + LOAD_CD_DATA_SECTOR_ROUND_MASK) & ~LOAD_CD_DATA_SECTOR_ROUND_MASK;
 
 			if (langBufferSize < readSize)
@@ -248,22 +248,29 @@ void LOAD_LangFile(int bigfilePtr, int lang)
 
 	lngFile = sdata->lngFile;
 
+	Platform_Log("[CTR LOAD_LangFile] Reading language file index=%d\n", BI_LANGUAGEFILE + lang);
 	lngFile = LOAD_ReadFile_ex((struct BigHeader *)bigfilePtr, LT_SETADDR, BI_LANGUAGEFILE + lang, lngFile, &size, NULL);
 	if (lngFile == NULL)
 	{
+		Platform_LogError("[CTR LOAD_LangFile] Failed to read language file!\n");
 		return;
 	}
 
-	numStrings = lngFile->numStrings;
-	strArray = (char **)((u32)lngFile + lngFile->offsetToPtrArr);
+	numStrings = (int)CTR_ReadU32LE(&lngFile->numStrings);
+	u32 offsetToPtrArr = CTR_ReadU32LE(&lngFile->offsetToPtrArr);
+	strArray = (char **)((u8 *)lngFile + offsetToPtrArr);
+
+	Platform_Log("[CTR LOAD_LangFile] lngFile loaded: numStrings=%d offsetToPtrArr=0x%x\n", numStrings, offsetToPtrArr);
 
 	sdata->numLngStrings = numStrings;
 	sdata->lngStrings = strArray;
 
 	for (i = 0; i < numStrings; i++)
 	{
-		strArray[i] = (char *)((u32)strArray[i] + (u32)lngFile);
+		u32 strOffset = CTR_ReadU32LE(&strArray[i]);
+		strArray[i] = (char *)((u8 *)lngFile + strOffset);
 	}
+	Platform_Log("[CTR LOAD_LangFile] String pointer patching complete\n");
 #if defined(CTR_NATIVE)
 	NativeAudio_SetVoiceLanguage(lang);
 #elif BUILD == EurRetail

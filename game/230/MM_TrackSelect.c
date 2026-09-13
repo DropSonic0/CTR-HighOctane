@@ -253,7 +253,7 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 	selectMenu = &selectMenu[trackIndex];
 	s32 previewVideoFileIndex = selectMenu->previewVideoFileIndex;
 
-	if ((entry[previewVideoFileIndex].size == 0) ||
+	if ((CTR_ReadU32LE(&entry[previewVideoFileIndex].size) == 0) ||
 
 	    // Video off-screen
 	    (r->x < 0) || (r->y < 0) || ((r->x + r->w) > MM_TRACK_VIDEO_SCREEN_W) || ((r->y + r->h) > MM_TRACK_VIDEO_SCREEN_H))
@@ -266,7 +266,7 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 	{
 		if ((D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_START_STREAM) && (D230.trackSelect.videoStatePrev == MM_TRACK_VIDEO_ICON))
 		{
-			if (NativeSTR_StartTrackPreviewFromBigfileSector(entry[previewVideoFileIndex].offset, selectMenu->previewVideoFrameCount) != 0)
+			if (NativeSTR_StartTrackPreviewFromBigfileSector((int)CTR_ReadU32LE(&entry[previewVideoFileIndex].offset), selectMenu->previewVideoFrameCount) != 0)
 			{
 				D230.trackSelect.videoMemAllocated = D230.trackSelect.videoStatePrev;
 			}
@@ -308,7 +308,7 @@ void MM_TrackSelect_Video_Draw(RECT *r, struct MainMenu_LevelRow *selectMenu, in
 			}
 
 			// CD position of video, and numFrames
-			MM_Video_StartStream(bh->cdpos + entry[previewVideoFileIndex].offset, selectMenu->previewVideoFrameCount);
+			MM_Video_StartStream(bh->cdpos + (int)CTR_ReadU32LE(&entry[previewVideoFileIndex].offset), selectMenu->previewVideoFrameCount);
 		}
 
 		if (((D230.trackSelect.videoStatePrev == MM_TRACK_VIDEO_PLAYING) || (D230.trackSelect.videoStateCurr == MM_TRACK_VIDEO_PLAYING)) ||

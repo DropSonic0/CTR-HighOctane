@@ -81,6 +81,34 @@ void howl_ParseHeader(struct HowlHeader *hh)
 	addr += sizeof(s16) * hh->numSequences;
 
 	sdata->howl_endOfHowl = addr;
+
+#if defined(CTR_BIG_ENDIAN) || defined(__PS3__) || defined(__CELLOS_LV2__)
+	for (int i = 0; i < hh->numSpuAddrs; i++)
+	{
+		sdata->howl_spuAddrs[i].spuAddr = CTR_ReadU16LE(&sdata->howl_spuAddrs[i].spuAddr);
+		sdata->howl_spuAddrs[i].spuSize = CTR_ReadU16LE(&sdata->howl_spuAddrs[i].spuSize);
+	}
+	for (int i = 0; i < hh->numOtherFX; i++)
+	{
+		sdata->howl_metaOtherFX[i].pitch = CTR_ReadU16LE(&sdata->howl_metaOtherFX[i].pitch);
+		sdata->howl_metaOtherFX[i].spuIndex = CTR_ReadU16LE(&sdata->howl_metaOtherFX[i].spuIndex);
+		sdata->howl_metaOtherFX[i].duration = CTR_ReadU16LE(&sdata->howl_metaOtherFX[i].duration);
+	}
+	for (int i = 0; i < hh->numEngineFX; i++)
+	{
+		sdata->howl_metaEngineFX[i].pitch = CTR_ReadU16LE(&sdata->howl_metaEngineFX[i].pitch);
+		sdata->howl_metaEngineFX[i].unk = CTR_ReadU16LE(&sdata->howl_metaEngineFX[i].unk);
+		sdata->howl_metaEngineFX[i].spuIndex = CTR_ReadU16LE(&sdata->howl_metaEngineFX[i].spuIndex);
+	}
+	for (int i = 0; i < hh->numBanks; i++)
+	{
+		sdata->howl_bankOffsets[i] = CTR_ReadU16LE(&sdata->howl_bankOffsets[i]);
+	}
+	for (int i = 0; i < hh->numSequences; i++)
+	{
+		sdata->howl_songOffsets[i] = CTR_ReadU16LE(&sdata->howl_songOffsets[i]);
+	}
+#endif
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80029ab4-0x80029b2c
@@ -88,16 +116,45 @@ void howl_ParseCseqHeader(struct CseqHeader *ch)
 {
 	u32 addr = (u32)ch;
 
+#if defined(CTR_BIG_ENDIAN) || defined(__PS3__) || defined(__CELLOS_LV2__)
+	ch->songSize = (int)CTR_ReadU32LE(&ch->songSize);
+	ch->numSongs = CTR_ReadU16LE(&ch->numSongs);
+#endif
+
 	sdata->ptrCseqHeader = (struct CseqHeader *)addr;
 	addr += sizeof(struct CseqHeader);
 
 	sdata->ptrCseqLongSamples = (struct SampleInstrument *)addr;
+#if defined(CTR_BIG_ENDIAN) || defined(__PS3__) || defined(__CELLOS_LV2__)
+	for (int i = 0; i < ch->numLongSamples; i++)
+	{
+		sdata->ptrCseqLongSamples[i].alwaysZero = (s16)CTR_ReadU16LE(&sdata->ptrCseqLongSamples[i].alwaysZero);
+		sdata->ptrCseqLongSamples[i].basePitch = (s16)CTR_ReadU16LE(&sdata->ptrCseqLongSamples[i].basePitch);
+		sdata->ptrCseqLongSamples[i].spuIndex = (s16)CTR_ReadU16LE(&sdata->ptrCseqLongSamples[i].spuIndex);
+		sdata->ptrCseqLongSamples[i].ad = (s16)CTR_ReadU16LE(&sdata->ptrCseqLongSamples[i].ad);
+		sdata->ptrCseqLongSamples[i].sr = (s16)CTR_ReadU16LE(&sdata->ptrCseqLongSamples[i].sr);
+	}
+#endif
 	addr += sizeof(struct SampleInstrument) * ch->numLongSamples;
 
 	sdata->ptrCseqShortSamples = (struct SampleDrums *)addr;
+#if defined(CTR_BIG_ENDIAN) || defined(__PS3__) || defined(__CELLOS_LV2__)
+	for (int i = 0; i < ch->numShortSamples; i++)
+	{
+		sdata->ptrCseqShortSamples[i].pitch = (s16)CTR_ReadU16LE(&sdata->ptrCseqShortSamples[i].pitch);
+		sdata->ptrCseqShortSamples[i].spuIndex = (s16)CTR_ReadU16LE(&sdata->ptrCseqShortSamples[i].spuIndex);
+		sdata->ptrCseqShortSamples[i].alwaysZero = (s16)CTR_ReadU16LE(&sdata->ptrCseqShortSamples[i].alwaysZero);
+	}
+#endif
 	addr += sizeof(struct SampleDrums) * ch->numShortSamples;
 
 	sdata->ptrCseqSongStartOffset = (s16 *)addr;
+#if defined(CTR_BIG_ENDIAN) || defined(__PS3__) || defined(__CELLOS_LV2__)
+	for (int i = 0; i < ch->numSongs; i++)
+	{
+		sdata->ptrCseqSongStartOffset[i] = (s16)CTR_ReadU16LE(&sdata->ptrCseqSongStartOffset[i]);
+	}
+#endif
 	addr += sizeof(s16) * ch->numSongs;
 
 	addr = (addr + 3) & ~3;
@@ -113,8 +170,10 @@ int howl_LoadHeader(char *filename)
 	int numSector;
 	int ret;
 
+	Platform_Log("[CTR howl_LoadHeader] Finding file: %s\n", filename);
 	if (LOAD_FindFile(filename, &sdata->KartHWL_CdFile) == 0)
 	{
+		Platform_LogError("[CTR howl_LoadHeader] Failed to find %s\n", filename);
 		return 0;
 	}
 
@@ -128,13 +187,32 @@ int howl_LoadHeader(char *filename)
 		// read sector #1 of HOWL, just for header
 		ret = LOAD_HowlHeaderSectors(&sdata->KartHWL_CdFile, alloc, 0, 1);
 
+		u32 version = CTR_ReadU32LE(&alloc->version);
+
+		Platform_Log("[CTR howl_LoadHeader] Read sector 1: ret=%d version=0x%x\n", ret, version);
+
 		if (
 		    // confirm first sector loaded properly
-		    (ret != 0) && (alloc->magic == *(int *)&sdata->s_HOWL[0]) && (alloc->version == 0x80) // different in other CTR builds
+		    (ret != 0) && (memcmp(&alloc->magic, "HOWL", 4) == 0) && (version == 0x80) // different in other CTR builds
 		)
 		{
 			// allocate room for howlHeader + pointerTable
-			howlHeaderSize = sizeof(struct HowlHeader) + alloc->headerSize;
+			u32 headerSize = CTR_ReadU32LE(&alloc->headerSize);
+			u32 numSpuAddrs = CTR_ReadU32LE(&alloc->numSpuAddrs);
+			u32 numOtherFX = CTR_ReadU32LE(&alloc->numOtherFX);
+			u32 numEngineFX = CTR_ReadU32LE(&alloc->numEngineFX);
+			u32 numBanks = CTR_ReadU32LE(&alloc->numBanks);
+			u32 numSequences = CTR_ReadU32LE(&alloc->numSequences);
+
+			alloc->version = version;
+			alloc->headerSize = headerSize;
+			alloc->numSpuAddrs = numSpuAddrs;
+			alloc->numOtherFX = numOtherFX;
+			alloc->numEngineFX = numEngineFX;
+			alloc->numBanks = numBanks;
+			alloc->numSequences = numSequences;
+
+			howlHeaderSize = sizeof(struct HowlHeader) + headerSize;
 
 			// align up for sector size
 			numSector = CTR_MipsSra(CTR_MipsAddLo(howlHeaderSize, 0x7ff), 11);
@@ -150,9 +228,15 @@ int howl_LoadHeader(char *filename)
 				// deallocate sector-alignment padding
 				MEMPACK_ReallocMem(howlHeaderSize);
 
+				Platform_Log("[CTR howl_LoadHeader] Successfully loaded HOWL header! numBanks=%d numSeq=%d\n", numBanks, numSequences);
+
 				// do NOT PopState
 				return 1;
 			}
+		}
+		else
+		{
+			Platform_LogError("[CTR howl_LoadHeader] Header validation failed!\n");
 		}
 	}
 
@@ -221,7 +305,8 @@ int howl_LoadSong()
 		}
 
 		// CseqHeader->songSize, aligned up to sector size
-		int numSector = CTR_MipsSrl(CTR_MipsAddLo(*(s32 *)&sdata->sampleBlock1[0], 0x7ff), 11);
+		int songSize = (int)CTR_ReadU32LE(&sdata->sampleBlock1[0]);
+		int numSector = CTR_MipsSrl(CTR_MipsAddLo(songSize, 0x7ff), 11);
 
 		ret = LOAD_HowlSectorChainStart(&sdata->KartHWL_CdFile,      // CdLoc of HOWL
 		                                sdata->tenSampleBlocks,      // (sampleBlock1+0x800) RAM destination

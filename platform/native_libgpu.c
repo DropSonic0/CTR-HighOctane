@@ -124,11 +124,22 @@ int DrawSync(int mode)
 
 int LoadImage(RECT16 *rect, void *p)
 {
+	RECT16 r = *rect;
+#if defined(CTR_BIG_ENDIAN) || defined(__PS3__) || defined(__CELLOS_LV2__)
+	if ((u16)r.w > VRAM_WIDTH || (u16)r.h > VRAM_HEIGHT || (u16)r.x > VRAM_WIDTH || (u16)r.y > VRAM_HEIGHT)
+	{
+		r.x = (s16)CTR_ReadU16LE(&rect->x);
+		r.y = (s16)CTR_ReadU16LE(&rect->y);
+		r.w = (s16)CTR_ReadU16LE(&rect->w);
+		r.h = (s16)CTR_ReadU16LE(&rect->h);
+	}
+#endif
+
 #ifdef __vita__
-	NativeLibGpuVramTask task = {*rect, (u16 *)p, 0, 0};
+	NativeLibGpuVramTask task = {r, (u16 *)p, 0, 0};
 	NativeGpu_RunBackendTaskSync(NativeLibGpu_BackendLoadTask, &task);
 #else
-	NativeRenderer_CopyVRAM((unsigned short *)p, 0, 0, rect->w, rect->h, rect->x, rect->y);
+	NativeRenderer_CopyVRAM((unsigned short *)p, 0, 0, r.w, r.h, r.x, r.y);
 #endif
 	return 0;
 }

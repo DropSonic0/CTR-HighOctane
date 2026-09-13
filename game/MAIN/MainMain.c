@@ -635,13 +635,20 @@ void StateZero()
 #define MEMPACK_SIZE 0x200000 // 2mb
 
 	MEMPACK_Init(MEMPACK_SIZE);
+	Platform_Log("[CTR StateZero] MEMPACK_Init complete\n");
+
 	LOAD_InitCD();
+	Platform_Log("[CTR StateZero] LOAD_InitCD complete\n");
+
 	RaceFlag_SetFullyOffScreen();
+	Platform_Log("[CTR StateZero] RaceFlag_SetFullyOffScreen complete\n");
 
 	ResetGraph(0);
 	SetGraphDebug(0);
+	Platform_Log("[CTR StateZero] ResetGraph complete\n");
 
 	MainInit_VRAMClear();
+	Platform_Log("[CTR StateZero] MainInit_VRAMClear complete\n");
 
 	SetDispMask(1);
 
@@ -689,11 +696,17 @@ void StateZero()
 	gGT->trafficLightsTimer = 0xfffffc40;
 
 	Timer_Init();
+	Platform_Log("[CTR StateZero] Timer_Init complete\n");
+
 	DrawSyncCallback(&MainDrawCb_DrawSync);
 
 	MEMCARD_InitCard();
+	Platform_Log("[CTR StateZero] MEMCARD_InitCard complete\n");
+
 	VSync(0);
 	GAMEPAD_Init(gGS);
+	Platform_Log("[CTR StateZero] GAMEPAD_Init complete\n");
+
 	VSync(0);
 	GAMEPAD_GetNumConnected(gGS);
 
@@ -704,7 +717,9 @@ void StateZero()
 #endif
 
 	// Get CD Position fo BIGFILE
+	Platform_Log("[CTR StateZero] Reading BIGFILE directory: %s\n", BIGPATH);
 	sdata->ptrBigfile1 = LOAD_ReadDirectory(BIGPATH);
+	Platform_Log("[CTR StateZero] LOAD_ReadDirectory complete (ptrBigfile1=%p)\n", (void *)sdata->ptrBigfile1);
 
 // Defrag to save heap space,
 // required because MEMPACK_Init moves heap
@@ -728,7 +743,9 @@ void StateZero()
 #ifdef CTR_NATIVE
 	// Load PAL English on native so the boot language selector can use the
 	// localized language-name strings shared by the PAL language files.
+	Platform_Log("[CTR StateZero] Loading LangFile lang=%d\n", cfg_language);
 	LOAD_LangFile((int)sdata->ptrBigfile1, cfg_language);
+	Platform_Log("[CTR StateZero] LOAD_LangFile complete\n");
 #else
 	// English=1
 	// PAL SCES02105 calls it multiple times
@@ -762,23 +779,39 @@ void StateZero()
 	DrawSync(0);
 
 	// Load Intro TIM for "SCEA Presents" from VRAM file
+	Platform_Log("[CTR StateZero] Loading VRAM file 0x1fd\n");
 	LOAD_VramFile(sdata->ptrBigfile1, 0x1fd, NULL, &vramSize, -1);
+	Platform_Log("[CTR StateZero] LOAD_VramFile 0x1fd complete\n");
+
 	MainInit_VRAMDisplay();
 
 	// \SOUNDS\KART.HWL;1
 	// NOTE(aalhendi): ASM-verified NTSC-U 926 0x8003c8e0-0x8003c928 for startup HOWL/music/XA setup.
+	Platform_Log("[CTR StateZero] Initializing HOWL globals: %s\n", data.kartHwlPath);
 	howl_InitGlobals(data.kartHwlPath);
+	Platform_Log("[CTR StateZero] howl_InitGlobals complete\n");
 
 	VSyncCallback(MainDrawCb_Vsync);
+	Platform_Log("[CTR StateZero] VSyncCallback set\n");
 
 	Music_SetIntro();
+	Platform_Log("[CTR StateZero] Music_SetIntro complete\n");
+
 	CseqMusic_StopAll();
+	Platform_Log("[CTR StateZero] CseqMusic_StopAll complete\n");
+
 	CseqMusic_Start(CSEQ_SONG_LEVEL, 0, NULL, 0, 0);
+	Platform_Log("[CTR StateZero] CseqMusic_Start complete\n");
+
 	Music_Start(0);
+	Platform_Log("[CTR StateZero] Music_Start complete\n");
 
 	// "Start your engines, for Sony Computer..."
+	Platform_Log("[CTR StateZero] Playing intro XA audio (CDSYS_XA_TYPE_EXTRA, 0x50)\n");
 	CDSYS_XAPlay(CDSYS_XA_TYPE_EXTRA, 0x50);
+	Platform_Log("[CTR StateZero] CDSYS_XAPlay requested; sdata->XA_State=%d\n", sdata->XA_State);
 
+	int xaWaitLoopCount = 0;
 	while (sdata->XA_State != 0)
 	{
 		// WARNING: Read-only address (ram, 0x8008d888) is written
@@ -794,13 +827,22 @@ void StateZero()
 		}
 #endif
 		CDSYS_XAPauseAtEnd();
+
+		xaWaitLoopCount++;
+		if ((xaWaitLoopCount % 60) == 0)
+		{
+			Platform_Log("[CTR StateZero] Waiting for XA audio... count=%d XA_State=%d\n", xaWaitLoopCount, sdata->XA_State);
+		}
 	}
+	Platform_Log("[CTR StateZero] Intro XA audio complete\n");
 
 	DecalGlobal_Clear(gGT);
 
 	// This loads UI textures (shared.vrm)
 	// This includes traffic lights, font, and more
+	Platform_Log("[CTR StateZero] Loading VRAM file 0x102 (shared.vrm)\n");
 	LOAD_VramFile(sdata->ptrBigfile1, 0x102, NULL, &vramSize, -1);
+	Platform_Log("[CTR StateZero] LOAD_VramFile 0x102 complete; StateZero finished!\n");
 
 	sdata->mainGameState = 3;
 

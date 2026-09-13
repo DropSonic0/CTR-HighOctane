@@ -184,6 +184,8 @@ static s32 NativeConsole_Return(const u32 result)
 		}
 	}
 
+	Platform_LogShutdown();
+
 	return (s32)result;
 }
 
@@ -338,19 +340,19 @@ int main(int argc, char *argv[])
 #endif
 #if defined(__PS3__) || defined(__CELLOS_LV2__)
 	Platform_LogSetPath("/dev_hdd0/game/CTR000004/USRDIR/log.txt");
-	Platform_LogInit("Crash Team Racing: High Octane");
 #endif
+	Platform_LogInit("Crash Team Racing: High Octane");
 
 	for (int argIndex = 1; argIndex < argc; argIndex++)
 	{
 		if (NativeArg_IsVersion(argv[argIndex]))
 		{
-			printf("CTR Native %s (%s)\n", CTR_NATIVE_VERSION, CTR_NATIVE_BUILD_ID);
+			Platform_Log("CTR Native %s (%s)\n", CTR_NATIVE_VERSION, CTR_NATIVE_BUILD_ID);
 			return 0;
 		}
 	}
 
-	printf("[CTR Native] Starting...\n");
+	Platform_Log("[CTR Native] Starting...\n");
 	fflush(stdout);
 
 #ifdef __vita__
@@ -360,7 +362,7 @@ int main(int argc, char *argv[])
 #else
 	const char *sdlBasePath = SDL_GetBasePath();
 #endif
-	printf("[CTR Native] SDL base path: %s\n", sdlBasePath ? sdlBasePath : "(null)");
+	Platform_Log("[CTR Native] SDL base path: %s\n", sdlBasePath ? sdlBasePath : "(null)");
 	fflush(stdout);
 
 	if (!NativeAssets_Init(sdlBasePath))
@@ -369,10 +371,10 @@ int main(int argc, char *argv[])
 		return NativeConsole_Return(1);
 	}
 
-	printf("[CTR Native] Version: %s (%s)\n", CTR_NATIVE_VERSION, CTR_NATIVE_BUILD_ID);
-	printf("[CTR Native] Built with: " CC "\n");
-	printf("[CTR Native] Base: %s\n", NativeAssets_GetBaseDir());
-	printf("[CTR Native] Assets: %s\n", NativeAssets_GetAssetDir());
+	Platform_Log("[CTR Native] Version: %s (%s)\n", CTR_NATIVE_VERSION, CTR_NATIVE_BUILD_ID);
+	Platform_Log("[CTR Native] Built with: " CC "\n");
+	Platform_Log("[CTR Native] Base: %s\n", NativeAssets_GetBaseDir());
+	Platform_Log("[CTR Native] Assets: %s\n", NativeAssets_GetAssetDir());
 	fflush(stdout);
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
@@ -400,16 +402,16 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(__vita__)
-	printf("[CTR Native] High Octane widescreen 960x544\n");
+	Platform_Log("[CTR Native] High Octane widescreen 960x544\n");
 	Platform_Init("Crash Team Racing: High Octane", 960, 544);
 #elif CTR_NATIVE_WIDESCREEN
-	printf("[CTR Native] High Octane widescreen 1280x720\n");
+	Platform_Log("[CTR Native] High Octane widescreen 1280x720\n");
 	Platform_Init("Crash Team Racing: High Octane", 1280, 720);
 #elif defined(USE_16BY9)
-	printf("[CTR Native] Widescreen\n");
+	Platform_Log("[CTR Native] Widescreen\n");
 	Platform_Init("Crash Team Racing: High Octane", 1280, 720);
 #else
-	printf("[CTR Native] 4:3\n");
+	Platform_Log("[CTR Native] 4:3\n");
 	Platform_Init("Crash Team Racing: High Octane", 800, 600);
 #endif
 

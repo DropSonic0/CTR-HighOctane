@@ -12,4 +12,8 @@ void Platform_Log(const char *fmt, ...) CTR_PRINTF_FORMAT(1, 2);
 void Platform_LogWarn(const char *fmt, ...) CTR_PRINTF_FORMAT(1, 2);
 void Platform_LogError(const char *fmt, ...) CTR_PRINTF_FORMAT(1, 2);
 
+#ifndef printf
+#define printf Platform_Log
+#endif
+
 #endif

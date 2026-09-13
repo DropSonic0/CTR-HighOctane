@@ -88,11 +88,13 @@ int Bank_AssignSpuAddrs()
 		}
 
 		sdata->audioAllocSize = 0;
+		s16 numSamples = (s16)CTR_ReadU16LE(&sdata->ptrSampleBlock1->numSamples);
 
-		for (i = 0; i < sdata->ptrSampleBlock1->numSamples; i++)
+		for (i = 0; i < numSamples; i++)
 		{
 			s16 *spuIndexArr = SBHEADER_GETARR(sdata->ptrSampleBlock1);
-			sdata->audioAllocSize += sdata->howl_spuAddrs[spuIndexArr[i]].spuSize;
+			s16 spuIdx = (s16)CTR_ReadU16LE(&spuIndexArr[i]);
+			sdata->audioAllocSize += sdata->howl_spuAddrs[spuIdx].spuSize;
 		}
 
 		// convert bit-shifted count to
@@ -156,10 +158,11 @@ int Bank_AssignSpuAddrs()
 		printf("%08x\n", sdata->audioAllocPtr);
 #endif
 
-		for (i = 0; i < sdata->ptrSampleBlock1->numSamples; i++)
+		for (i = 0; i < numSamples; i++)
 		{
 			s16 *spuIndexArr = SBHEADER_GETARR(sdata->ptrSampleBlock1);
-			sae = &sdata->howl_spuAddrs[spuIndexArr[i]];
+			s16 spuIdx = (s16)CTR_ReadU16LE(&spuIndexArr[i]);
+			sae = &sdata->howl_spuAddrs[spuIdx];
 
 			if (sae->spuAddr == 0)
 			{
