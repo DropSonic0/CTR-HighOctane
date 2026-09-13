@@ -23,7 +23,7 @@ void LOAD_RunPtrMap(char *origin, int *patchArr, int numPtrs)
 void LOAD_Robots2P(struct BigHeader *bigfile, int p1, int p2, void (*callback)(struct LoadQueueSlot *))
 {
 	int setIndex;
-	u8 *robotSet;
+	u8 *robotSet = NULL;
 	b32 boolFoundRepeat = false;
 
 	// 8 sets, but only check 7 because the last is the Gem Cups pack (4 bosses).

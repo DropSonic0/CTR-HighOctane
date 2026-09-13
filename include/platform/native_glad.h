@@ -31,6 +31,9 @@
 
 #ifdef __vita__
 #include <vitaGL.h>
+#elif defined(__PS3__) || defined(__CELLOS_LV2__)
+#include <PSGL/psgl.h>
+#include <PSGL/psglu.h>
 #else
 
 #ifdef __gl_h_

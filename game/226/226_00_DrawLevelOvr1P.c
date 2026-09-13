@@ -602,7 +602,7 @@ static s8 DrawLevelOvr1P_ReadRetailQuadBlockByte(const struct QuadBlock *block, 
 	{
 		u32 pointerWordOffset = byteOffset & ~3u;
 		u32 hostWord = DrawLevelOvr1P_ReadPackedWord((const u8 *)block + pointerWordOffset);
-		u32 psxWord;
+		u32 psxWord = 0;
 
 		// NOTE(aalhendi): Retail reads raw post-ptrmap PSX pointer bytes here;
 		// native level pointer words are host-rebased, so reconstruct that byte.

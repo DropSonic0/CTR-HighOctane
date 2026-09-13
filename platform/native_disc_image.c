@@ -283,7 +283,7 @@ internal int NativeDiscImage_ReadSectorPayloads(u32 lba, u32 sectorCount, u32 pa
 	while (sectorCount != 0)
 	{
 		u32 cacheIndex;
-		u32 copyCount;
+		u32 copyCount = 0;
 		u32 i;
 		int result = 1;
 
@@ -579,7 +579,7 @@ internal int NativeDiscImage_LoadRoot(void)
 int NativeDiscImage_Init(const char *assetsDir)
 {
 	char path[NATIVE_DISC_IMAGE_PATH_MAX];
-	u64 imageSize;
+	u64 imageSize = 0;
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeDiscImageMutex == NULL)
 	{

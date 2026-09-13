@@ -721,7 +721,7 @@ void ClearSplits(void)
 #endif
 	s_gpu.vertexIndex = 0;
 	s_gpu.splitIndex = 0;
-	s_gpu.splits[0].texFormat = (TexFormat)0xFFFF;
+	s_gpu.splits[0].texFormat = TF_INVALID;
 	s_gpu.splits[0].psxTexturedSemiTrans = false;
 	s_gpu.splits[0].psxTextureOutputSTP = false;
 	s_gpu.splits[0].psxDrawMaskSet = false;
