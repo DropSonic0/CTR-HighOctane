@@ -13,12 +13,15 @@
 #include <pthread.h>
 #include <sys/timer.h>
 
+#ifndef CTR_SDL_TYPES_DEFINED
+#define CTR_SDL_TYPES_DEFINED
 typedef u32 SDL_AudioDeviceID;
 typedef void SDL_AudioStream;
 typedef void SDL_Mutex;
 typedef void SDL_Condition;
 typedef void SDL_Thread;
 typedef int SDL_AtomicInt;
+#endif
 #ifndef SDLCALL
 #define SDLCALL
 #endif
