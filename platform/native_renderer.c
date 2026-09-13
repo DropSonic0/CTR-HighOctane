@@ -466,7 +466,7 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 		PSGL_DEVICE_PARAMETERS_RESC_ADJUST_ASPECT_RATIO | PSGL_DEVICE_PARAMETERS_RESC_RATIO_MODE;
 	params.bufferingMode = PSGL_BUFFERING_MODE_TRIPLE;
 	params.colorFormat = GL_ARGB_SCE;
-	params.depthFormat = GL_NONE;
+	params.depthFormat = GL_DEPTH_COMPONENT24;
 	params.multisamplingMode = GL_MULTISAMPLING_NONE_SCE;
 	params.rescRatioMode = RESC_RATIO_MODE_FULLSCREEN;
 

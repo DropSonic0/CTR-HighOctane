@@ -3524,11 +3524,12 @@ internal void NativeAudio_MixSample(int *dstLeft, int *dstRight, int sampleLeft,
 
 internal int NativeAudio_GetQueuedFramesNoLock(void)
 {
-	const int frameBytes = (int)sizeof(s16) * NATIVE_AUDIO_CHANNELS;
-	int queuedBytes;
 	int queuedFrames = s_audio.output.scheduledFrameCount;
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
+	const int frameBytes = (int)sizeof(s16) * NATIVE_AUDIO_CHANNELS;
+	int queuedBytes;
+
 	if (s_audio.output.stream != NULL)
 	{
 		queuedBytes = SDL_GetAudioStreamQueued(s_audio.output.stream);
