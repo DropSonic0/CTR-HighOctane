@@ -343,6 +343,15 @@ int main(int argc, char *argv[])
 #endif
 	Platform_LogInit("Crash Team Racing: High Octane");
 
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
+	{
+		SVECTOR gteTestVec = { 100, 200, 300, 0 };
+		CTR_GteLoadSV0(&gteTestVec);
+		Platform_Log("[GTE TEST] esperado vx=100 vy=200 -- leido vx=%d vy=%d\n", (int)C2_VX0, (int)C2_VY0);
+		Platform_LogFlush();
+	}
+#endif
+
 	for (int argIndex = 1; argIndex < argc; argIndex++)
 	{
 		if (NativeArg_IsVersion(argv[argIndex]))
