@@ -259,7 +259,6 @@ void RB_Plant_ThTick_Hungry(struct Thread *t)
 
 	struct Instance *hitInst;
 	struct Driver *hitDriver;
-	int didHit;
 
 	struct GameTracker *gGT = sdata->gGT;
 
@@ -311,7 +310,7 @@ void RB_Plant_ThTick_Hungry(struct Thread *t)
 		hitDriver = (struct Driver *)hitInst->thread->object;
 
 		// attempt to harm driver (eat)
-		didHit = RB_Hazard_HurtDriver(hitDriver, 5, 0, 0);
+		int didHit = RB_Hazard_HurtDriver(hitDriver, 5, 0, 0);
 
 		if (didHit != 0)
 		{
@@ -484,12 +483,13 @@ struct ParticleEmitter emSet_PlantTires[8] = {[0] =
                                                       // invalid axis, assume FuncInit
                                                       .initOffset = 0xC,
 
-                                                      .InitTypes = { .FuncInit = {
+                                                      .InitTypes.FuncInit =
+                                                          {
                                                               .particle_funcPtr = 0,
                                                               .particle_colorFlags = 0x121,
                                                               .particle_lifespan = 0x50,
                                                               .particle_Type = 0,
-                                                          } }
+                                                          }
 
                                                       // last 0x10 bytes are blank
                                                   },
@@ -501,15 +501,19 @@ struct ParticleEmitter emSet_PlantTires[8] = {[0] =
                                                       // posX
                                                       .initOffset = 0,
 
-                                                      .InitTypes = {.AxisInit = {.baseValue = {
+                                                      .InitTypes.AxisInit = {.baseValue =
+                                                                                 {
                                                                                      .startVal = 1,
                                                                                      .velocity = -0x320,
                                                                                      .accel = 0,
-                                                                                 }, .rngSeed = {
+                                                                                 },
+
+                                                                             .rngSeed =
+                                                                                 {
                                                                                      .startVal = 0,
                                                                                      .velocity = 0x640,
                                                                                      .accel = 0,
-                                                                                 }}}
+                                                                                 }}
 
                                                       // last 0x10 are blank
                                                   },
@@ -521,15 +525,19 @@ struct ParticleEmitter emSet_PlantTires[8] = {[0] =
                                                       // posZ
                                                       .initOffset = 2,
 
-                                                      .InitTypes = {.AxisInit = {.baseValue = {
+                                                      .InitTypes.AxisInit = {.baseValue =
+                                                                                 {
                                                                                      .startVal = 1,
                                                                                      .velocity = -0x320,
                                                                                      .accel = 0,
-                                                                                 }, .rngSeed = {
+                                                                                 },
+
+                                                                             .rngSeed =
+                                                                                 {
                                                                                      .startVal = 0,
                                                                                      .velocity = 0x640,
                                                                                      .accel = 0,
-                                                                                 }}}
+                                                                                 }}
 
                                                       // last 0x10 are blank
                                                   },
@@ -541,15 +549,19 @@ struct ParticleEmitter emSet_PlantTires[8] = {[0] =
                                                       // posY
                                                       .initOffset = 1,
 
-                                                      .InitTypes = {.AxisInit = {.baseValue = {
+                                                      .InitTypes.AxisInit = {.baseValue =
+                                                                                 {
                                                                                      .startVal = 1,
                                                                                      .velocity = -0x640,
                                                                                      .accel = -0x320,
-                                                                                 }, .rngSeed = {
+                                                                                 },
+
+                                                                             .rngSeed =
+                                                                                 {
                                                                                      .startVal = 0,
                                                                                      .velocity = 0x320,
                                                                                      .accel = 0,
-                                                                                 }}}
+                                                                                 }}
 
                                                       // last 0x10 are blank
                                                   },
@@ -562,7 +574,7 @@ struct ParticleEmitter emSet_PlantTires[8] = {[0] =
                                                       .initOffset = 5,
 
                                                       // 100% scale
-                                                      .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x1000}}},
+                                                      .InitTypes.AxisInit.baseValue.startVal = 0x1000,
 
                                                       // all the rest is untouched
                                                   },
@@ -572,7 +584,7 @@ struct ParticleEmitter emSet_PlantTires[8] = {[0] =
                                                      // RotX
                                                      .initOffset = 4,
 
-                                                     .InitTypes = { .AxisInit = {.baseValue =
+                                                     .InitTypes.AxisInit = {.baseValue =
                                                                                 {
                                                                                     .startVal = 0,
                                                                                     .velocity = 0xC0,
@@ -584,14 +596,14 @@ struct ParticleEmitter emSet_PlantTires[8] = {[0] =
                                                                                     .startVal = 0x400,
                                                                                     .velocity = 0x40,
                                                                                     .accel = 0,
-                                                                                }} }},
+                                                                                }}},
 
                                               [6] = {.flags = 0xA,
 
                                                      // only for SpitTire
                                                      .initOffset = 0xA,
 
-                                                     .InitTypes = { .AxisInit = {.baseValue =
+                                                     .InitTypes.AxisInit = {.baseValue =
                                                                                 {
                                                                                     .startVal = 0,
                                                                                     .velocity = 0x100,
@@ -603,7 +615,7 @@ struct ParticleEmitter emSet_PlantTires[8] = {[0] =
                                                                                     .startVal = 0xE00,
                                                                                     .velocity = 0,
                                                                                     .accel = 0,
-                                                                                }} }},
+                                                                                }}},
 
                                               // null terminator
                                               [7] = {0}};

@@ -27,7 +27,9 @@ void MainKillGame_LaunchSpyro2(void)
 #if defined(CTR_NATIVE)
 	UNLOCK_ADV_BIT(sdata->gameProgress.unlocks, GAME_UNLOCK_BIT_OXIDE);
 	OtherFX_Play(MM_CHEAT_SUCCESS_SFX, 1);
-#else
+	return;
+#endif
+
 	CTR_ErrorScreen(0, 0, 0);
 
 	Music_Stop();
@@ -43,9 +45,19 @@ void MainKillGame_LaunchSpyro2(void)
 
 	MainKillGame_StopCTR();
 
+#ifdef CTR_NATIVE
+	// NOTE(aalhendi): Native cannot chain-load the Spyro executable.
+
+	while (1)
+	{
+	}
+
+#else
+
 	_96_remove();
 	_96_init();
 
 	LoadExec(rdata.s_PathTo_SpyroExe, 0x801fff00, 0);
+
 #endif
 }

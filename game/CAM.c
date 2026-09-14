@@ -733,16 +733,16 @@ void CAM_StartLine_FlyIn_FixY(SVec3 *posRot)
 	{
 		s32 probeOffset = i * 0x400;
 
-		SVec3 posTop;
-		SVec3 posBottom;
-
-		posTop.x = pos.x;
-		posTop.y = (s16)CTR_MipsSubLo((u16)pos.y, CTR_MipsAddLo(probeOffset, 0x400));
-		posTop.z = pos.z;
-
-		posBottom.x = pos.x;
-		posBottom.y = (s16)CTR_MipsSubLo((u16)pos.y, CTR_MipsSubLo(probeOffset, 0x100));
-		posBottom.z = pos.z;
+		SVec3 posTop = {{
+		    pos.x,
+		    (s16)CTR_MipsSubLo((u16)pos.y, CTR_MipsAddLo(probeOffset, 0x400)),
+		    pos.z
+		}};
+		SVec3 posBottom = {{
+		    pos.x,
+		    (s16)CTR_MipsSubLo((u16)pos.y, CTR_MipsSubLo(probeOffset, 0x100)),
+		    pos.z
+		}};
 
 		COLL_SearchBSP_CallbackQUADBLK(&posTop, &posBottom, sps, 0);
 
@@ -1935,8 +1935,6 @@ void CAM_ThTick(struct Thread *t)
 
 	ptrZoomData = &ptrZoomData[cDC->nearOrFar * 2];
 
-	void **ptrs;
-
 	if ((cDC->flags & CAMERA_FLAG_ARCADE_END_OF_RACE_REQUESTED) == 0)
 	{
 		goto SkipNewCameraEOR;
@@ -1950,7 +1948,7 @@ void CAM_ThTick(struct Thread *t)
 		goto SkipNewCameraEOR;
 	}
 
-	ptrs = ST1_GETPOINTERS(psVar14);
+	void **ptrs = ST1_GETPOINTERS(psVar14);
 	psVar19 = ptrs[ST1_CAMERA_EOR];
 
 	// number of EOR cameras

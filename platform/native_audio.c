@@ -13,15 +13,12 @@
 #include <pthread.h>
 #include <sys/timer.h>
 
-#ifndef CTR_SDL_TYPES_DEFINED
-#define CTR_SDL_TYPES_DEFINED
 typedef u32 SDL_AudioDeviceID;
 typedef void SDL_AudioStream;
 typedef void SDL_Mutex;
 typedef void SDL_Condition;
 typedef void SDL_Thread;
 typedef int SDL_AtomicInt;
-#endif
 #ifndef SDLCALL
 #define SDLCALL
 #endif
@@ -3527,12 +3524,11 @@ internal void NativeAudio_MixSample(int *dstLeft, int *dstRight, int sampleLeft,
 
 internal int NativeAudio_GetQueuedFramesNoLock(void)
 {
+	const int frameBytes = (int)sizeof(s16) * NATIVE_AUDIO_CHANNELS;
+	int queuedBytes;
 	int queuedFrames = s_audio.output.scheduledFrameCount;
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
-	const int frameBytes = (int)sizeof(s16) * NATIVE_AUDIO_CHANNELS;
-	int queuedBytes;
-
 	if (s_audio.output.stream != NULL)
 	{
 		queuedBytes = SDL_GetAudioStreamQueued(s_audio.output.stream);

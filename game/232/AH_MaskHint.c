@@ -250,9 +250,6 @@ void AH_MaskHint_Update()
 	struct CameraAngleAxisScratch angleAxisWork;
 	SVec3 pos;
 	SVec3 rot;
-	struct Instance *dInst;
-	struct Instance *mhInst;
-	int timer4096;
 
 	switch (sdata->AkuAkuHintState - 1)
 	{
@@ -306,9 +303,9 @@ void AH_MaskHint_Update()
 			return;
 		}
 
-		dInst = d->instSelf;
+		struct Instance *dInst = d->instSelf;
 		sdata->instMaskHints3D = VehTalkMask_Init();
-		mhInst = sdata->instMaskHints3D;
+		struct Instance *mhInst = sdata->instMaskHints3D;
 
 		SVECTOR matrixRot;
 		CTR_MatrixToRot(&matrixRot, &dInst->matrix, 0x11);
@@ -363,7 +360,7 @@ void AH_MaskHint_Update()
 			}
 		}
 
-		timer4096 = (D232.maskFrameCurr << 0xc) / D232.maskSpawnFrame;
+		int timer4096 = (D232.maskFrameCurr << 0xc) / D232.maskSpawnFrame;
 
 		AH_MaskHint_SetAnim(timer4096);
 

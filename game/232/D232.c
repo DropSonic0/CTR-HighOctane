@@ -255,271 +255,31 @@ struct OverlayDATA_232
 
             .maskFrameCurr = 0,
 
-            .emSet_maskSpawn = {[0] = {.flags = 1,
-                                       .initOffset = 12,
-                                       .InitTypes = {.FuncInit = {
-                                               .particle_funcPtr = 0x00000000,
-                                               .particle_colorFlags = 0xA1,
-                                               .particle_lifespan = 0x14,
-                                               .particle_Type = 0,
-                                           }}},
-
-                                [1] =
-                                    {
-                                        .flags = 0x1B,
-
-                                        // posX
-                                        .initOffset = 0,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {
-                                                                       .startVal = -0x1900,
-                                                                       .velocity = -0x640,
-                                                                       .accel = 0,
-                                                                   }, .rngSeed = {
-                                                                       .startVal = 0x3200,
-                                                                       .velocity = 0xc80,
-                                                                       .accel = 0,
-                                                                   }}}
-
-                                        // last 0x10 are blank
-                                    },
-
-                                [2] =
-                                    {
-                                        .flags = 0x1B,
-
-                                        // posZ
-                                        .initOffset = 2,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {
-                                                                       .startVal = -0x1900,
-                                                                       .velocity = -0x640,
-                                                                       .accel = 0,
-                                                                   }, .rngSeed = {
-                                                                       .startVal = 0x3200,
-                                                                       .velocity = 0xc80,
-                                                                       .accel = 0,
-                                                                   }}}
-
-                                        // last 0x10 are blank
-                                    },
-
-                                [3] =
-                                    {
-                                        .flags = 0x1B,
-
-                                        // posY
-                                        .initOffset = 1,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {
-                                                                       .startVal = -0xC80,
-                                                                       .velocity = 0x190,
-                                                                       .accel = 0,
-                                                                   }, .rngSeed = {
-                                                                       .startVal = 0x1900,
-                                                                       .velocity = 0x640,
-                                                                       .accel = 0,
-                                                                   }}}
-
-                                        // last 0x10 are blank
-                                    },
-
-                                [4] =
-                                    {
-                                        .flags = 3,
-
-                                        // Scale
-                                        .initOffset = 5,
-
-                                        // 50% scale
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x800, .velocity = -0x20}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                [5] =
-                                    {
-                                        .flags = 9,
-
-                                        // RotX?
-                                        .initOffset = 4,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1}, .rngSeed = {.startVal = 0x1000}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                [6] =
-                                    {
-                                        .flags = 5,
-
-                                        // colorR
-                                        .initOffset = 7,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                [7] =
-                                    {
-                                        .flags = 5,
-
-                                        // colorG
-                                        .initOffset = 8,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                [8] =
-                                    {
-                                        .flags = 5,
-
-                                        // colorB
-                                        .initOffset = 9,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                // null terminator
-                                [9] = {0}},
-
-            .emSet_maskLeave = {[0] = {.flags = 1,
-                                       .initOffset = 12,
-                                       .InitTypes = {.FuncInit = {
-                                               .particle_funcPtr = 0x00000000,
-                                               .particle_colorFlags = 0xA1,
-                                               .particle_lifespan = 0x14,
-                                               .particle_Type = 0,
-                                           }}},
-
-                                [1] =
-                                    {
-                                        .flags = 0x1B,
-
-                                        // posX
-                                        .initOffset = 0,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {
-                                                                       .startVal = -0x640,
-                                                                       .velocity = -0xC80,
-                                                                       .accel = 0,
-                                                                   }, .rngSeed = {
-                                                                       .startVal = 0xc80,
-                                                                       .velocity = 0x1900,
-                                                                       .accel = 0,
-                                                                   }}}
-
-                                        // last 0x10 are blank
-                                    },
-
-                                [2] =
-                                    {
-                                        .flags = 0x1B,
-
-                                        // posZ
-                                        .initOffset = 2,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {
-                                                                       .startVal = -0x640,
-                                                                       .velocity = -0xC80,
-                                                                       .accel = 0,
-                                                                   }, .rngSeed = {
-                                                                       .startVal = 0xc80,
-                                                                       .velocity = 0x1900,
-                                                                       .accel = 0,
-                                                                   }}}
-
-                                        // last 0x10 are blank
-                                    },
-
-                                [3] =
-                                    {
-                                        .flags = 0x1B,
-
-                                        // posY
-                                        .initOffset = 1,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {
-                                                                       .startVal = -0x190,
-                                                                       .velocity = -0x4B0,
-                                                                       .accel = 0,
-                                                                   }, .rngSeed = {
-                                                                       .startVal = 0xc80,
-                                                                       .velocity = 0xc80,
-                                                                       .accel = 0,
-                                                                   }}}
-
-                                        // last 0x10 are blank
-                                    },
-
-                                [4] =
-                                    {
-                                        .flags = 3,
-
-                                        // Scale
-                                        .initOffset = 5,
-
-                                        // 100% scale
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x1000, .velocity = -0x80}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                [5] =
-                                    {
-                                        .flags = 9,
-
-                                        // RotX?
-                                        .initOffset = 4,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1}, .rngSeed = {.startVal = 0x1000}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                [6] =
-                                    {
-                                        .flags = 5,
-
-                                        // colorR
-                                        .initOffset = 7,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                [7] =
-                                    {
-                                        .flags = 5,
-
-                                        // colorG
-                                        .initOffset = 8,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                [8] =
-                                    {
-                                        .flags = 5,
-
-                                        // colorB
-                                        .initOffset = 9,
-
-                                        .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x8000, .accel = -0x100}}},
-
-                                        // all the rest is untouched
-                                    },
-
-                                // null terminator
-                                [9] = {0}},
+                        .emSet_maskSpawn = {
+                {1, 12, {{{(void*)0, 0xA1, 0x14, 0, 0}}}, {0}},
+                {0x1B, 0, {{{{-0x1900, -0x640, 0}, {0x3200, 0xc80, 0}}}}, {0}},
+                {0x1B, 2, {{{{-0x1900, -0x640, 0}, {0x3200, 0xc80, 0}}}}, {0}},
+                {0x1B, 1, {{{{-0xC80, 0x190, 0}, {0x1900, 0x640, 0}}}}, {0}},
+                {3, 5, {{{{0x800, -0x20, 0}, {0, 0, 0}}}}, {0}},
+                {9, 4, {{{{1, 0, 0}, {0x1000, 0, 0}}}}, {0}},
+                {5, 7, {{{{0x8000, 0, -0x100}, {0, 0, 0}}}}, {0}},
+                {5, 8, {{{{0x8000, 0, -0x100}, {0, 0, 0}}}}, {0}},
+                {5, 9, {{{{0x8000, 0, -0x100}, {0, 0, 0}}}}, {0}},
+                {0, 0, {{{0, 0, 0}, {0, 0, 0}}}, {0}}
+            },
+
+                        .emSet_maskLeave = {
+                {1, 12, {{{(void*)0, 0xA1, 0x14, 0, 0}}}, {0}},
+                {0x1B, 0, {{{{-0x640, -0xC80, 0}, {0xc80, 0x1900, 0}}}}, {0}},
+                {0x1B, 2, {{{{-0x640, -0xC80, 0}, {0xc80, 0x1900, 0}}}}, {0}},
+                {0x1B, 1, {{{{-0x190, -0x4B0, 0}, {0xc80, 0xc80, 0}}}}, {0}},
+                {3, 5, {{{{0x1000, -0x80, 0}, {0, 0, 0}}}}, {0}},
+                {9, 4, {{{{1, 0, 0}, {0x1000, 0, 0}}}}, {0}},
+                {5, 7, {{{{0x8000, 0, -0x100}, {0, 0, 0}}}}, {0}},
+                {5, 8, {{{{0x8000, 0, -0x100}, {0, 0, 0}}}}, {0}},
+                {5, 9, {{{{0x8000, 0, -0x100}, {0, 0, 0}}}}, {0}},
+                {0, 0, {{{0, 0, 0}, {0, 0, 0}}}, {0}}
+            },
 
             .maskAudioTargetVolume = {0x0, 0x28, 0xFF},
 

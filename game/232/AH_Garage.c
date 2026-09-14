@@ -95,7 +95,6 @@ void AH_Garage_ThTick(struct Thread *t)
 	u32 hintMask;
 	Vec3 dist;
 	Vec3 pos;
-	RECT view;
 	struct GameTracker *gGT = sdata->gGT;
 	struct AdvProgress *adv = &sdata->advProgress;
 	struct BossGarageDoor *garage = t->object;
@@ -250,7 +249,7 @@ LAB_800aec34:
 		goto LAB_800aede0;
 	}
 
-	view = gGT->pushBuffer[0].rect;
+	RECT view = gGT->pushBuffer[0].rect;
 
 	// if aku is not giving a hint
 	if (sdata->AkuAkuHintState == 0)

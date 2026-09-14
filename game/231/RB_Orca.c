@@ -7,61 +7,67 @@ struct ParticleEmitter emSet_OrcaSplash[7] = {
         {
             .flags = 1,
             .initOffset = 0xC,
-            .InitTypes = { .FuncInit = {
+            .InitTypes.FuncInit =
+                {
                     .particle_funcPtr = 0,
                     .particle_colorFlags = 0x4A0,
                     .particle_lifespan = 0xF,
                     .particle_Type = 0,
-                } },
+                },
         },
 
     [1] =
         {
             .flags = 0x12,
             .initOffset = 0,
-            .InitTypes = { .AxisInit = {
+            .InitTypes.AxisInit =
+                {
                     .baseValue = {.startVal = 0, .velocity = -0x1400, .accel = 0},
                     .rngSeed = {.startVal = 0, .velocity = 0x2800, .accel = 0},
-                } },
+                },
         },
 
     [2] =
         {
             .flags = 0x12,
             .initOffset = 2,
-            .InitTypes = { .AxisInit = {
+            .InitTypes.AxisInit =
+                {
                     .baseValue = {.startVal = 0, .velocity = -0x1400, .accel = 0},
                     .rngSeed = {.startVal = 0, .velocity = 0x2800, .accel = 0},
-                } },
+                },
         },
 
     [3] =
         {
             .flags = 0x3E,
             .initOffset = 1,
-            .InitTypes = { .AxisInit = {
+            .InitTypes.AxisInit =
+                {
                     .baseValue = {.startVal = 0, .velocity = 0x4C00, .accel = -0xDAC},
                     .rngSeed = {.startVal = 0x1000, .velocity = 0x4000, .accel = -0xC8},
-                } },
+                },
         },
 
     [4] =
         {
             .flags = 0xB,
             .initOffset = 5,
-            .InitTypes = { .AxisInit = {
+            .InitTypes.AxisInit =
+                {
                     .baseValue = {.startVal = 0x3E8, .velocity = 0x28, .accel = 0},
                     .rngSeed = {.startVal = 0x64},
-                } },
+                },
         },
 
     [5] =
         {
             .flags = 3,
             .initOffset = 7,
-            .InitTypes = { .AxisInit = {
+            .InitTypes.AxisInit =
+                {
                     .baseValue = {.startVal = 0x8000, .velocity = -0x700, .accel = 0},
-                } },
+                },
         },
 
     [6] = {0},

@@ -18,12 +18,13 @@ struct ParticleEmitter emSet_Fireball[10] = {[0] =
                                                      // invalid axis, assume FuncInit
                                                      .initOffset = 0xC,
 
-                                                     .InitTypes = { .FuncInit = {
+                                                     .InitTypes.FuncInit =
+                                                         {
                                                              .particle_funcPtr = 0,
                                                              .particle_colorFlags = 0x4A1,
                                                              .particle_lifespan = 0x400,
                                                              .particle_Type = 0,
-                                                         } }
+                                                         }
 
                                                      // last 0x10 bytes are blank
                                                  },
@@ -35,7 +36,7 @@ struct ParticleEmitter emSet_Fireball[10] = {[0] =
                                                      // posX
                                                      .initOffset = 0,
 
-                                                     .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1}}},
+                                                     .InitTypes.AxisInit.baseValue.startVal = 1,
 
                                                      // The rest is blank
 
@@ -49,7 +50,7 @@ struct ParticleEmitter emSet_Fireball[10] = {[0] =
                                                      // posZ
                                                      .initOffset = 2,
 
-                                                     .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1}}},
+                                                     .InitTypes.AxisInit.baseValue.startVal = 1,
 
                                                      // The rest is blank
 
@@ -61,65 +62,66 @@ struct ParticleEmitter emSet_Fireball[10] = {[0] =
                                                     // posY
                                                     .initOffset = 1,
 
-                                                    .InitTypes = { .AxisInit = {.baseValue =
+                                                    .InitTypes.AxisInit = {.baseValue =
                                                                                {
                                                                                    .startVal = 1,
                                                                                    .velocity = 1,
                                                                                    .accel = 0,
-                                                                               }} }},
+                                                                               }}},
 
                                              [4] = {.flags = 9,
 
                                                     // rotY
                                                     .initOffset = 4,
 
-                                                    .InitTypes = { .AxisInit = {.baseValue = {.startVal = 1, .velocity = 0, .accel = 0},
+                                                    .InitTypes.AxisInit = {.baseValue = {.startVal = 1, .velocity = 0, .accel = 0},
 
-                                                                           .rngSeed = {.startVal = 0x1000, .velocity = 0, .accel = 0}} }},
+                                                                           .rngSeed = {.startVal = 0x1000, .velocity = 0, .accel = 0}}},
 
                                              [5] = {.flags = 3,
 
                                                     // scale
                                                     .initOffset = 5,
 
-                                                    .InitTypes = { .AxisInit = {
+                                                    .InitTypes.AxisInit =
+                                                        {
                                                             .baseValue = {.startVal = 0xA00, .velocity = -0xB0, .accel = 0},
-                                                        } }},
+                                                        }},
 
                                              [6] = {.flags = 0xB,
 
                                                     // colorR
                                                     .initOffset = 7,
 
-                                                    .InitTypes = { .AxisInit = {.baseValue = {.startVal = 0xFF00, .velocity = 0xC000, .accel = 0},
+                                                    .InitTypes.AxisInit = {.baseValue = {.startVal = 0xFF00, .velocity = 0xC000, .accel = 0},
 
                                                                            .rngSeed =
                                                                                {
                                                                                    .startVal = 0x5F00,
                                                                                    .velocity = 0,
                                                                                    .accel = 0,
-                                                                               }} }},
+                                                                               }}},
 
                                              [7] = {.flags = 3,
 
                                                     // colorG
                                                     .initOffset = 8,
 
-                                                    .InitTypes = { .AxisInit = {.baseValue = {.startVal = 0x8000, .velocity = 0xE000, .accel = 0},
+                                                    .InitTypes.AxisInit = {.baseValue = {.startVal = 0x8000, .velocity = 0xE000, .accel = 0},
 
                                                                            .rngSeed =
                                                                                {
                                                                                    .startVal = 0,
                                                                                    .velocity = 0,
                                                                                    .accel = 0,
-                                                                               }} }},
+                                                                               }}},
 
                                              [8] = {.flags = 3,
 
                                                     // colorB
                                                     .initOffset = 9,
 
-                                                    .InitTypes = { .AxisInit = {.baseValue = {.startVal = 0x4000, .velocity = 0xF000, .accel = 0}} }},
+                                                    .InitTypes.AxisInit = {.baseValue = {.startVal = 0x4000, .velocity = 0xF000, .accel = 0}}},
 
                                              // null terminator
                                              [9] = {0}};

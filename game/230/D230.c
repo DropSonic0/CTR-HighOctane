@@ -236,20 +236,18 @@ struct OverlayDATA_230 D230 =
         .titleDifficultyMenuPos = {{0, 0}},
 
         .titleBaseCameraPos = {{0x32, 0xFFE2, 0x64}},
-        ._pad_titleBaseCameraPos = 0,
 
         {
-            .transitionMeta_Menu =
-                {
-                    {512, 0, 0, 0, 0},
-                    {0, 0, 1, 0, 0},
-                    {0, 0, 1, 0, 0},
-                    {0, 0, 2, 0, 0},
-                    {0, 0, 3, 0, 0},
-                    {0x4B0, 0xFFE2, 0, 0, 0},
-                    {0x64, 0xC8, 0, 0, 0},
-                    {0, 0, -1, 0, 0},
-                },
+            {
+                {512, 0, 0, 0, 0},
+                {0, 0, 1, 0, 0},
+                {0, 0, 1, 0, 0},
+                {0, 0, 2, 0, 0},
+                {0, 0, 3, 0, 0},
+                {0x4B0, 0xFFE2, 0, 0, 0},
+                {0x64, 0xC8, 0, 0, 0},
+                {0, 0, -1, 0, 0},
+            }
         },
 
         .titleSounds =
@@ -544,11 +542,11 @@ struct OverlayDATA_230 D230 =
 
         .characterSelectFallbackDirection2 = {3, 3, 0, 0},
 
-        .characterSelect_Outline = {.self = 0},
+        .characterSelect_Outline = {{{0, 0, 0}}},
 
-        .characterSelect_NeutralColor = {.self = 0x808080},
+        .characterSelect_NeutralColor = {{{0x80, 0x80, 0x80}}},
 
-        .characterSelect_ChosenColor = {.self = 0},
+        .characterSelect_ChosenColor = {{{0, 0, 0}}},
 
         .characterSelect_BlueRectColors = {0x1b, 0x6a, 0xcb, 0x00, 0x9b, 0xd2, 0xf2, 0x40, 0xb7, 0xe1, 0xed, 0x43,
                                            0x65, 0x4b, 0x03, 0x46, 0xa6, 0x83, 0x23, 0x50, 0xdf, 0xc8, 0x95, 0x64},
@@ -614,7 +612,9 @@ struct OverlayDATA_230 D230 =
             },
 
         {
-            .transitionMeta_trackSel = {{-512, 0, 1, 0, 0}, {0, -200, 2, 0, 0}, {0, 200, 3, 0, 0}, {512, 0, 4, 0, 0}, {0, 0, -1, 0, 0}},
+            {
+                {-512, 0, 1, 0, 0}, {0, -200, 2, 0, 0}, {0, 200, 3, 0, 0}, {512, 0, 4, 0, 0}, {0, 0, -1, 0, 0}
+            }
         },
 
         .lapCountByRow = {{3, 0}, {5, 0}, {7, 0}, {0, 0}},
@@ -632,7 +632,7 @@ struct OverlayDATA_230 D230 =
                 .rows = &D230.rowsLapSel[0],
             },
 
-        .videoCol = {.self = 0x808080},
+        .videoCol = {{{0x80, 0x80, 0x80}}},
 
         .timeTrialStars =
             {
@@ -659,7 +659,7 @@ struct OverlayDATA_230 D230 =
                     },
             },
 
-        .cupSel_Color = {.self = 0xC0C0C0},
+        .cupSel_Color = {{{0xC0, 0xC0, 0xC0}}},
 
         // BATTLE CONSTS
 
@@ -747,9 +747,9 @@ struct OverlayDATA_230 D230 =
                 .pointLimitValues = {5, 10, 15},
             },
 
-        .battleWeaponEnabledColor = {.self = 0x808080},
-        .battleWeaponDisabledColor = {.self = 0x101010},
-        .battleWeaponPanelColor = {.self = 0x806050},
+        .battleWeaponEnabledColor = {{{0x80, 0x80, 0x80}}},
+        .battleWeaponDisabledColor = {{{0x10, 0x10, 0x10}}},
+        .battleWeaponPanelColor = {{{0x80, 0x60, 0x50}}},
 
         // HIGH SCORE CONSTS
 
@@ -773,7 +773,7 @@ struct OverlayDATA_230 D230 =
                 .beatenFlagBit = {0x1, 0x2},
             },
 
-        .highscore_iconColor = {.self = 0x808080},
+        .highscore_iconColor = {{{0x80, 0x80, 0x80}}},
 
         .rowsHighScore = {{0xAF, 0, 1, 0, 0}, {0xB1, 0, 2, 0, 0}, {0xB2, 1, 2, 0, 0}, {RECTMENU_STRING_NONE}},
 
@@ -862,9 +862,9 @@ struct OverlayDATA_230 D230 =
         .highScoreTransition =
             {
                 .state = ENTERING_MENU,
-                {.frame = {0, 0, 0}},
-                {.horizontalMove = {0, 0}},
-                {.verticalMove = {0, 0}},
+                {{0, 0, 0}},
+                {{0, 0}},
+                {{0, 0}},
             },
 
         // SCRAPBOOK

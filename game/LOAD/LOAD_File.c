@@ -63,9 +63,10 @@ void LOAD_InitCD()
 	// -> LOAD_InitCDvol. Native skips CdInit (no disc), so call the volume
 	// hook explicitly to preserve the same init ordering.
 	LOAD_InitCDvol();
-#else
-	CDSYS_Init(1);
+	return;
 #endif
+
+	CDSYS_Init(1);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80031c78-0x80031d30
@@ -101,8 +102,10 @@ void *LOAD_ReadDirectory(char *filename)
 	// Save position
 	bh->cdpos = CdPosToInt(&cdlFile.pos);
 
+	u32 numEntry = CTR_ReadU32LE(&bh->numEntry);
+
 	// undo header allocation, only use "needed" size
-	MEMPACK_ReallocMem(sizeof(struct BigHeader) + sizeof(struct BigEntry) * (int)CTR_ReadU32LE(&bh->numEntry));
+	MEMPACK_ReallocMem(sizeof(struct BigHeader) + sizeof(struct BigEntry) * numEntry);
 
 	sdata->ptrBigfileCdPos_2 = bh;
 	return bh;
@@ -116,14 +119,15 @@ void LOAD_DramFileCallback(struct LoadQueueSlot *lqs)
 
 	if (fileBuf != NULL)
 	{
-		int ptrMapOffset = *(int *)&fileBuf[0];
+		int ptrMapOffset = (int)CTR_ReadU32LE(&fileBuf[0]);
 		char *realFileBuf = &fileBuf[4];
 
 		if (ptrMapOffset >= 0)
 		{
 			struct DramPointerMap *dpm = (struct DramPointerMap *)&realFileBuf[ptrMapOffset];
+			u32 numBytes = CTR_ReadU32LE(&dpm->numBytes);
 
-			LOAD_RunPtrMap(realFileBuf, (int *)DRAM_GETOFFSETS(dpm), dpm->numBytes >> 2);
+			LOAD_RunPtrMap(realFileBuf, (int *)DRAM_GETOFFSETS(dpm), numBytes >> 2);
 
 #if defined(CTR_NATIVE)
 			if ((lqs->flags & LT_MEMPACK) != 0)
@@ -195,56 +199,59 @@ void LOAD_VramFileCallback(struct LoadQueueSlot *lqs)
 {
 	int *vramBuf = lqs->ptrDestination;
 
-	if (vramBuf == NULL)
-	{
-		sdata->frameFinishedVRAM = sdata->gGT->frameTimer_VsyncCallback;
-		return;
-	}
-
-	u32 headerMagic = CTR_ReadU32LE(&vramBuf[0]);
 	struct VramHeader *vh = (struct VramHeader *)vramBuf;
 
-	// if just one TIM
-	if (headerMagic != 0x20)
+	Platform_Log("[CTR Native] LOAD_VramFileCallback: vramBuf=%p\n", (void *)vramBuf);
+	Platform_LogFlush();
+
+	if (vramBuf != NULL)
 	{
-		RECT rect;
-		rect.x = (s16)CTR_ReadU16LE(&vh->rect.x);
-		rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
-		rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
-		rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
+		u32 firstWord = CTR_ReadU32LE(vramBuf);
 
-		LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
-	}
-
-	// if multiple TIMs are packed together
-	if (headerMagic == 0x20)
-	{
-		int size;
-		vramBuf++;
-
-		size = (int)CTR_ReadU32LE(&vramBuf[0]);
-		vh = (struct VramHeader *)&vramBuf[1];
-
-		while (size != 0)
+		// if just one TIM
+		if (firstWord != 0x20)
 		{
-			RECT rect;
+			RECT16 rect;
 			rect.x = (s16)CTR_ReadU16LE(&vh->rect.x);
 			rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
 			rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
 			rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
-
+			Platform_Log("[CTR Native] LOAD_VramFileCallback: LoadImage single TIM (%d,%d %dx%d)\n", rect.x, rect.y, rect.w, rect.h);
+			Platform_LogFlush();
 			LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
+		}
+		else
+		{
+			int size;
+			vramBuf++;
 
-			// goto next
-			vramBuf = (int *)((u8 *)vh + (size & ~3));
-
-			size = (int)CTR_ReadU32LE(&vramBuf[0]);
+			size = (int)CTR_ReadU32LE(vramBuf);
 			vh = (struct VramHeader *)&vramBuf[1];
+
+			while (size != 0)
+			{
+				RECT16 rect;
+				rect.x = (s16)CTR_ReadU16LE(&vh->rect.x);
+				rect.y = (s16)CTR_ReadU16LE(&vh->rect.y);
+				rect.w = (s16)CTR_ReadU16LE(&vh->rect.w);
+				rect.h = (s16)CTR_ReadU16LE(&vh->rect.h);
+				Platform_Log("[CTR Native] LOAD_VramFileCallback: LoadImage multi TIM (%d,%d %dx%d, size=%d)\n", rect.x, rect.y, rect.w, rect.h, size);
+				Platform_LogFlush();
+				LoadImage(&rect, VRAMHEADER_GETPIXLES(vh));
+
+				// goto next
+				vramBuf = (int *)((u8 *)vh + (size & ~3));
+
+				size = (int)CTR_ReadU32LE(vramBuf);
+				vh = (struct VramHeader *)&vramBuf[1];
+			}
 		}
 	}
 
 	// LOAD_NextQueuedFile waits 3 vsync frames before releasing the queue.
 	sdata->frameFinishedVRAM = sdata->gGT->frameTimer_VsyncCallback;
+	Platform_Log("[CTR Native] LOAD_VramFileCallback: Finished!\n");
+	Platform_LogFlush();
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80031fdc-0x80032110.
@@ -252,6 +259,9 @@ void *LOAD_VramFile(void *bigfilePtr, int subfileIndex, void *ptrDestination, u3
 {
 	struct LoadQueueSlot lqs;
 	void *loadedFile;
+
+	Platform_Log("[CTR Native] LOAD_VramFile: subfileIndex=0x%x (%d), flags=%d\n", subfileIndex, subfileIndex, callbackOrFlags);
+	Platform_LogFlush();
 
 	if (ptrDestination == NULL)
 	{
@@ -272,7 +282,12 @@ void *LOAD_VramFile(void *bigfilePtr, int subfileIndex, void *ptrDestination, u3
 
 		LOAD_VramFileCallback(&lqs);
 
+		Platform_Log("[CTR Native] LOAD_VramFile (-1): VSync(2) begin...\n");
+		Platform_LogFlush();
 		VSync(2);
+		Platform_Log("[CTR Native] LOAD_VramFile (-1): VSync(2) done.\n");
+		Platform_LogFlush();
+
 		sdata->frameFinishedVRAM = 0;
 
 		if (ptrDestination == NULL)
@@ -471,7 +486,7 @@ void *LOAD_XnfFile(char *filename, void *ptrDestination, int *size)
 	{
 		// allocate room for all sectors,
 		// remove alignment before next Read
-		int sectorSize = (int)((u32)(cdlFile.size + LOAD_CD_DATA_SECTOR_ROUND_MASK) & (u32)LOAD_CD_DATA_SECTOR_ALIGN_MASK);
+		int sectorSize = (cdlFile.size + LOAD_CD_DATA_SECTOR_ROUND_MASK) & LOAD_CD_DATA_SECTOR_ALIGN_MASK;
 		ptrDestination = MEMPACK_AllocMem(sectorSize /*, fileName*/);
 		if (ptrDestination == NULL)
 		{

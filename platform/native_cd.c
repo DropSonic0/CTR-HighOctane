@@ -8,15 +8,9 @@
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 #include <SDL3/SDL.h>
 #else
-#ifndef CTR_SDL_TYPES_DEFINED
-#define CTR_SDL_TYPES_DEFINED
-typedef u32 SDL_AudioDeviceID;
-typedef void SDL_AudioStream;
 typedef void SDL_Mutex;
 typedef void SDL_Condition;
 typedef void SDL_Thread;
-typedef int SDL_AtomicInt;
-#endif
 #ifndef SDLCALL
 #define SDLCALL
 #endif
@@ -424,10 +418,10 @@ void NativeCD_Shutdown(void)
 
 void NativeCD_PumpCallbacks(void)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	CdlCB callback = NULL;
 	b32 success = 0;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeCdReadWorker.mutex == NULL)
 	{
 		return;
@@ -610,6 +604,11 @@ int CdControl(uint8_t com, uint8_t *param, uint8_t *result)
 
 int CdRead(int sectors, uint32_t *buf, int mode)
 {
+	s32 fileIndex;
+	s32 firstSector;
+	CdlCB callback;
+	b32 success;
+
 	(void)mode;
 
 	if ((sectors <= 0) || (buf == NULL))
@@ -618,11 +617,6 @@ int CdRead(int sectors, uint32_t *buf, int mode)
 	}
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
-	s32 fileIndex;
-	s32 firstSector;
-	CdlCB callback;
-	b32 success;
-
 	if (s_nativeCdReadWorker.mutex == NULL)
 	{
 		success = NativeCD_ReadSectorsAt(s_nativeCdCurrentFile, s_nativeCdCurrentSector, sectors, buf);
@@ -664,7 +658,7 @@ int CdRead(int sectors, uint32_t *buf, int mode)
 	SDL_UnlockMutex(s_nativeCdReadWorker.mutex);
 	return 1;
 #else
-	b32 success = NativeCD_ReadSectorsAt(s_nativeCdCurrentFile, s_nativeCdCurrentSector, sectors, buf);
+	success = NativeCD_ReadSectorsAt(s_nativeCdCurrentFile, s_nativeCdCurrentSector, sectors, buf);
 	if (success)
 	{
 		s_nativeCdCurrentSector += sectors;
@@ -679,10 +673,10 @@ int CdRead(int sectors, uint32_t *buf, int mode)
 
 int CdReadSync(int mode, uint8_t *result)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	b32 success;
 	CdlCB callback;
 
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_nativeCdReadWorker.mutex == NULL)
 	{
 		return 0;

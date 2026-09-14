@@ -293,7 +293,7 @@ struct Thread *PROC_BirthWithObject(int flags, void *funcThTick, const char *nam
 	}
 
 	// set remaining fields AFTER linking (ASM order)
-	th->funcThTick = (ThreadFunc)funcThTick;
+	th->funcThTick = funcThTick;
 	th->name = name;
 	th->object = (void *)(((u32)stackObj) + 8);
 
@@ -595,6 +595,14 @@ internal struct Thread *ThTick_RunThreadNative(struct ThTickNativeContext *conte
 	context->currentThread = thread;
 	if (setjmp(context->env) == 0)
 	{
+		static int s_thLog = 0;
+		if (s_thLog < 50)
+		{
+			Platform_Log("[CTR Native] ThTick_RunThreadNative: thread=%s func=%p\n",
+				thread->name ? thread->name : "null", (void*)thread->funcThTick);
+			Platform_LogFlush();
+		}
+		s_thLog++;
 		thread->funcThTick(thread);
 	}
 

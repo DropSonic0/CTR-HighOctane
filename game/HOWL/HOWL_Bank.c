@@ -11,6 +11,9 @@ void Bank_ResetAllocator()
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800292fc-0x800293b8
 int Bank_Alloc(int bankID, struct Bank *ptrBank)
 {
+	Platform_Log("[CTR Native] Bank_Alloc: bankID=%d\n", bankID);
+	Platform_LogFlush();
+
 	if (sdata->boolAudioEnabled == 0)
 	{
 		// Stage 4: Complete
@@ -18,10 +21,21 @@ int Bank_Alloc(int bankID, struct Bank *ptrBank)
 		return 1;
 	}
 
+	if (sdata->howl_bankOffsets == NULL)
+	{
+		Platform_LogError("[CTR Native] Bank_Alloc ERROR: sdata->howl_bankOffsets is NULL!\n");
+		Platform_LogFlush();
+		return 0;
+	}
+
 	// is last bank needed for level?
 	sdata->bankFlags = (ptrBank->flags & 1) != 0;
 
-	sdata->bankSectorOffset = sdata->howl_bankOffsets[bankID & 0xffff];
+	u16 rawOffset = CTR_ReadU16LE(&sdata->howl_bankOffsets[bankID & 0xffff]);
+	sdata->bankSectorOffset = (s16)rawOffset;
+
+	Platform_Log("[CTR Native] Bank_Alloc: bankSectorOffset=%d\n", sdata->bankSectorOffset);
+	Platform_LogFlush();
 
 	// ghidra makes this look like a pointer to stack memory,
 	// game shows it's a pointer to ram bank[8], what's happening?
@@ -35,6 +49,8 @@ int Bank_Alloc(int bankID, struct Bank *ptrBank)
 
 	if (sdata->ptrSampleBlock2 == 0)
 	{
+		Platform_LogError("[CTR Native] Bank_Alloc: MEMPACK_AllocMem failed!\n");
+		Platform_LogFlush();
 		// no data loaded, PopState
 		MEMPACK_PopState();
 		return 0;
@@ -88,13 +104,16 @@ int Bank_AssignSpuAddrs()
 		}
 
 		sdata->audioAllocSize = 0;
-		s16 numSamples = (s16)CTR_ReadU16LE(&sdata->ptrSampleBlock1->numSamples);
+
+		struct SampleBlockHeader *sbh = (struct SampleBlockHeader *)sdata->ptrSampleBlock1;
+		s16 numSamples = (s16)CTR_ReadU16LE(&sbh->numSamples);
 
 		for (i = 0; i < numSamples; i++)
 		{
 			s16 *spuIndexArr = SBHEADER_GETARR(sdata->ptrSampleBlock1);
 			s16 spuIdx = (s16)CTR_ReadU16LE(&spuIndexArr[i]);
-			sdata->audioAllocSize += sdata->howl_spuAddrs[spuIdx].spuSize;
+			s16 spuSize = (s16)CTR_ReadU16LE(&sdata->howl_spuAddrs[spuIdx].spuSize);
+			sdata->audioAllocSize += spuSize;
 		}
 
 		// convert bit-shifted count to
@@ -164,11 +183,14 @@ int Bank_AssignSpuAddrs()
 			s16 spuIdx = (s16)CTR_ReadU16LE(&spuIndexArr[i]);
 			sae = &sdata->howl_spuAddrs[spuIdx];
 
-			if (sae->spuAddr == 0)
+			u16 currentSpuAddr = CTR_ReadU16LE(&sae->spuAddr);
+			u16 spuSize = CTR_ReadU16LE(&sae->spuSize);
+
+			if (currentSpuAddr == 0)
 			{
-				sae->spuAddr = audioAllocPtr;
+				CTR_WriteU16LE(&sae->spuAddr, (u16)audioAllocPtr);
 			}
-			audioAllocPtr += sae->spuSize;
+			audioAllocPtr += spuSize;
 
 #if 0
 			printf("%08x\n", audioAllocPtr);
@@ -261,17 +283,20 @@ void Bank_ClearInRange(u16 min, u16 max)
 	struct SpuAddrEntry *sae;
 	sae = &sdata->howl_spuAddrs[0];
 
-	for (i = 0; i < sdata->ptrHowlHeader->numSpuAddrs; i++)
+	u32 numSpuAddrs = CTR_ReadU32LE(&sdata->ptrHowlHeader->numSpuAddrs);
+
+	for (i = 0; i < numSpuAddrs; i++)
 	{
-		if (sae[i].spuAddr < min)
+		u16 spuAddr = CTR_ReadU16LE(&sae[i].spuAddr);
+		if (spuAddr < min)
 		{
 			continue;
 		}
-		if (sae[i].spuAddr >= end)
+		if (spuAddr >= end)
 		{
 			continue;
 		}
-		sae[i].spuAddr = 0;
+		CTR_WriteU16LE(&sae[i].spuAddr, 0);
 	}
 }
 
@@ -280,9 +305,14 @@ int Bank_Load(int bankID, struct Bank *ptrBank)
 {
 	int numBanks = sdata->numAudioBanks;
 
+	Platform_Log("[CTR Native] Bank_Load: bankID=%d numAudioBanks=%d\n", bankID, numBanks);
+	Platform_LogFlush();
+
 	// if out of banks, quit
 	if (numBanks >= 8)
 	{
+		Platform_LogError("[CTR Native] Bank_Load: max banks reached!\n");
+		Platform_LogFlush();
 		return 0;
 	}
 
@@ -291,11 +321,15 @@ int Bank_Load(int bankID, struct Bank *ptrBank)
 	// if bank is in use, quit
 	if ((sdata->bank[numBanks].flags & 3) != 0)
 	{
+		Platform_LogError("[CTR Native] Bank_Load: bank in use!\n");
+		Platform_LogFlush();
 		return 0;
 	}
 
 	if (Bank_Alloc(bankID, &sdata->bank[numBanks]) == 0)
 	{
+		Platform_LogError("[CTR Native] Bank_Load: Bank_Alloc failed!\n");
+		Platform_LogFlush();
 		return 0;
 	}
 

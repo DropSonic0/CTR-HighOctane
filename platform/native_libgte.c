@@ -1,8 +1,8 @@
 /*
- * Derived from REDRIVER2/PsyCross MIT source:
- * externals/PsyCross/src/psx/LIBGTE.C
- * See THIRD_PARTY_NOTICES.md for copyright and license details.
- */
+* Derived from REDRIVER2/PsyCross MIT source:
+* externals/PsyCross/src/psx/LIBGTE.C
+* See THIRD_PARTY_NOTICES.md for copyright and license details.
+*/
 
 #include <macros.h>
 #include <ctr_gte.h>
@@ -55,17 +55,20 @@ void InitGeom()
 	C2_DQB = 340;
 	C2_OFX = 0;
 	C2_OFY = 0;
+	printf("[GTE] InitGeom: h=%d, dqa=%d, dqb=%d\n", C2_H, C2_DQA, C2_DQB);
 }
 
 void SetGeomOffset(int ofx, int ofy)
 {
 	C2_OFX = (ofx << 16);
 	C2_OFY = (ofy << 16);
+	printf("[GTE] SetGeomOffset: ofx=%d, ofy=%d\n", ofx, ofy);
 }
 
 void SetGeomScreen(int h)
 {
 	C2_H = h;
+	printf("[GTE] SetGeomScreen: h=%d\n", h);
 }
 
 void SetRotMatrix(MATRIX *m)
@@ -104,6 +107,7 @@ void PushMatrix()
 
 		currentMatrix++;
 		matrixLevel++;
+		printf("[GTE] PushMatrix: level now %d\n", matrixLevel);
 	}
 	else
 	{
@@ -121,6 +125,7 @@ void PopMatrix()
 
 		gte_SetRotMatrix(m);
 		gte_SetTransMatrix(m);
+		printf("[GTE] PopMatrix: level now %d\n", matrixLevel);
 	}
 	else
 	{
@@ -145,7 +150,6 @@ int RotTransPers(SVECTOR *v0, s32 *sxy, s32 *p, s32 *flag)
 {
 	int sz;
 	gte_RotTransPers(v0, sxy, p, flag, &sz);
-
 	return sz;
 }
 
@@ -153,7 +157,6 @@ int RotTransPers3(SVECTOR *v0, SVECTOR *v1, SVECTOR *v2, s32 *sxy0, s32 *sxy1, s
 {
 	int sz;
 	gte_RotTransPers3(v0, v1, v2, sxy0, sxy1, sxy2, p, flag, &sz);
-
 	return sz;
 }
 

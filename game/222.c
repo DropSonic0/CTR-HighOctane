@@ -63,10 +63,10 @@ void AA_EndEvent_DrawMenu(void)
 	SVec2 textPos;
 
 	s16 lerpStartX;
-	s16 txtStartX = 0;
+	s16 txtStartX;
 	s16 lerpStartY;
 	s16 lerpEndX;
-	s16 txtEndX = 0;
+	s16 txtEndX;
 	s16 lerpEndY;
 	s16 lerpFrames;
 	s32 rewardBit = -1;

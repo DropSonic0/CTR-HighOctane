@@ -59,9 +59,7 @@ typedef enum
 	TF_8_BIT,
 	TF_16_BIT,
 
-	TF_32_BIT_RGBA,
-
-	TF_INVALID = 0xFFFF
+	TF_32_BIT_RGBA
 } TexFormat;
 
 typedef u32 TextureID;

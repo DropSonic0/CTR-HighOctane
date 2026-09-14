@@ -69,7 +69,6 @@ void RB_Teeth_ThTick(struct Thread *t)
 	struct Teeth *teeth;
 	struct Instance *inst;
 	struct GameTracker *gGT;
-	int numAnimFrames;
 
 	gGT = sdata->gGT;
 	teeth = t->object;
@@ -114,7 +113,7 @@ void RB_Teeth_ThTick(struct Thread *t)
 		// modify animation index by direction
 		inst->animFrame = inst->animFrame + teeth->direction;
 
-		numAnimFrames = VehFrameInst_GetNumAnimFrames(inst, 0);
+		int numAnimFrames = VehFrameInst_GetNumAnimFrames(inst, 0);
 
 		// if animation is not on last frame
 		if ((int)inst->animFrame < numAnimFrames)

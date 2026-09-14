@@ -431,57 +431,57 @@ enum
 #define OVR233_CS_PARTICLE_DISABLED 0xffffffffu
 #define OVR233_CS_PATH_MOTION_DISABLE_ARG 0xffffffffu
 #define OVR233_LE16_AT(OFFSET, VALUE) \
-	[(OFFSET)] = (u8)((u32)(VALUE) & 0xff), \
-	[(OFFSET) + 1] = (u8)(((u32)(VALUE) >> 8) & 0xff)
+	[(OFFSET)] = (u8)((VALUE) & 0xff), \
+	[(OFFSET) + 1] = (u8)(((VALUE) >> 8) & 0xff)
 #define OVR233_LE32_AT(OFFSET, VALUE) \
-	[(OFFSET)] = (u8)((u32)(VALUE) & 0xff), \
-	[(OFFSET) + 1] = (u8)(((u32)(VALUE) >> 8) & 0xff), \
-	[(OFFSET) + 2] = (u8)(((u32)(VALUE) >> 16) & 0xff), \
-	[(OFFSET) + 3] = (u8)(((u32)(VALUE) >> 24) & 0xff)
+	[(OFFSET)] = (u8)((VALUE) & 0xff), \
+	[(OFFSET) + 1] = (u8)(((VALUE) >> 8) & 0xff), \
+	[(OFFSET) + 2] = (u8)(((VALUE) >> 16) & 0xff), \
+	[(OFFSET) + 3] = (u8)(((VALUE) >> 24) & 0xff)
 #define OVR233_ALIGN4(VALUE) (((VALUE) + 3u) & ~3u)
 #define OVR233_RETAIL_ADDR(OFFSET) (OVR233_RETAIL_BASE + (OFFSET))
 #define OVR233_CS_OP_AT(OFFSET, OPCODE) \
-	[(OFFSET)] = (u8)(OPCODE)
+	[(OFFSET)] = (OPCODE)
 #define OVR233_CS_OP_ARG1_AT(OFFSET, OPCODE, ARG1) \
-	[(OFFSET)] = (u8)(OPCODE), \
+	[(OFFSET)] = (OPCODE), \
 	OVR233_LE32_AT((OFFSET) + 1, (ARG1))
 #define OVR233_CS_OP_ARG0_ARG1_AT(OFFSET, OPCODE, ARG0, ARG1) \
-	[(OFFSET)] = (u8)(OPCODE), \
+	[(OFFSET)] = (OPCODE), \
 	OVR233_LE32_AT((OFFSET) + 1, (ARG0)), \
 	OVR233_LE32_AT((OFFSET) + 5, (ARG1))
 #define OVR233_CS_OP_3S_AT(OFFSET, OPCODE, SHORT0, SHORT1, SHORT2) \
-	[(OFFSET)] = (u8)(OPCODE), \
+	[(OFFSET)] = (OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE16_AT((OFFSET) + 3, (SHORT1)), \
 	OVR233_LE16_AT((OFFSET) + 5, (SHORT2))
 #define OVR233_CS_OP_5S_AT(OFFSET, OPCODE, SHORT0, SHORT1, SHORT2, SHORT3, SHORT4) \
-	[(OFFSET)] = (u8)(OPCODE), \
+	[(OFFSET)] = (OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE16_AT((OFFSET) + 3, (SHORT1)), \
 	OVR233_LE16_AT((OFFSET) + 5, (SHORT2)), \
 	OVR233_LE16_AT((OFFSET) + 7, (SHORT3)), \
 	OVR233_LE16_AT((OFFSET) + 9, (SHORT4))
 #define OVR233_CS_OP_S1_ARG1_AT(OFFSET, OPCODE, SHORT0, ARG1) \
-	[(OFFSET)] = (u8)(OPCODE), \
+	[(OFFSET)] = (OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE32_AT((OFFSET) + 3, (ARG1))
 #define OVR233_CS_OP_S1_ARG0_ARG1_AT(OFFSET, OPCODE, SHORT0, ARG0, ARG1) \
-	[(OFFSET)] = (u8)(OPCODE), \
+	[(OFFSET)] = (OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE32_AT((OFFSET) + 3, (ARG0)), \
 	OVR233_LE32_AT((OFFSET) + 7, (ARG1))
 #define OVR233_CS_OP_2B_AT(OFFSET, FRAME_START, FRAME_END, ARG0, ARG1) \
-	[(OFFSET)] = (u8)CS_OPCODE_ANIM_RANGE, \
+	[(OFFSET)] = CS_OPCODE_ANIM_RANGE, \
 	OVR233_LE16_AT((OFFSET) + 1, (FRAME_START)), \
 	OVR233_LE16_AT((OFFSET) + 3, (FRAME_END)), \
 	OVR233_LE32_AT((OFFSET) + 5, (ARG0)), \
 	OVR233_LE32_AT((OFFSET) + 9, (ARG1))
 #define OVR233_CS_OP_ARG0_GOTO_AT(OFFSET, OPCODE, ARG0, TARGET) \
-	[(OFFSET)] = (u8)(OPCODE), \
+	[(OFFSET)] = (OPCODE), \
 	OVR233_LE32_AT((OFFSET) + 1, (ARG0)), \
 	OVR233_LE32_AT(OVR233_ALIGN4((OFFSET) + 5), OVR233_RETAIL_ADDR(TARGET))
 #define OVR233_CS_OP_3S_ARG0_ARG1_2S_AT(OFFSET, OPCODE, SHORT0, SHORT1, SHORT2, ARG0, ARG1, SHORT8, SHORT9) \
-	[(OFFSET)] = (u8)(OPCODE), \
+	[(OFFSET)] = (OPCODE), \
 	OVR233_LE16_AT((OFFSET) + 1, (SHORT0)), \
 	OVR233_LE16_AT((OFFSET) + 3, (SHORT1)), \
 	OVR233_LE16_AT((OFFSET) + 5, (SHORT2)), \
@@ -490,7 +490,7 @@ enum
 	OVR233_LE16_AT((OFFSET) + 15, (SHORT8)), \
 	OVR233_LE16_AT((OFFSET) + 17, (SHORT9))
 #define OVR233_CS_GOTO_AT(OFFSET, TARGET) \
-	[(OFFSET)] = (u8)CS_OPCODE_GOTO, \
+	[(OFFSET)] = CS_OPCODE_GOTO, \
 	OVR233_LE32_AT(OVR233_ALIGN4((OFFSET) + 1), OVR233_RETAIL_ADDR(TARGET))
 #define OVR233_CS_OP_HIDE_INSTANCE_AND_END_THREAD_AT(OFFSET) \
 	OVR233_CS_OP_AT(OFFSET, CS_OPCODE_HIDE_INSTANCE_AND_END_THREAD)
@@ -628,289 +628,352 @@ const struct OverlayRDATA_233 R233 =
         .s_kart7 = "KART7",
         .bossCutsceneIndex = -1,
         .particleEmitterData = {
-            /* 0x51a0 */ {.flags = 0x0001,
-                          .initOffset = 12,
-                          .InitTypes = {.AxisInit = {{0, 163, 12}, {0, 0, 0}}}},
+            /* 0x51a0 */ {0x0001,
+                          12,
+                          {{{0, 163, 12}, {0, 0, 0}}},
+                          {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x51c4 */
-            {.flags = 0x0002,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, -1, 0}, {0, 0, 0}}}},
+            {0x0002,
+             0,
+             {{{0, -1, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x51e8 */
-            {.flags = 0x000e,
-             .initOffset = 1,
-             .InitTypes = {.AxisInit = {{0, 10240, 512}, {7680, 0, 0}}}},
+            {0x000e,
+             1,
+             {{{0, 10240, 512}, {7680, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x520c */
-            {.flags = 0x0002,
-             .initOffset = 2,
-             .InitTypes = {.AxisInit = {{0, -1, 0}, {0, 0, 0}}}},
+            {0x0002,
+             2,
+             {{{0, -1, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5230 */
-            {.flags = 0x0007,
-             .initOffset = 5,
-             .InitTypes = {.AxisInit = {{9000, 200, 200}, {0, 0, 0}}}},
+            {0x0007,
+             5,
+             {{{9000, 200, 200}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5254 */
-            {.flags = 0x0003,
-             .initOffset = 7,
-             .InitTypes = {.AxisInit = {{40960, -4096, 0}, {0, 0, 0}}}},
+            {0x0003,
+             7,
+             {{{40960, -4096, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5278 */
-            {.flags = 0x0003,
-             .initOffset = 8,
-             .InitTypes = {.AxisInit = {{40960, -8192, 0}, {0, 0, 0}}}},
+            {0x0003,
+             8,
+             {{{40960, -8192, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x529c */
-            {.flags = 0x0003,
-             .initOffset = 9,
-             .InitTypes = {.AxisInit = {{2560, -256, 0}, {0, 0, 0}}}},
+            {0x0003,
+             9,
+             {{{2560, -256, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x52c0 */
-            {.flags = 0x001a,
-             .initOffset = 4,
-             .InitTypes = {.AxisInit = {{0, 64, 0}, {-512, -128, 0}}}},
+            {0x001a,
+             4,
+             {{{0, 64, 0}, {-512, -128, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x52e4 */
-            {.flags = 0x0000,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, 0, 0}, {0, 0, 0}}}},
+            {0x0000,
+             0,
+             {{{0, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5308 */
-            {.flags = 0x0001,
-             .initOffset = 12,
-             .InitTypes = {.AxisInit = {{0, 163, 12}, {0, 0, 0}}}},
+            {0x0001,
+             12,
+             {{{0, 163, 12}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x532c */
-            {.flags = 0x0012,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, 3840, 0}, {0, -7680, 0}}}},
+            {0x0012,
+             0,
+             {{{0, 3840, 0}, {0, -7680, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5350 */
-            {.flags = 0x0006,
-             .initOffset = 1,
-             .InitTypes = {.AxisInit = {{0, 2048, -256}, {0, 0, 0}}}},
+            {0x0006,
+             1,
+             {{{0, 2048, -256}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5374 */
-            {.flags = 0x0012,
-             .initOffset = 2,
-             .InitTypes = {.AxisInit = {{0, 3840, 0}, {0, -7680, 0}}}},
+            {0x0012,
+             2,
+             {{{0, 3840, 0}, {0, -7680, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5398 */
-            {.flags = 0x0003,
-             .initOffset = 5,
-             .InitTypes = {.AxisInit = {{4000, -300, 0}, {0, 0, 0}}}},
+            {0x0003,
+             5,
+             {{{4000, -300, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x53bc */
-            {.flags = 0x0003,
-             .initOffset = 7,
-             .InitTypes = {.AxisInit = {{40960, -4096, 0}, {0, 0, 0}}}},
+            {0x0003,
+             7,
+             {{{40960, -4096, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x53e0 */
-            {.flags = 0x0003,
-             .initOffset = 8,
-             .InitTypes = {.AxisInit = {{40960, -8192, 0}, {0, 0, 0}}}},
+            {0x0003,
+             8,
+             {{{40960, -8192, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5404 */
-            {.flags = 0x0003,
-             .initOffset = 9,
-             .InitTypes = {.AxisInit = {{2560, -256, 0}, {0, 0, 0}}}},
+            {0x0003,
+             9,
+             {{{2560, -256, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5428 */
-            {.flags = 0x001a,
-             .initOffset = 4,
-             .InitTypes = {.AxisInit = {{0, 64, 0}, {-512, -128, 0}}}},
+            {0x001a,
+             4,
+             {{{0, 64, 0}, {-512, -128, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x544c */
-            {.flags = 0x0000,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, 0, 0}, {0, 0, 0}}}},
+            {0x0000,
+             0,
+             {{{0, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5470 */
-            {.flags = 0x0001,
-             .initOffset = 12,
-             .InitTypes = {.AxisInit = {{0, 163, 15}, {0, 0, 0}}}},
+            {0x0001,
+             12,
+             {{{0, 163, 15}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5494 */
-            {.flags = 0x0001,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{1, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             0,
+             {{{1, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x54b8 */
-            {.flags = 0x0006,
-             .initOffset = 1,
-             .InitTypes = {.AxisInit = {{0, 1536, 400}, {0, 0, 0}}}},
+            {0x0006,
+             1,
+             {{{0, 1536, 400}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x54dc */
-            {.flags = 0x0001,
-             .initOffset = 2,
-             .InitTypes = {.AxisInit = {{1, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             2,
+             {{{1, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5500 */
-            {.flags = 0x0003,
-             .initOffset = 5,
-             .InitTypes = {.AxisInit = {{6000, 1000, 0}, {0, 0, 0}}}},
+            {0x0003,
+             5,
+             {{{6000, 1000, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5524 */
-            {.flags = 0x0003,
-             .initOffset = 7,
-             .InitTypes = {.AxisInit = {{25600, -2304, 0}, {0, 0, 0}}}},
+            {0x0003,
+             7,
+             {{{25600, -2304, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5548 */
-            {.flags = 0x001a,
-             .initOffset = 4,
-             .InitTypes = {.AxisInit = {{0, 64, 0}, {-512, -128, 0}}}},
+            {0x001a,
+             4,
+             {{{0, 64, 0}, {-512, -128, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x556c */
-            {.flags = 0x0000,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, 0, 0}, {0, 0, 0}}}},
+            {0x0000,
+             0,
+             {{{0, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5590 */
-            {.flags = 0x0001,
-             .initOffset = 12,
-             .InitTypes = {.AxisInit = {{0, 163, 15}, {0, 0, 0}}}},
+            {0x0001,
+             12,
+             {{{0, 163, 15}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x55b4 */
-            {.flags = 0x0013,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{1, 2560, 0}, {0, -5120, 0}}}},
+            {0x0013,
+             0,
+             {{{1, 2560, 0}, {0, -5120, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x55d8 */
-            {.flags = 0x001f,
-             .initOffset = 1,
-             .InitTypes = {.AxisInit = {{2048, 2560, -768}, {3072, -256, 0}}}},
+            {0x001f,
+             1,
+             {{{2048, 2560, -768}, {3072, -256, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x55fc */
-            {.flags = 0x0013,
-             .initOffset = 2,
-             .InitTypes = {.AxisInit = {{1, 2560, 0}, {0, -5120, 0}}}},
+            {0x0013,
+             2,
+             {{{1, 2560, 0}, {0, -5120, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5620 */
-            {.flags = 0x0001,
-             .initOffset = 5,
-             .InitTypes = {.AxisInit = {{1000, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             5,
+             {{{1000, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5644 */
-            {.flags = 0x0001,
-             .initOffset = 7,
-             .InitTypes = {.AxisInit = {{16384, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             7,
+             {{{16384, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5668 */
-            {.flags = 0x0001,
-             .initOffset = 8,
-             .InitTypes = {.AxisInit = {{16384, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             8,
+             {{{16384, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x568c */
-            {.flags = 0x0001,
-             .initOffset = 9,
-             .InitTypes = {.AxisInit = {{65280, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             9,
+             {{{65280, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x56b0 */
-            {.flags = 0x001a,
-             .initOffset = 4,
-             .InitTypes = {.AxisInit = {{0, 64, 0}, {-512, -128, 0}}}},
+            {0x001a,
+             4,
+             {{{0, 64, 0}, {-512, -128, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x56d4 */
-            {.flags = 0x0000,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, 0, 0}, {0, 0, 0}}}},
+            {0x0000,
+             0,
+             {{{0, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x56f8 */
-            {.flags = 0x0001,
-             .initOffset = 12,
-             .InitTypes = {.AxisInit = {{0, 195, 15}, {0, 0, 0}}}},
+            {0x0001,
+             12,
+             {{{0, 195, 15}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x571c */
-            {.flags = 0x0001,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{1, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             0,
+             {{{1, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5740 */
-            {.flags = 0x0006,
-             .initOffset = 1,
-             .InitTypes = {.AxisInit = {{0, 1536, 400}, {0, 0, 0}}}},
+            {0x0006,
+             1,
+             {{{0, 1536, 400}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5764 */
-            {.flags = 0x0001,
-             .initOffset = 2,
-             .InitTypes = {.AxisInit = {{1, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             2,
+             {{{1, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5788 */
-            {.flags = 0x0003,
-             .initOffset = 5,
-             .InitTypes = {.AxisInit = {{6000, 1000, 0}, {0, 0, 0}}}},
+            {0x0003,
+             5,
+             {{{6000, 1000, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x57ac */
-            {.flags = 0x0003,
-             .initOffset = 7,
-             .InitTypes = {.AxisInit = {{25600, -2304, 0}, {0, 0, 0}}}},
+            {0x0003,
+             7,
+             {{{25600, -2304, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x57d0 */
-            {.flags = 0x001a,
-             .initOffset = 4,
-             .InitTypes = {.AxisInit = {{0, 64, 0}, {-512, -128, 0}}}},
+            {0x001a,
+             4,
+             {{{0, 64, 0}, {-512, -128, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x57f4 */
-            {.flags = 0x0000,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, 0, 0}, {0, 0, 0}}}},
+            {0x0000,
+             0,
+             {{{0, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5818 */
-            {.flags = 0x0001,
-             .initOffset = 12,
-             .InitTypes = {.AxisInit = {{0, 163, 15}, {0, 0, 0}}}},
+            {0x0001,
+             12,
+             {{{0, 163, 15}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x583c */
-            {.flags = 0x0001,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{1, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             0,
+             {{{1, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5860 */
-            {.flags = 0x0006,
-             .initOffset = 1,
-             .InitTypes = {.AxisInit = {{0, 1536, 400}, {0, 0, 0}}}},
+            {0x0006,
+             1,
+             {{{0, 1536, 400}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5884 */
-            {.flags = 0x0001,
-             .initOffset = 2,
-             .InitTypes = {.AxisInit = {{1, 0, 0}, {0, 0, 0}}}},
+            {0x0001,
+             2,
+             {{{1, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x58a8 */
-            {.flags = 0x0003,
-             .initOffset = 5,
-             .InitTypes = {.AxisInit = {{3000, 500, 0}, {0, 0, 0}}}},
+            {0x0003,
+             5,
+             {{{3000, 500, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x58cc */
-            {.flags = 0x0003,
-             .initOffset = 7,
-             .InitTypes = {.AxisInit = {{25600, -2304, 0}, {0, 0, 0}}}},
+            {0x0003,
+             7,
+             {{{25600, -2304, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x58f0 */
-            {.flags = 0x001a,
-             .initOffset = 4,
-             .InitTypes = {.AxisInit = {{0, 64, 0}, {-512, -128, 0}}}},
+            {0x001a,
+             4,
+             {{{0, 64, 0}, {-512, -128, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5914 */
-            {.flags = 0x0000,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, 0, 0}, {0, 0, 0}}}},
+            {0x0000,
+             0,
+             {{{0, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5938 */
-            {.flags = 0x0001,
-             .initOffset = 12,
-             .InitTypes = {.AxisInit = {{0, 20642, 8}, {0, 0, 0}}}},
+            {0x0001,
+             12,
+             {{{0, 20642, 8}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x595c */
-            {.flags = 0x0012,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, -1500, 0}, {0, 3000, 0}}}},
+            {0x0012,
+             0,
+             {{{0, -1500, 0}, {0, 3000, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5980 */
-            {.flags = 0x0012,
-             .initOffset = 2,
-             .InitTypes = {.AxisInit = {{0, -1500, 0}, {0, 3000, 0}}}},
+            {0x0012,
+             2,
+             {{{0, -1500, 0}, {0, 3000, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x59a4 */
-            {.flags = 0x0036,
-             .initOffset = 1,
-             .InitTypes = {.AxisInit = {{0, 400, -300}, {0, 200, 600}}}},
+            {0x0036,
+             1,
+             {{{0, 400, -300}, {0, 200, 600}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x59c8 */
-            {.flags = 0x0011,
-             .initOffset = 5,
-             .InitTypes = {.AxisInit = {{131072, 0, 0}, {0, 200, 0}}}},
+            {0x0011,
+             5,
+             {{{131072, 0, 0}, {0, 200, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x59ec */
-            {.flags = 0x0003,
-             .initOffset = 7,
-             .InitTypes = {.AxisInit = {{65280, -7680, 0}, {0, 0, 0}}}},
+            {0x0003,
+             7,
+             {{{65280, -7680, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5a10 */
-            {.flags = 0x0003,
-             .initOffset = 8,
-             .InitTypes = {.AxisInit = {{65280, -7680, 0}, {0, 0, 0}}}},
+            {0x0003,
+             8,
+             {{{65280, -7680, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5a34 */
-            {.flags = 0x0003,
-             .initOffset = 9,
-             .InitTypes = {.AxisInit = {{16384, -2048, 0}, {0, 0, 0}}}},
+            {0x0003,
+             9,
+             {{{16384, -2048, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
             /* 0x5a58 */
-            {.flags = 0x0000,
-             .initOffset = 0,
-             .InitTypes = {.AxisInit = {{0, 0, 0}, {0, 0, 0}}}},
+            {0x0000,
+             0,
+             {{{0, 0, 0}, {0, 0, 0}}},
+             {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
         },
         .particleConfigs =
             {
                 {.emitter = (struct ParticleEmitter *)&R233.particleEmitterData[0],
-                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 3, .flags = 1},
+                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 3, 1},
                  .spawn = {.modelDelta = 0}},
                 {.emitter = (struct ParticleEmitter *)&R233.particleEmitterData[10],
-                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 1, .flags = 0},
+                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 1, 0},
                  .spawn = {.modelDelta = 0}},
                 {.emitter = (struct ParticleEmitter *)&R233.particleEmitterData[20],
-                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 1, .flags = 0},
+                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 1, 0},
                  .spawn = {.modelDelta = 2}},
                 {.emitter = (struct ParticleEmitter *)&R233.particleEmitterData[28],
-                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 2, .flags = 1},
+                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 2, 1},
                  .spawn = {.modelDelta = 0}},
                 {.emitter = (struct ParticleEmitter *)&R233.particleEmitterData[28],
-                 .meta = {.iconGroupIndex = 1, .frameOffset = 1, .count = 2, .flags = 0},
+                 .meta = {.iconGroupIndex = 1, .frameOffset = 1, .count = 2, 0},
                  .spawn = {.modelDelta = 0}},
                 {.emitter = (struct ParticleEmitter *)&R233.particleEmitterData[38],
-                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 1, .flags = 0},
+                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 1, 0},
                  .spawn = {.modelDelta = 2}},
                 {.emitter = (struct ParticleEmitter *)&R233.particleEmitterData[46],
-                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 1, .flags = 0},
+                 .meta = {.iconGroupIndex = 1, .frameOffset = 0, .count = 1, 0},
                  .spawn = {.modelDelta = 2}},
                 {.emitter = (struct ParticleEmitter *)&R233.particleEmitterData[54],
-                 .meta = {.iconGroupIndex = 1, .frameOffset = 2, .count = 10, .flags = 0},
+                 .meta = {.iconGroupIndex = 1, .frameOffset = 2, .count = 10, 0},
                  .spawn = {.modelDelta = -2}},
             },
         .csOpcodeMetaPrefix = {
-            /* 0x5adc */ (u8)0xdf, 0x20, 0x00, 0x19, 0x28, 0x10, 0x10, 0x18, 0x10, 0x10, 0x10, 0x18, 0x00, 0x10, 0x10, 0x00,
+            /* 0x5adc */ 0xdf, 0x20, 0x00, 0x19, 0x28, 0x10, 0x10, 0x18, 0x10, 0x10, 0x10, 0x18, 0x00, 0x10, 0x10, 0x00,
             /* 0x5aec */ 0x10, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x10, 0x10, 0x10, 0x00,
-            /* 0x5afc */ 0x00, 0x10, 0x10, 0x00, 0x19, 0x00, 0x2c, 0x10, 0x00, 0x00, 0x00, 0x1e, 0x11, (u8)0xc7, 0x00, 0x00,
+            /* 0x5afc */ 0x00, 0x10, 0x10, 0x00, 0x19, 0x00, 0x2c, 0x10, 0x00, 0x00, 0x00, 0x1e, 0x11, 0xc7, 0x00, 0x00,
             /* 0x5b0c */ 0x07, 0x00, 0x00, 0x00,
         },
         .bossOpcodeData = {
@@ -3159,9 +3222,9 @@ const struct OverlayRDATA_233 R233 =
                 {.data = (struct CsInitMatrixEntry *)&R233.cs_initMatrixData[86], .count = 49},
                 {.data = (struct CsInitMatrixEntry *)&R233.cs_initMatrixData[135], .count = 55},
             },
-        .introClearBoxColor = { { .r = 0x40, .g = 0x40, .b = 0x60 } },
-        .introClearBoxRect = {.x = 0, .y = 0, .w = 0x200, .h = 0xd8},
-        .creditsDancerRotOffset = { { 0, 0xf00, 0 } },
+        .introClearBoxColor = {{0x40, 0x40, 0x60}},
+        .introClearBoxRect = {0, 0, 0x200, 0xd8},
+        .creditsDancerRotOffset = {{0, 0xf00, 0}},
         .bossCS =
             {
                 {
@@ -3170,10 +3233,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 478,
                     .modelIndex_unused = 173,
                     .opcode = (char *)(R233.bossOpcodeData + 0x254),
-                    .camPos = { { -13585, 881, 15641 } },
-                    .camRot = { { 81, 737, 0 } },
-                    .bossPos = { { -14255, 682, 15198 } },
-                    .bossRot = { { 0, 669, 0 } },
+                    .camPos = {{-13585, 881, 15641}},
+                    .camRot = {{81, 737, 0}},
+                    .bossPos = {{-14255, 682, 15198}},
+                    .bossRot = {{0, 669, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3181,10 +3244,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 474,
                     .modelIndex_unused = 169,
                     .opcode = (char *)(R233.bossOpcodeData + 0x30),
-                    .camPos = { { -14277, 741, 15619 } },
-                    .camRot = { { 151, -162, 0 } },
-                    .bossPos = { { -14191, 682, 15134 } },
-                    .bossRot = { { 0, -354, 0 } },
+                    .camPos = {{-14277, 741, 15619}},
+                    .camRot = {{151, -162, 0}},
+                    .bossPos = {{-14191, 682, 15134}},
+                    .bossRot = {{0, -354, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3192,10 +3255,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 470,
                     .modelIndex_unused = 171,
                     .opcode = (char *)(R233.bossOpcodeData + 0xc4),
-                    .camPos = { { -17590, 589, -10427 } },
-                    .camRot = { { 111, -1611, 0 } },
-                    .bossPos = { { -17146, 417, -10034 } },
-                    .bossRot = { { 0, -1193, 0 } },
+                    .camPos = {{-17590, 589, -10427}},
+                    .camRot = {{111, -1611, 0}},
+                    .bossPos = {{-17146, 417, -10034}},
+                    .bossRot = {{0, -1193, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3203,10 +3266,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 470,
                     .modelIndex_unused = 171,
                     .opcode = (char *)(R233.bossOpcodeData + 0x154),
-                    .camPos = { { -17590, 589, -10427 } },
-                    .camRot = { { 111, -1611, 0 } },
-                    .bossPos = { { -17146, 417, -10034 } },
-                    .bossRot = { { 0, -1193, 0 } },
+                    .camPos = {{-17590, 589, -10427}},
+                    .camRot = {{111, -1611, 0}},
+                    .bossPos = {{-17146, 417, -10034}},
+                    .bossRot = {{0, -1193, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3214,10 +3277,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 476,
                     .modelIndex_unused = 170,
                     .opcode = (char *)(R233.bossOpcodeData + 0x64),
-                    .camPos = { { 5959, 1676, 11714 } },
-                    .camRot = { { 136, 1295, 0 } },
-                    .bossPos = { { 5528, 1535, 11838 } },
-                    .bossRot = { { 0, 1049, 0 } },
+                    .camPos = {{5959, 1676, 11714}},
+                    .camRot = {{136, 1295, 0}},
+                    .bossPos = {{5528, 1535, 11838}},
+                    .bossRot = {{0, 1049, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3225,10 +3288,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 476,
                     .modelIndex_unused = 170,
                     .opcode = (char *)(R233.bossOpcodeData + 0x94),
-                    .camPos = { { 5959, 1676, 11714 } },
-                    .camRot = { { 136, 1295, 0 } },
-                    .bossPos = { { 5528, 1535, 11838 } },
-                    .bossRot = { { 0, 1049, 0 } },
+                    .camPos = {{5959, 1676, 11714}},
+                    .camRot = {{136, 1295, 0}},
+                    .bossPos = {{5528, 1535, 11838}},
+                    .bossRot = {{0, 1049, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3236,10 +3299,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 472,
                     .modelIndex_unused = 172,
                     .opcode = (char *)(R233.bossOpcodeData + 0x1f4),
-                    .camPos = { { 6598, 256, -2800 } },
-                    .camRot = { { 48, -1385, 0 } },
-                    .bossPos = { { 7020, 25, -2549 } },
-                    .bossRot = { { 0, -1344, 0 } },
+                    .camPos = {{6598, 256, -2800}},
+                    .camRot = {{48, -1385, 0}},
+                    .bossPos = {{7020, 25, -2549}},
+                    .bossRot = {{0, -1344, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3247,10 +3310,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 472,
                     .modelIndex_unused = 172,
                     .opcode = (char *)(R233.bossOpcodeData + 0x224),
-                    .camPos = { { 6598, 256, -2800 } },
-                    .camRot = { { 48, -1385, 0 } },
-                    .bossPos = { { 7020, 25, -2549 } },
-                    .bossRot = { { 0, -1344, 0 } },
+                    .camPos = {{6598, 256, -2800}},
+                    .camRot = {{48, -1385, 0}},
+                    .bossPos = {{7020, 25, -2549}},
+                    .bossRot = {{0, -1344, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3258,10 +3321,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 474,
                     .modelIndex_unused = 169,
                     .opcode = (char *)R233.bossOpcodeData,
-                    .camPos = { { 533, 869, -20688 } },
-                    .camRot = { { 187, -733, 0 } },
-                    .bossPos = { { 1024, 768, -20928 } },
-                    .bossRot = { { 0, -948, 0 } },
+                    .camPos = {{533, 869, -20688}},
+                    .camRot = {{187, -733, 0}},
+                    .bossPos = {{1024, 768, -20928}},
+                    .bossRot = {{0, -948, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3269,10 +3332,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 478,
                     .modelIndex_unused = 173,
                     .opcode = (char *)(R233.bossOpcodeData + 0x284),
-                    .camPos = { { -13585, 881, 15641 } },
-                    .camRot = { { 81, 737, 0 } },
-                    .bossPos = { { -14255, 682, 15198 } },
-                    .bossRot = { { 0, 669, 0 } },
+                    .camPos = {{-13585, 881, 15641}},
+                    .camRot = {{81, 737, 0}},
+                    .bossPos = {{-14255, 682, 15198}},
+                    .bossRot = {{0, 669, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3280,10 +3343,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 478,
                     .modelIndex_unused = 173,
                     .opcode = (char *)(R233.bossOpcodeData + 0x284),
-                    .camPos = { { -17590, 589, -10427 } },
-                    .camRot = { { 111, -1611, 0 } },
-                    .bossPos = { { -17146, 417, -10034 } },
-                    .bossRot = { { 0, -1193, 0 } },
+                    .camPos = {{-17590, 589, -10427}},
+                    .camRot = {{111, -1611, 0}},
+                    .bossPos = {{-17146, 417, -10034}},
+                    .bossRot = {{0, -1193, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3291,10 +3354,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 478,
                     .modelIndex_unused = 173,
                     .opcode = (char *)(R233.bossOpcodeData + 0x284),
-                    .camPos = { { 5959, 1676, 11714 } },
-                    .camRot = { { 136, 1295, 0 } },
-                    .bossPos = { { 5528, 1535, 11838 } },
-                    .bossRot = { { 0, 1049, 0 } },
+                    .camPos = {{5959, 1676, 11714}},
+                    .camRot = {{136, 1295, 0}},
+                    .bossPos = {{5528, 1535, 11838}},
+                    .bossRot = {{0, 1049, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3302,10 +3365,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 478,
                     .modelIndex_unused = 173,
                     .opcode = (char *)(R233.bossOpcodeData + 0x284),
-                    .camPos = { { 6598, 256, -2800 } },
-                    .camRot = { { 48, -1385, 0 } },
-                    .bossPos = { { 7020, 25, -2549 } },
-                    .bossRot = { { 0, -1344, 0 } },
+                    .camPos = {{6598, 256, -2800}},
+                    .camRot = {{48, -1385, 0}},
+                    .bossPos = {{7020, 25, -2549}},
+                    .bossRot = {{0, -1344, 0}},
                 },
                 {
                     .vrmFile_UNUSED = 0,
@@ -3313,10 +3376,10 @@ const struct OverlayRDATA_233 R233 =
                     .bodyFile = 478,
                     .modelIndex_unused = 173,
                     .opcode = (char *)(R233.bossOpcodeData + 0x284),
-                    .camPos = { { 533, 869, -20688 } },
-                    .camRot = { { 187, -733, 0 } },
-                    .bossPos = { { 1024, 768, -20928 } },
-                    .bossRot = { { 0, -948, 0 } },
+                    .camPos = {{533, 869, -20688}},
+                    .camRot = {{187, -733, 0}},
+                    .bossPos = {{1024, 768, -20928}},
+                    .bossRot = {{0, -948, 0}},
                 },
             },
 };

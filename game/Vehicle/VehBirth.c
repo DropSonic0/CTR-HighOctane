@@ -290,9 +290,7 @@ void VehBirth_TeleportSelf(struct Driver *d, u8 spawnFlag, int spawnPosY)
 
 	if (sps->boolDidTouchQuadblock == 0)
 	{
-		d->AxisAngle3_normalVec.x = 0;
-		d->AxisAngle3_normalVec.y = FP_ONE;
-		d->AxisAngle3_normalVec.z = 0;
+		d->AxisAngle3_normalVec = (SVec3){{0, FP_ONE, 0}};
 	}
 	else
 	{
@@ -549,7 +547,7 @@ struct Model *VehBirth_GetModelByName(char *searchName)
 	{
 		struct Model *m = data.driverModelExtras[i].model;
 
-		if ((m != NULL) && VehBirth_ModelNameEquals(m, searchName))
+		if ((m != NULL) && (MODEL_GET_ID(m) != -1) && VehBirth_ModelNameEquals(m, searchName))
 		{
 			// character found, return pointer
 			return m;
@@ -567,7 +565,7 @@ struct Model *VehBirth_GetModelByName(char *searchName)
 		{
 			struct Model *m = models[i];
 
-			if (VehBirth_ModelNameEquals(m, searchName))
+			if ((MODEL_GET_ID(m) != -1) && VehBirth_ModelNameEquals(m, searchName))
 			{
 				// character found, return pointer
 				return m;

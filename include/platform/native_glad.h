@@ -29,11 +29,200 @@
 #ifndef __glad_h_
 #define __glad_h_
 
-#ifdef __vita__
-#include <vitaGL.h>
-#elif defined(__PS3__) || defined(__CELLOS_LV2__)
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
 #include <PSGL/psgl.h>
 #include <PSGL/psglu.h>
+#include <PSGL/report.h>
+#define gladLoadGL() 1
+#define GLAD_GL_KHR_debug 0
+
+typedef char GLchar;
+
+#ifndef GL_FRAMEBUFFER
+#if defined(GL_FRAMEBUFFER_OES)
+#define GL_FRAMEBUFFER GL_FRAMEBUFFER_OES
+#elif defined(GL_FRAMEBUFFER_EXT)
+#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#else
+#define GL_FRAMEBUFFER 0x8D40
+#endif
+#endif
+
+#ifndef GL_RENDERBUFFER
+#if defined(GL_RENDERBUFFER_OES)
+#define GL_RENDERBUFFER GL_RENDERBUFFER_OES
+#elif defined(GL_RENDERBUFFER_EXT)
+#define GL_RENDERBUFFER GL_RENDERBUFFER_EXT
+#else
+#define GL_RENDERBUFFER 0x8D41
+#endif
+#endif
+
+#ifndef GL_COLOR_ATTACHMENT0
+#if defined(GL_COLOR_ATTACHMENT0_OES)
+#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_OES
+#elif defined(GL_COLOR_ATTACHMENT0_EXT)
+#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
+#else
+#define GL_COLOR_ATTACHMENT0 0x8CE0
+#endif
+#endif
+
+#ifndef GL_DEPTH_ATTACHMENT
+#if defined(GL_DEPTH_ATTACHMENT_OES)
+#define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_OES
+#elif defined(GL_DEPTH_ATTACHMENT_EXT)
+#define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_EXT
+#else
+#define GL_DEPTH_ATTACHMENT 0x8D00
+#endif
+#endif
+
+#ifndef GL_STENCIL_ATTACHMENT
+#if defined(GL_STENCIL_ATTACHMENT_OES)
+#define GL_STENCIL_ATTACHMENT GL_STENCIL_ATTACHMENT_OES
+#elif defined(GL_STENCIL_ATTACHMENT_EXT)
+#define GL_STENCIL_ATTACHMENT GL_STENCIL_ATTACHMENT_EXT
+#else
+#define GL_STENCIL_ATTACHMENT 0x8D20
+#endif
+#endif
+
+#ifndef GL_FRAMEBUFFER_COMPLETE
+#if defined(GL_FRAMEBUFFER_COMPLETE_OES)
+#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_OES
+#elif defined(GL_FRAMEBUFFER_COMPLETE_EXT)
+#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_EXT
+#else
+#define GL_FRAMEBUFFER_COMPLETE 0x8CD5
+#endif
+#endif
+
+#ifndef GL_STENCIL_INDEX8
+#if defined(GL_STENCIL_INDEX8_OES)
+#define GL_STENCIL_INDEX8 GL_STENCIL_INDEX8_OES
+#elif defined(GL_STENCIL_INDEX8_EXT)
+#define GL_STENCIL_INDEX8 GL_STENCIL_INDEX8_EXT
+#else
+#define GL_STENCIL_INDEX8 0x8D48
+#endif
+#endif
+
+#ifndef GL_READ_FRAMEBUFFER
+#if defined(GL_READ_FRAMEBUFFER_OES)
+#define GL_READ_FRAMEBUFFER GL_READ_FRAMEBUFFER_OES
+#elif defined(GL_READ_FRAMEBUFFER_EXT)
+#define GL_READ_FRAMEBUFFER GL_READ_FRAMEBUFFER_EXT
+#elif defined(GL_FRAMEBUFFER_OES)
+#define GL_READ_FRAMEBUFFER GL_FRAMEBUFFER_OES
+#elif defined(GL_FRAMEBUFFER_EXT)
+#define GL_READ_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#else
+#define GL_READ_FRAMEBUFFER 0x8CA8
+#endif
+#endif
+
+#ifndef GL_READ_FRAMEBUFFER_BINDING
+#if defined(GL_READ_FRAMEBUFFER_BINDING_OES)
+#define GL_READ_FRAMEBUFFER_BINDING GL_READ_FRAMEBUFFER_BINDING_OES
+#elif defined(GL_READ_FRAMEBUFFER_BINDING_EXT)
+#define GL_READ_FRAMEBUFFER_BINDING GL_READ_FRAMEBUFFER_BINDING_EXT
+#elif defined(GL_FRAMEBUFFER_BINDING_OES)
+#define GL_READ_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_OES
+#elif defined(GL_FRAMEBUFFER_BINDING_EXT)
+#define GL_READ_FRAMEBUFFER_BINDING GL_FRAMEBUFFER_BINDING_EXT
+#else
+#define GL_READ_FRAMEBUFFER_BINDING 0x8CAA
+#endif
+#endif
+
+#if defined(__SNC__) || defined(__cplusplus)
+#define PS3_GL_INLINE static __inline
+#elif defined(__GNUC__)
+#define PS3_GL_INLINE static __inline__
+#else
+#define PS3_GL_INLINE static inline
+#endif
+
+/* Framebuffers and Renderbuffers */
+PS3_GL_INLINE void glBindFramebuffer(GLenum target, GLuint framebuffer) { (void)target; (void)framebuffer; }
+PS3_GL_INLINE void glGenFramebuffers(GLsizei n, GLuint *framebuffers) { GLsizei i; for (i = 0; i < n; i++) { if (framebuffers) framebuffers[i] = 1; } }
+PS3_GL_INLINE void glDeleteFramebuffers(GLsizei n, const GLuint *framebuffers) { (void)n; (void)framebuffers; }
+PS3_GL_INLINE void glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) { (void)target; (void)attachment; (void)textarget; (void)texture; (void)level; }
+PS3_GL_INLINE void glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) { (void)target; (void)attachment; (void)renderbuffertarget; (void)renderbuffer; }
+PS3_GL_INLINE GLenum glCheckFramebufferStatus(GLenum target) { (void)target; return GL_FRAMEBUFFER_COMPLETE; }
+PS3_GL_INLINE void glBindRenderbuffer(GLenum target, GLuint renderbuffer) { (void)target; (void)renderbuffer; }
+PS3_GL_INLINE void glGenRenderbuffers(GLsizei n, GLuint *renderbuffers) { GLsizei i; for (i = 0; i < n; i++) { if (renderbuffers) renderbuffers[i] = 1; } }
+PS3_GL_INLINE void glDeleteRenderbuffers(GLsizei n, const GLuint *renderbuffers) { (void)n; (void)renderbuffers; }
+PS3_GL_INLINE void glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height) { (void)target; (void)internalformat; (void)width; (void)height; }
+
+/* Vertex Array Objects */
+PS3_GL_INLINE void glBindVertexArray(GLuint array) { (void)array; }
+PS3_GL_INLINE void glGenVertexArrays(GLsizei n, GLuint *arrays) { GLsizei i; for (i = 0; i < n; i++) { if (arrays) arrays[i] = 1; } }
+PS3_GL_INLINE void glDeleteVertexArrays(GLsizei n, const GLuint *arrays) { (void)n; (void)arrays; }
+
+/* Shaders & Programs */
+PS3_GL_INLINE GLuint glCreateProgram(void) { return 1; }
+PS3_GL_INLINE void glDeleteProgram(GLuint program) { (void)program; }
+PS3_GL_INLINE GLuint glCreateShader(GLenum type) { (void)type; return 1; }
+PS3_GL_INLINE void glShaderSource(GLuint shader, GLsizei count, const GLchar *const *string, const GLint *length) { (void)shader; (void)count; (void)string; (void)length; }
+PS3_GL_INLINE void glCompileShader(GLuint shader) { (void)shader; }
+PS3_GL_INLINE void glGetShaderiv(GLuint shader, GLenum pname, GLint *params) { (void)shader; (void)pname; if (params) *params = GL_TRUE; }
+PS3_GL_INLINE void glGetShaderInfoLog(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog) { (void)shader; (void)bufSize; if (length) *length = 0; if (infoLog && bufSize > 0) infoLog[0] = '\0'; }
+PS3_GL_INLINE void glAttachShader(GLuint program, GLuint shader) { (void)program; (void)shader; }
+PS3_GL_INLINE void glDeleteShader(GLuint shader) { (void)shader; }
+PS3_GL_INLINE void glBindAttribLocation(GLuint program, GLuint index, const GLchar *name) { (void)program; (void)index; (void)name; }
+PS3_GL_INLINE void glLinkProgram(GLuint program) { (void)program; }
+PS3_GL_INLINE void glGetProgramiv(GLuint program, GLenum pname, GLint *params) { (void)program; (void)pname; if (params) *params = GL_TRUE; }
+PS3_GL_INLINE void glGetProgramInfoLog(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog) { (void)program; (void)bufSize; if (length) *length = 0; if (infoLog && bufSize > 0) infoLog[0] = '\0'; }
+PS3_GL_INLINE GLint glGetUniformLocation(GLuint program, const GLchar *name) { (void)program; (void)name; return 0; }
+PS3_GL_INLINE void glUseProgram(GLuint program) { (void)program; }
+PS3_GL_INLINE void glEnableVertexAttribArray(GLuint index) { (void)index; }
+PS3_GL_INLINE void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer) { (void)index; (void)size; (void)type; (void)normalized; (void)stride; (void)pointer; }
+
+/* Uniforms */
+PS3_GL_INLINE void glUniform1f(GLint location, GLfloat v0) { (void)location; (void)v0; }
+PS3_GL_INLINE void glUniform2f(GLint location, GLfloat v0, GLfloat v1) { (void)location; (void)v0; (void)v1; }
+PS3_GL_INLINE void glUniform4f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { (void)location; (void)v0; (void)v1; (void)v2; (void)v3; }
+PS3_GL_INLINE void glUniform1i(GLint location, GLint v0) { (void)location; (void)v0; }
+PS3_GL_INLINE void glUniform1iv(GLint location, GLsizei count, const GLint *value) { (void)location; (void)count; (void)value; }
+PS3_GL_INLINE void glUniform2fv(GLint location, GLsizei count, const GLfloat *value) { (void)location; (void)count; (void)value; }
+PS3_GL_INLINE void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) { (void)location; (void)count; (void)transpose; (void)value; }
+
+/* Queries */
+PS3_GL_INLINE void glGenQueries(GLsizei n, GLuint *ids) { GLsizei i; for (i = 0; i < n; i++) { if (ids) ids[i] = 1; } }
+PS3_GL_INLINE void glBeginQuery(GLenum target, GLuint id) { (void)target; (void)id; }
+PS3_GL_INLINE void glEndQuery(GLenum target) { (void)target; }
+PS3_GL_INLINE void glDeleteQueries(GLsizei n, const GLuint *ids) { (void)n; (void)ids; }
+
+/* Misc */
+PS3_GL_INLINE int SDL_GL_ExtensionSupported(const char *extension) { (void)extension; return 0; }
+PS3_GL_INLINE GLboolean glIsEnabled(GLenum cap) { (void)cap; return GL_FALSE; }
+
+#ifndef GL_SCISSOR_BOX
+#define GL_SCISSOR_BOX 0x0C10
+#endif
+#ifndef GL_COLOR_CLEAR_VALUE
+#define GL_COLOR_CLEAR_VALUE 0x0C22
+#endif
+
+#ifndef GL_FRAGMENT_SHADER
+#define GL_FRAGMENT_SHADER 0x8B30
+#endif
+#ifndef GL_VERTEX_SHADER
+#define GL_VERTEX_SHADER 0x8B31
+#endif
+#ifndef GL_COMPILE_STATUS
+#define GL_COMPILE_STATUS 0x8B81
+#endif
+#ifndef GL_LINK_STATUS
+#define GL_LINK_STATUS 0x8B82
+#endif
+#ifndef GL_SHADING_LANGUAGE_VERSION
+#define GL_SHADING_LANGUAGE_VERSION 0x8B8C
+#endif
+#elif defined(__vita__)
+#include <vitaGL.h>
 #else
 
 #ifdef __gl_h_

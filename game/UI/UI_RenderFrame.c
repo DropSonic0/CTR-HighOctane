@@ -320,25 +320,23 @@ void UI_RenderFrame_Racing()
 					}
 					else
 					{
-						{
-							int pickupStartX = (int)playerStruct->PickupWumpaHUD.startX;
-							int pickupStartY = (int)playerStruct->PickupWumpaHUD.startY;
+						int pickupStartX = (int)playerStruct->PickupWumpaHUD.startX;
+						int pickupStartY = (int)playerStruct->PickupWumpaHUD.startY;
 #if defined(__vita__)
-							if (adhocSingleView && (playerStruct->driverID == adhocLocalPlayer))
+						if (adhocSingleView && (playerStruct->driverID == adhocLocalPlayer))
+						{
+							struct PushBuffer *sourcePB = &gGT->pushBuffer[adhocLocalPlayer];
+							struct PushBuffer *displayPB = NativeAdhoc_GetRenderPushBuffer();
+							if (displayPB != NULL)
 							{
-								struct PushBuffer *sourcePB = &gGT->pushBuffer[adhocLocalPlayer];
-								struct PushBuffer *displayPB = NativeAdhoc_GetRenderPushBuffer();
-								if (displayPB != NULL)
-								{
-									pickupStartX = pickupStartX - sourcePB->rect.x - (sourcePB->rect.w >> 1) + displayPB->rect.x + (displayPB->rect.w >> 1);
-									pickupStartY = pickupStartY - sourcePB->rect.y - (sourcePB->rect.h >> 1) + displayPB->rect.y + (displayPB->rect.h >> 1);
-								}
+								pickupStartX = pickupStartX - sourcePB->rect.x - (sourcePB->rect.w >> 1) + displayPB->rect.x + (displayPB->rect.w >> 1);
+								pickupStartY = pickupStartY - sourcePB->rect.y - (sourcePB->rect.h >> 1) + displayPB->rect.y + (displayPB->rect.h >> 1);
 							}
-#endif
-							UI_Lerp2D_HUD(wumpaModelPos.v, pickupStartX, pickupStartY,
-							              hudStructPtr[UI_HUD_SLOT_FRUIT_MODEL].x, hudStructPtr[UI_HUD_SLOT_FRUIT_MODEL].y, playerStruct->PickupWumpaHUD.cooldown,
-							              FPS_DOUBLE(5));
 						}
+#endif
+						UI_Lerp2D_HUD(wumpaModelPos.v, pickupStartX, pickupStartY,
+						              hudStructPtr[UI_HUD_SLOT_FRUIT_MODEL].x, hudStructPtr[UI_HUD_SLOT_FRUIT_MODEL].y, playerStruct->PickupWumpaHUD.cooldown,
+						              FPS_DOUBLE(5));
 
 						// subtract one from timer
 						partTimeVariable1 = playerStruct->PickupWumpaHUD.cooldown - 1;

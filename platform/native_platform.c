@@ -26,6 +26,30 @@ typedef void SDL_Window;
 typedef void SDL_Surface;
 #define SDL_WINDOW_FULLSCREEN 0
 #define SDL_PIXELFORMAT_BGRA8888 0
+#define SDL_SCANCODE_F1 101
+#define SDL_SCANCODE_F2 102
+#define SDL_SCANCODE_F3 103
+#define SDL_SCANCODE_F4 104
+#define SDL_SCANCODE_F5 105
+#define SDL_SCANCODE_F6 106
+#define SDL_SCANCODE_F7 107
+#define SDL_SCANCODE_F8 108
+#define SDL_SCANCODE_F9 109
+#define SDL_SCANCODE_F10 110
+#define SDL_SCANCODE_F11 111
+#define SDL_SCANCODE_F12 112
+#define SDL_SCANCODE_UP 113
+#define SDL_SCANCODE_DOWN 114
+#define SDL_SCANCODE_LEFT 115
+#define SDL_SCANCODE_RIGHT 116
+#define SDL_SCANCODE_RETURN 117
+#define SDL_SCANCODE_RSHIFT 118
+#define SDL_SCANCODE_LSHIFT 119
+#define SDL_SCANCODE_RCTRL 120
+#define SDL_SCANCODE_LCTRL 121
+#define SDL_SCANCODE_RALT 122
+#define SDL_SCANCODE_LALT 123
+#define SDL_SCANCODE_SPACE 124
 #include <sys/sys_time.h>
 #include <sys/timer.h>
 #define SDL_GetPerformanceCounter() ((u64)sys_time_get_system_time())

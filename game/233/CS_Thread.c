@@ -159,7 +159,6 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 	s16 *opcodeMetaShorts;
 	struct CsInitMatrixEntry *frameData;
 	int nextFrameTime;
-	int targetFrameTime;
 	int lodIndex;
 	struct ModelHeader *modelHeader;
 	int metadataBackup[CS_DECODED_OPCODE_WORD_COUNT];
@@ -181,7 +180,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 			instance->vertSplit = D233.VertSplitLine;
 		}
 
-		if ((int)instance->model->id == (int)(u8)gGT->podium_modelIndex_Second)
+		if ((int)MODEL_GET_ID(instance->model) == (int)(u8)gGT->podium_modelIndex_Second)
 		{
 			if ((u32)(D233.podiumCameraFrame - CS_PODIUM_SECOND_HIDE_START_FRAME) < CS_PODIUM_SECOND_HIDE_FRAME_COUNT)
 			{
@@ -200,7 +199,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 		}
 	afterPodiumSecondModelCheck:
 
-		if ((int)instance->model->id == (int)(u8)gGT->podium_modelIndex_First)
+		if ((int)MODEL_GET_ID(instance->model) == (int)(u8)gGT->podium_modelIndex_First)
 		{
 			if ((u32)(D233.podiumCameraFrame - CS_PODIUM_FIRST_HIDE_START_FRAME) < CS_PODIUM_FIRST_HIDE_FRAME_COUNT)
 			{
@@ -221,7 +220,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 
 		if ((cs->flags & CS_FLAG_ADV_CHAR_SELECT_LOGIC) != 0)
 		{
-			if (((int)instance->model->id - STATIC_CRASHSELECT == (int)gGarage.garageCharacterIDs[sdata->advCharSelectIndex_curr]) &&
+			if (((int)MODEL_GET_ID(instance->model) - STATIC_CRASHSELECT == (int)gGarage.garageCharacterIDs[sdata->advCharSelectIndex_curr]) &&
 			    (gGarage.boolSelected == 1))
 			{
 				if ((cs->flags & CS_FLAG_ADV_CHAR_SELECT_SELECTED) == 0)
@@ -230,7 +229,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 					gGT->pushBuffer[0].fadeFromBlack_desiredResult = CS_FADE_FROM_BLACK_TARGET;
 					gGT->pushBuffer[0].fade_step = CS_FADE_FROM_BLACK_STEP;
 					cs->flags |= CS_FLAG_ADV_CHAR_SELECT_SELECTED;
-					CS_ScriptCmd_OpcodeAt(cs, R233.advCharSelectSelectOpcodes[(int)instance->model->id - STATIC_CRASHSELECT]);
+					CS_ScriptCmd_OpcodeAt(cs, R233.advCharSelectSelectOpcodes[(int)MODEL_GET_ID(instance->model) - STATIC_CRASHSELECT]);
 					CS_SaveDecodedOpcode(cs, metadataBackup);
 				reloadAdvCharSelectOpcodeState:
 					cs->animFrame32 = cs->decodedOpcode.words[2];
@@ -247,7 +246,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 				if ((cs->flags & CS_FLAG_ADV_CHAR_SELECT_SELECTED) != 0)
 				{
 					cs->flags &= ~CS_FLAG_ADV_CHAR_SELECT_SELECTED;
-					CS_ScriptCmd_OpcodeAt(cs, R233.advCharSelectDeselectOpcodes[(int)instance->model->id - STATIC_CRASHSELECT]);
+					CS_ScriptCmd_OpcodeAt(cs, R233.advCharSelectDeselectOpcodes[(int)MODEL_GET_ID(instance->model) - STATIC_CRASHSELECT]);
 					CS_SaveDecodedOpcode(cs, metadataBackup);
 					goto reloadAdvCharSelectOpcodeState;
 				}
@@ -339,11 +338,12 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 				{
 #if defined(CTR_NATIVE)
 					gNativeBootSkipRequested = 0;
-#endif
+#else
 					if ((u32)gGT->msInThisLEV >> CS_FRAME32_SHIFT < CS_ND_CRATE_SKIP_MIN_FRAME32)
 					{
 						goto afterCameraAndSkipChecks;
 					}
+#endif
 					RaceFlag_SetCanDraw(1);
 					if (!RaceFlag_IsTransitioning() && !RaceFlag_IsFullyOnScreen())
 					{
@@ -422,14 +422,18 @@ afterCameraAndSkipChecks:
 		if (cs->frameOverrideRoot != 0)
 		{
 			frameData = &cs->frameOverrideRoot->data[animFrame];
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x00, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[0]));
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x04, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[2]));
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x08, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[4]));
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x0c, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[6]));
-			CTR_WriteU32LE((u8 *)&instance->matrix + 0x10, CTR_ReadU32LE(&frameData->rotScaleOrMatrix[8]));
-			instance->matrix.t[0] = frameData->offset[0];
-			instance->matrix.t[1] = frameData->offset[1];
-			instance->matrix.t[2] = frameData->offset[2];
+			instance->matrix.m[0][0] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[0]);
+			instance->matrix.m[0][1] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[1]);
+			instance->matrix.m[0][2] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[2]);
+			instance->matrix.m[1][0] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[3]);
+			instance->matrix.m[1][1] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[4]);
+			instance->matrix.m[1][2] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[5]);
+			instance->matrix.m[2][0] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[6]);
+			instance->matrix.m[2][1] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[7]);
+			instance->matrix.m[2][2] = (s16)CTR_ReadU16LE(&frameData->rotScaleOrMatrix[8]);
+			instance->matrix.t[0] = (s16)CTR_ReadU16LE((u16 *)&frameData->offset[0]);
+			instance->matrix.t[1] = (s16)CTR_ReadU16LE((u16 *)&frameData->offset[1]);
+			instance->matrix.t[2] = (s16)CTR_ReadU16LE((u16 *)&frameData->offset[2]);
 		}
 		return 0;
 	}
@@ -485,7 +489,7 @@ processOpcode:
 		frameBoundaryHit = 0;
 		if (opcodeMeta->arg1.i < opcodeMeta->arg0.i)
 		{
-			targetFrameTime = opcodeMeta->arg1.i * CS_FRAME32_UNIT;
+			int targetFrameTime = opcodeMeta->arg1.i * CS_FRAME32_UNIT;
 			animFrame32 = animFrame32 - elapsedTimeRemaining;
 			if (animFrame32 < targetFrameTime)
 			{
@@ -590,7 +594,7 @@ processOpcode:
 		{
 			if (instance != 0)
 			{
-				Garage_PlayFX(opcodeMeta->arg1.u, (int)instance->model->id - STATIC_CRASHSELECT);
+				Garage_PlayFX(opcodeMeta->arg1.u, (int)MODEL_GET_ID(instance->model) - STATIC_CRASHSELECT);
 			}
 		}
 		else
@@ -617,7 +621,7 @@ processOpcode:
 	case CS_OPCODE_SET_VISIBLE_LOD:
 		if (instance != 0)
 		{
-			int numHeaders = (int)instance->model->numHeaders;
+			int numHeaders = (int)CTR_ReadU16LE(&instance->model->numHeaders);
 			if ((numHeaders != 0) && (modelHeader = instance->model->headers, modelHeader != 0))
 			{
 				lodIndex = opcodeMeta->arg1.i;
@@ -761,10 +765,10 @@ processOpcode:
 
 	case CS_OPCODE_LOAD_LEVEL_STARS:
 		numPlayers = gGT->numPlyrCurrGame;
-		gGT->stars.numStars = (s16)((int)gGT->level1->stars.numStars / (int)(u32)numPlayers);
-		gGT->stars.spread = gGT->level1->stars.spread;
-		gGT->stars.seed = gGT->level1->stars.seed;
-		gGT->stars.distance = gGT->level1->stars.distance;
+		gGT->stars.numStars = (s16)((int)CTR_ReadU16LE(&gGT->level1->stars.numStars) / (int)(u32)numPlayers);
+		gGT->stars.spread = (s16)CTR_ReadU16LE(&gGT->level1->stars.spread);
+		gGT->stars.seed = (s16)CTR_ReadU16LE(&gGT->level1->stars.seed);
+		gGT->stars.distance = (s16)CTR_ReadU16LE(&gGT->level1->stars.distance);
 		D233.boolLoadNextSwap = 0;
 		CS_ScriptCmd_OpcodeNext(cs);
 		goto finishOpcodeStep;
@@ -1109,7 +1113,7 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 		return;
 	}
 
-	modelID = inst->model->id;
+	modelID = MODEL_GET_ID(inst->model);
 	pathModelKind = (s16)(modelID - STATIC_PPOINTTHINGINTRO);
 
 	if ((u32)pathModelKind >= CS_PATH_MODEL_KIND_COUNT)
@@ -1125,9 +1129,13 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 	case CS_PATH_MODEL_PPOINT_THING_INTRO:
 	case CS_PATH_MODEL_OXIDE_SPEAKER:
 
-		pathIndex = (u8)inst->name[strlen(inst->name) - 1] - '0';
+		{
+			size_t nameLen = strlen(inst->name);
+			char lastChar = (nameLen > 0) ? inst->name[nameLen - 1] : '\0';
+			pathIndex = (lastChar >= '0' && lastChar <= '9') ? (u8)(lastChar - '0') : 0;
+		}
 
-		if (level->numSpawnType2 <= pathIndex)
+		if ((int)CTR_ReadU32LE(&level->numSpawnType2) <= pathIndex)
 		{
 			return;
 		}
@@ -1145,41 +1153,51 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 		cs->pathProgress32 = (u16)(pathFrame32 + (u16)gGT->elapsedTimeMS);
 		segmentFrac32 = pathFrame32 & CS_FRAME32_MASK;
 
-		if (segmentIndex >= spawnEntry->numCoords - 1)
 		{
-			segmentIndex = 0;
+			int numCoords = (int)CTR_ReadU32LE(&spawnEntry->numCoords);
+			if (segmentIndex >= numCoords - 1)
+			{
+				segmentIndex = 0;
+
+				if (modelID == STATIC_OXIDESPEAKER)
+				{
+					segmentIndex = numCoords - 2;
+					cs->pathProgress32 = segmentIndex << CS_FRAME32_SHIFT;
+				}
+				else
+				{
+					cs->pathProgress32 = 0;
+				}
+			}
+
+			currPoint = &pathPoints[segmentIndex];
+			nextPoint = &currPoint[1];
+
+			s16 currX = (s16)CTR_ReadU16LE((u16 *)&currPoint->x);
+			s16 currY = (s16)CTR_ReadU16LE((u16 *)&currPoint->y);
+			s16 currZ = (s16)CTR_ReadU16LE((u16 *)&currPoint->z);
+			s16 nextX = (s16)CTR_ReadU16LE((u16 *)&nextPoint->x);
+			s16 nextY = (s16)CTR_ReadU16LE((u16 *)&nextPoint->y);
+			s16 nextZ = (s16)CTR_ReadU16LE((u16 *)&nextPoint->z);
+
+			inst->matrix.t[0] = currX + ((segmentFrac32 * (nextX - currX)) >> CS_FRAME32_SHIFT);
+			inst->matrix.t[1] = currY + ((segmentFrac32 * (nextY - currY)) >> CS_FRAME32_SHIFT);
+			inst->matrix.t[2] = currZ + ((segmentFrac32 * (nextZ - currZ)) >> CS_FRAME32_SHIFT);
+
+			if (segmentIndex >= numCoords - 1)
+			{
+				return;
+			}
 
 			if (modelID == STATIC_OXIDESPEAKER)
 			{
-				segmentIndex = spawnEntry->numCoords - 2;
-				cs->pathProgress32 = segmentIndex << CS_FRAME32_SHIFT;
+				return;
 			}
-			else
-			{
-				cs->pathProgress32 = 0;
-			}
+
+			rot.x = cs->rot.x;
+			rot.y = cs->rot.y + ratan2(nextX - currX, nextZ - currZ);
+			rot.z = cs->rot.z;
 		}
-
-		currPoint = &pathPoints[segmentIndex];
-		nextPoint = &currPoint[1];
-
-		inst->matrix.t[0] = currPoint->x + ((segmentFrac32 * (nextPoint->x - currPoint->x)) >> CS_FRAME32_SHIFT);
-		inst->matrix.t[1] = currPoint->y + ((segmentFrac32 * (nextPoint->y - currPoint->y)) >> CS_FRAME32_SHIFT);
-		inst->matrix.t[2] = currPoint->z + ((segmentFrac32 * (nextPoint->z - currPoint->z)) >> CS_FRAME32_SHIFT);
-
-		if (segmentIndex >= spawnEntry->numCoords - 1)
-		{
-			return;
-		}
-
-		if (modelID == STATIC_OXIDESPEAKER)
-		{
-			return;
-		}
-
-		rot.x = cs->rot.x;
-		rot.y = cs->rot.y + ratan2(nextPoint->x - currPoint->x, nextPoint->z - currPoint->z);
-		rot.z = cs->rot.z;
 
 		ConvertRotToMatrix(&inst->matrix, &rot);
 		return;
@@ -1189,9 +1207,13 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 	case CS_PATH_MODEL_END_OXIDE_BIG_SHIP:
 	case CS_PATH_MODEL_END_OXIDE_LIL_SHIP:
 
-		pathIndex = (u8)inst->name[strlen(inst->name) - 1] - '0';
+		{
+			size_t nameLen = strlen(inst->name);
+			char lastChar = (nameLen > 0) ? inst->name[nameLen - 1] : '\0';
+			pathIndex = (lastChar >= '0' && lastChar <= '9') ? (u8)(lastChar - '0') : 0;
+		}
 
-		if (level->numSpawnType2_PosRot <= pathIndex)
+		if ((int)CTR_ReadU32LE(&level->numSpawnType2_PosRot) <= pathIndex)
 		{
 			return;
 		}
@@ -1208,27 +1230,30 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 		cs->pathProgress32 = (u16)(pathFrame32 + (u16)gGT->elapsedTimeMS);
 		segmentIndex = (s16)pathFrame32 >> CS_FRAME32_SHIFT;
 
-		if (segmentIndex >= spawnEntry->numCoords - 1)
 		{
-			segmentIndex = 0;
-			cs->pathProgress32 = 0;
-		}
+			int numCoordsPR = (int)CTR_ReadU32LE(&spawnEntry->numCoords);
+			if (segmentIndex >= numCoordsPR - 1)
+			{
+				segmentIndex = 0;
+				cs->pathProgress32 = 0;
+			}
 
-		{
 			struct SpawnPosRot *frame = &posRot[segmentIndex];
 
-			inst->matrix.t[0] = frame->pos.x;
-			inst->matrix.t[1] = frame->pos.y;
-			inst->matrix.t[2] = frame->pos.z;
+			inst->matrix.t[0] = (s16)CTR_ReadU16LE((u16 *)&frame->pos.x);
+			inst->matrix.t[1] = (s16)CTR_ReadU16LE((u16 *)&frame->pos.y);
+			inst->matrix.t[2] = (s16)CTR_ReadU16LE((u16 *)&frame->pos.z);
 
-			rot = frame->rot;
+			rot.x = (s16)CTR_ReadU16LE((u16 *)&frame->rot.x);
+			rot.y = (s16)CTR_ReadU16LE((u16 *)&frame->rot.y);
+			rot.z = (s16)CTR_ReadU16LE((u16 *)&frame->rot.z);
 		}
 
 		break;
 
 	case CS_PATH_MODEL_COCO_SELECT:
 
-		if (level->numSpawnType2 <= 0)
+		if ((int)CTR_ReadU32LE(&level->numSpawnType2) <= 0)
 		{
 			return;
 		}
@@ -1250,10 +1275,10 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			}
 
 			segmentFrac32 = prog & CS_FRAME32_MASK;
-			int numCoords = spawnEntry->numCoords;
+			int numCoordsCoco = (int)CTR_ReadU32LE(&spawnEntry->numCoords);
 			segmentIndex = prog >> CS_FRAME32_SHIFT;
 
-			if (segmentIndex < numCoords - 1)
+			if (segmentIndex < numCoordsCoco - 1)
 			{
 				if (segmentIndex >= 0)
 				{
@@ -1268,13 +1293,20 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 			}
 			else
 			{
-				currPoint = &pathPoints[numCoords - 1];
+				currPoint = &pathPoints[numCoordsCoco - 1];
 				nextPoint = currPoint;
 			}
 
-			inst->matrix.t[0] = currPoint->x + ((segmentFrac32 * (nextPoint->x - currPoint->x)) >> CS_FRAME32_SHIFT);
-			inst->matrix.t[1] = currPoint->y + ((segmentFrac32 * (nextPoint->y - currPoint->y)) >> CS_FRAME32_SHIFT);
-			inst->matrix.t[2] = currPoint->z + ((segmentFrac32 * (nextPoint->z - currPoint->z)) >> CS_FRAME32_SHIFT);
+			s16 currX = (s16)CTR_ReadU16LE((u16 *)&currPoint->x);
+			s16 currY = (s16)CTR_ReadU16LE((u16 *)&currPoint->y);
+			s16 currZ = (s16)CTR_ReadU16LE((u16 *)&currPoint->z);
+			s16 nextX = (s16)CTR_ReadU16LE((u16 *)&nextPoint->x);
+			s16 nextY = (s16)CTR_ReadU16LE((u16 *)&nextPoint->y);
+			s16 nextZ = (s16)CTR_ReadU16LE((u16 *)&nextPoint->z);
+
+			inst->matrix.t[0] = currX + ((segmentFrac32 * (nextX - currX)) >> CS_FRAME32_SHIFT);
+			inst->matrix.t[1] = currY + ((segmentFrac32 * (nextY - currY)) >> CS_FRAME32_SHIFT);
+			inst->matrix.t[2] = currZ + ((segmentFrac32 * (nextZ - currZ)) >> CS_FRAME32_SHIFT);
 		}
 
 		return;
@@ -1405,15 +1437,15 @@ void CS_Thread_InterpolateFramesMS(struct Thread *t)
 	MTC2(CTR_PackS16Pair(next.z, 0), 3);
 	gte_rtpt();
 
-	packet->xy0 = MFC2(12);
-	packet->xy1 = MFC2(13);
-
 	depth = MFC2(17);
 	if ((u32)(depth - CS_INTERPOLATE_LINE_DEPTH_MIN) < CS_INTERPOLATE_LINE_DEPTH_RANGE)
 	{
 		u32 color = CS_INTERPOLATE_LINE_MAX_COLOR;
 		int otIndex;
 		u32 *ot;
+
+		packet->xy0 = MFC2(12);
+		packet->xy1 = MFC2(13);
 
 		packet->drawMode = CS_INTERPOLATE_LINE_DRAW_MODE;
 		packet->pad = 0;
@@ -1478,7 +1510,7 @@ void CS_Thread_LInB(struct Instance *inst)
 	cs->prevOpcode = (char *)-1;
 	cs->Subtitles.lngIndex = -1;
 
-	modelID = inst->model->id;
+	modelID = MODEL_GET_ID(inst->model);
 
 	if (modelID < NDI_BOX_BOX_01)
 	{
@@ -1550,6 +1582,15 @@ void CS_Thread_ThTick(struct Thread *t)
 	struct Instance *inst = t->inst;
 	struct Instance *parentInst;
 	struct Thread *parentThread;
+
+	if (sdata->gGT != NULL && sdata->gGT->timer < 300)
+	{
+		Platform_Log("[CTR Native] CS_Thread_ThTick: thread=%s inst=%s (%p) opcode=%d\n",
+			t->name ? t->name : "null",
+			inst ? (inst->name ? inst->name : "unnamed") : "null",
+			(void*)inst, cs ? cs->metadataMeta->opcode : -1);
+		Platform_LogFlush();
+	}
 
 	if (CS_Thread_UseOpcode(inst, cs))
 	{

@@ -326,7 +326,7 @@ void UI_DrawSlideMeter(s16 posX, s16 posY, struct Driver *driver)
 	CTR_Box_DrawWireBox(&box, &black, gGT->pushBuffer_UI.ptrOT, &gGT->backBuffer->primMem);
 
 	PrimCode primCode;
-	memset(&primCode, 0, sizeof(primCode));
+	primCode.code = 0;
 	primCode.poly.quad = 1;
 	primCode.poly.renderCode = RenderCode_Polygon;
 	ColorCode colorCode = MakeColorCode(UI_SLIDE_METER_READY_R, UI_SLIDE_METER_READY_G, UI_SLIDE_METER_READY_B, primCode);
@@ -385,7 +385,7 @@ void UI_DrawReservesMeter(s16 posX, s16 posY, struct Driver *driver)
 	meterWidth = CTR_WIDESCREEN_SCALE_X(meterWidth);
 
 	PrimCode primCode;
-	memset(&primCode, 0, sizeof(primCode));
+	primCode.code = 0;
 	primCode.poly.quad = 1;
 	primCode.poly.renderCode = RenderCode_Polygon;
 	ColorCode meterColor = MakeColorCode(0xff, 0, 0, primCode);
@@ -408,12 +408,11 @@ void UI_DrawReservesMeter(s16 posX, s16 posY, struct Driver *driver)
 		meterColor = MakeColorCode(0, 0, 0xff, primCode);
 	}
 
-	RECT box = {
-		.x = (s16)(posX - barWidth),
-		.y = (s16)(posY - barHeight),
-		.w = (s16)barWidth,
-		.h = (s16)barHeight,
-	};
+	RECT box;
+	box.x = (s16)(posX - barWidth);
+	box.y = (s16)(posY - barHeight);
+	box.w = (s16)barWidth;
+	box.h = (s16)barHeight;
 	Color black = MakeColor(0, 0, 0);
 	CTR_Box_DrawWireBox(&box, &black, gGT->pushBuffer_UI.ptrOT, &gGT->backBuffer->primMem);
 

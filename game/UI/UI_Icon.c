@@ -321,7 +321,7 @@ void UI_DrawDriverIcon(struct Icon *icon, s16 posX, s16 posY, struct PrimMem *pr
 {
 	PolyFT4 *p = primMem->cursor;
 	PrimCode primCode;
-	memset(&primCode, 0, sizeof(primCode));
+	primCode.code = 0;
 	primCode.poly.renderCode = RenderCode_Polygon;
 	primCode.poly.quad = 1;
 	primCode.poly.textured = 1;

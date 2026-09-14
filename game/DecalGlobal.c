@@ -44,31 +44,38 @@ void DecalGlobal_Store(struct GameTracker *gGT, struct LevTexLookup *LTL)
 {
 	struct Icon *currIcon;
 	struct IconGroup **currGroup;
+	u32 numIcon;
+	u32 numIconGroup;
 
 	if (LTL == 0)
 	{
 		return;
 	}
 
+	numIcon = CTR_ReadU32LE(&LTL->numIcon);
+	numIconGroup = CTR_ReadU32LE(&LTL->numIconGroup);
+
 	for (
 	    // array of Icon
-	    currIcon = &LTL->firstIcon[0]; currIcon < &LTL->firstIcon[LTL->numIcon]; currIcon++)
+	    currIcon = &LTL->firstIcon[0]; currIcon < &LTL->firstIcon[numIcon]; currIcon++)
 	{
+		u32 globalIdx = CTR_ReadU32LE(&currIcon->global_IconArray_Index);
 		// uint, in case of negatives
-		if ((u32)currIcon->global_IconArray_Index < 0x88)
+		if (globalIdx < 0x88)
 		{
-			gGT->ptrIcons[currIcon->global_IconArray_Index] = currIcon;
+			gGT->ptrIcons[globalIdx] = currIcon;
 		}
 	}
 
 	for (
 	    // array of POINTER to iconGroup
-	    currGroup = &LTL->firstIconGroupPtr[0]; currGroup < &LTL->firstIconGroupPtr[LTL->numIconGroup]; currGroup++)
+	    currGroup = &LTL->firstIconGroupPtr[0]; currGroup < &LTL->firstIconGroupPtr[numIconGroup]; currGroup++)
 	{
+		u16 groupID = CTR_ReadU16LE(&currGroup[0]->groupID);
 		// use '[0]' to dereference pointer
-		if ((u32)currGroup[0]->groupID < 0x11)
+		if ((u32)groupID < 0x11)
 		{
-			gGT->iconGroup[currGroup[0]->groupID] = currGroup[0];
+			gGT->iconGroup[groupID] = currGroup[0];
 		}
 	}
 }
@@ -77,6 +84,9 @@ void DecalGlobal_Store(struct GameTracker *gGT, struct LevTexLookup *LTL)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80022c88-0x80022d2c.
 int *DecalGlobal_FindInLEV(struct Level *level, char *str)
 {
+	u32 numIconGroup;
+	struct IconGroup **curr;
+	struct IconGroup **end;
 	struct LevTexLookup *ltl = level->levTexLookup;
 
 	if (ltl == NULL)
@@ -84,8 +94,9 @@ int *DecalGlobal_FindInLEV(struct Level *level, char *str)
 		return NULL;
 	}
 
-	struct IconGroup **curr = ltl->firstIconGroupPtr;
-	struct IconGroup **end = &ltl->firstIconGroupPtr[ltl->numIconGroup];
+	numIconGroup = CTR_ReadU32LE(&ltl->numIconGroup);
+	curr = ltl->firstIconGroupPtr;
+	end = &ltl->firstIconGroupPtr[numIconGroup];
 
 	for (; curr < end; curr++)
 	{

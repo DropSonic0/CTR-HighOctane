@@ -38,7 +38,7 @@ b32 CS_Camera_BoolGotoBoss(void)
 	const SVec3 *podiumPos = &gGT->level1->ptrSpawnType2_PosRot[1].posRot->pos;
 
 	// TRUE if TeleportSelf did NOT spawn on podium (goto boss door)
-	return (inst->matrix.t[0] != podiumPos->x) || (inst->matrix.t[2] != podiumPos->z);
+	return (inst->matrix.t[0] != (s16)CTR_ReadU16LE((u16 *)&podiumPos->x)) || (inst->matrix.t[2] != (s16)CTR_ReadU16LE((u16 *)&podiumPos->z));
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x800ae9a8-0x800aed48
@@ -50,8 +50,6 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 	struct Instance *inst;
 	struct CutsceneObj *cs;
 	struct GameTracker *gGT;
-	struct Model **mArr;
-	struct CsThreadInitData initData;
 
 	gGT = sdata->gGT;
 	levID = gGT->levelID;
@@ -126,7 +124,7 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 			break;
 		}
 
-		mArr = &D233.ptrModelBossHead;
+		struct Model **mArr = &D233.ptrModelBossHead;
 
 		for (int i = 0; i < 2; i++)
 		{
@@ -137,13 +135,17 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 					mArr[i] = (struct Model *)((char *)mArr[i] + 4);
 				}
 
-				gGT->modelPtr[mArr[i]->id] = mArr[i];
+				s16 modelID = MODEL_GET_ID(mArr[i]);
+				if (modelID >= 0 && (u16)modelID < len(gGT->modelPtr))
+				{
+					gGT->modelPtr[modelID] = mArr[i];
+				}
 			}
 		}
 
 		MEMPACK_SwapPacks(gGT->activeMempackIndex);
 
-		memset(&initData, 0, sizeof(initData));
+		struct CsThreadInitData initData = {0};
 		initData.podiumPos.x = bcd->bossPos.x;
 		initData.podiumPos.y = bcd->bossPos.y;
 		initData.podiumPos.z = bcd->bossPos.z;
@@ -165,7 +167,7 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 				continue;
 			}
 
-			t = CS_Thread_Init(mArr[i]->id, mArr[i]->name, &initData, 0, t);
+			t = CS_Thread_Init(MODEL_GET_ID(mArr[i]), mArr[i]->name, &initData, 0, t);
 			if (t == NULL)
 			{
 				continue;

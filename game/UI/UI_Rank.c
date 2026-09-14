@@ -421,16 +421,18 @@ void UI_DrawRankedDrivers(void)
 			struct CheckpointNode *cn1 = &cn[cn0->nextIndex_forward];
 			struct CheckpointNode *cn2 = &cn[cn1->nextIndex_forward];
 
-			SVec3 trackDir;
-			trackDir.x = cn1->pos.x - cn2->pos.x;
-			trackDir.y = cn1->pos.y - cn2->pos.y;
-			trackDir.z = cn1->pos.z - cn2->pos.z;
+			SVec3 trackDir = {{
+			    (s16)(cn1->pos.x - cn2->pos.x),
+			    (s16)(cn1->pos.y - cn2->pos.y),
+			    (s16)(cn1->pos.z - cn2->pos.z),
+			}};
 			MATH_VectorNormalize(&trackDir);
 
-			SVec3 warpDelta;
-			warpDelta.x = warpballPos[0] - cn1->pos.x;
-			warpDelta.y = warpballPos[1] - cn1->pos.y;
-			warpDelta.z = warpballPos[2] - cn1->pos.z;
+			SVec3 warpDelta = {{
+			    (s16)(warpballPos[0] - cn1->pos.x),
+			    (s16)(warpballPos[1] - cn1->pos.y),
+			    (s16)(warpballPos[2] - cn1->pos.z),
+			}};
 
 			CTR_GteLoadRotRow0SVec3(&trackDir);
 			CTR_GteLoadSVec3V0(&warpDelta);

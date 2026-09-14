@@ -7,27 +7,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define CTR_STATIC_ASSERT_CONCAT_IMPL(x, y) x##y
-#define CTR_STATIC_ASSERT_CONCAT(x, y) CTR_STATIC_ASSERT_CONCAT_IMPL(x, y)
-
-#ifdef __COUNTER__
-#define CTR_STATIC_ASSERT_ID __COUNTER__
+#if defined(__PPU__) || defined(__PS3__) || defined(__CELLOS_LV2__) || defined(__SNC__)
+#define CTR_STATIC_ASSERT(expr) typedef char static_assertion_at_line_##__LINE__[(expr) ? 1 : -1]
 #else
-#define CTR_STATIC_ASSERT_ID __LINE__
-#endif
-
-#if defined(__GNUC__) || defined(__clang__) || defined(__SNC__)
-#define CTR_STATIC_ASSERT_UNUSED __attribute__((unused))
-#else
-#define CTR_STATIC_ASSERT_UNUSED
-#endif
-
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define CTR_STATIC_ASSERT(expr) _Static_assert((expr), #expr)
-#elif defined(__cplusplus) && __cplusplus >= 201103L
-#define CTR_STATIC_ASSERT(expr) static_assert((expr), #expr)
-#else
-#define CTR_STATIC_ASSERT(expr) typedef char CTR_STATIC_ASSERT_CONCAT(ctr_static_assert_, CTR_STATIC_ASSERT_ID)[(expr) ? 1 : -1] CTR_STATIC_ASSERT_UNUSED
 #endif
 
 typedef uint64_t u64;

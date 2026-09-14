@@ -37,7 +37,7 @@ void UI_DrawSpeedNeedle(s16 posX, s16 posY, struct Driver *driver)
 	}
 
 	PrimCode primCode;
-	memset(&primCode, 0, sizeof(primCode));
+	primCode.code = 0;
 	primCode.poly.gouraud = 1;
 	primCode.poly.renderCode = RenderCode_Polygon;
 
@@ -120,9 +120,9 @@ void UI_DrawSpeedNeedle(s16 posX, s16 posY, struct Driver *driver)
 }
 
 const Color DrawSpeedBG_Colors[7] = {
-    [0] = {{.r = 0x00, .g = 0xb5, .b = 0x00}}, [1] = {{.r = 0x00, .g = 0xb5, .b = 0x00}}, [2] = {{.r = 0x00, .g = 0xb5, .b = 0x00}},
-    [3] = {{.r = 0xff, .g = 0xd1, .b = 0x00}}, [4] = {{.r = 0xdb, .g = 0x00, .b = 0x00}}, [5] = {{.r = 0xdb, .g = 0x00, .b = 0x00}},
-    [6] = {{.r = 0xdb, .g = 0x00, .b = 0x00}},
+    {{0x00, 0xb5, 0x00}}, {{0x00, 0xb5, 0x00}}, {{0x00, 0xb5, 0x00}},
+    {{0xff, 0xd1, 0x00}}, {{0xdb, 0x00, 0x00}}, {{0xdb, 0x00, 0x00}},
+    {{0xdb, 0x00, 0x00}}
 };
 
 // NOTE(aalhendi): PSX path ASM-verified NTSC-U 926 0x800516ac-0x80051c64.
@@ -166,7 +166,7 @@ void UI_DrawSpeedBG(void)
 		}
 
 		PrimCode primCode;
-		memset(&primCode, 0, sizeof(primCode));
+		primCode.code = 0;
 		primCode.poly.renderCode = RenderCode_Polygon;
 		primCode.poly.gouraud = 1;
 		primCode.poly.quad = 1;
@@ -204,7 +204,7 @@ void UI_DrawSpeedBG(void)
 			return;
 		}
 
-		memset(&p->t.texpage, 0, sizeof(p->t.texpage));
+		p->t.texpage.self = 0;
 		p->t.texpage.code = 0xE1;
 		p->t.texpage.dither = 1;
 		p->t.texpage.y_VRAM_EXP = 1;
@@ -212,7 +212,7 @@ void UI_DrawSpeedBG(void)
 
 		Color color = MakeColor(0, 0, 0);
 		PrimCode primCode;
-		memset(&primCode, 0, sizeof(primCode));
+		primCode.code = 0;
 		primCode.poly.renderCode = RenderCode_Polygon;
 		primCode.poly.gouraud = 1;
 		primCode.poly.semiTransparency = 1;

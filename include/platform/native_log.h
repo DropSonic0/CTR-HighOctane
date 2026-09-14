@@ -12,7 +12,7 @@ void Platform_Log(const char *fmt, ...) CTR_PRINTF_FORMAT(1, 2);
 void Platform_LogWarn(const char *fmt, ...) CTR_PRINTF_FORMAT(1, 2);
 void Platform_LogError(const char *fmt, ...) CTR_PRINTF_FORMAT(1, 2);
 
-#ifndef printf
+#if defined(__PS3__) || defined(__CELLOS_LV2__)
 #define printf Platform_Log
 #endif
 

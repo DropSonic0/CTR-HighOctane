@@ -20,7 +20,7 @@
 // e.g., if input is "0xfffffbb4", then in windows' calculator "0 - 0xfbb4" = "0xffff_ffff_ffff_044c", then replace the original number with "-0x044c"
 
 // s16-to-int downcasting is "implementation specified" (i.e., *not* undefined, *not* defined by the spec). It turns out that GCC handles this the way we like
-// (I think?), but we *should* manually fix this eventually.
+// (I think??), but we *should* manually fix this eventually.
 
 // also see https://discord.com/channels/527135227546435584/637616020177289236/1307309914691076167
 
@@ -971,7 +971,14 @@ struct Data
                     0x8C, 0x85, 0x8B},
 
             // used for BOTS
-            .identity = { { {0x1000, 0, 0}, {0, 0x1000, 0}, {0, 0, 0x1000} }, {0, -0x20, 0} },
+            .identity = {.m =
+                             {
+                                 {0x1000, 0x0, 0x0},
+                                 {0x0, 0x1000, 0x0},
+                                 {0x0, 0x0, 0x1000},
+                             },
+
+                         .t = {0, -0x20, 0}},
 
             .NearCam4x3 = {.distMin = 0xB3,
                            .distMax = 0xE0,
@@ -1022,7 +1029,7 @@ struct Data
                     0xC,  // mode 8
                     0x10, // mode 9 (trackSel and follow path)
                     0x6,  // mode A (CAM_FollowDriver_Spin360)
-                    0xC,  // mode B (LookAt and unk)
+                    0xC,  // mode B (LookAt and ???)
                     0x14, // mode C (TransitionTo)
                     0x10, // mode D (lookAt and follow path)
                     0xC,  // mode E
@@ -3554,7 +3561,7 @@ struct Data
                          .size_UNUSED = 0,
 
                          .flags = 0,
-                         .subfileIndex = (u32)-1,
+                         .subfileIndex = -1,
                          .ptrDestination = 0,
                          .callbackFuncPtr = 0},
 
@@ -4281,16 +4288,16 @@ struct Data
                     0x03,
                     0x04,
                     0x10,
-                    (u16)-3,
+                    -3,
                     0x00,
                     0x00,
                     0x10,
                     0x03,
-                    (u16)-16,
-                    (u16)-3,
+                    -16,
+                    -3,
                     0x00,
                     0x00,
-                    (u16)-16,
+                    -16,
                     0x03,
                 },
             .raceConfig_colors_arrows =
@@ -4788,7 +4795,14 @@ struct Data
                                    .state = DISABLE_INPUT_ALLOW_FUNCPTRS, // no input, just funcPtr
                                    .funcPtr = QueueLoadTrack_MenuProc},
 
-            .matrixTitleFlag = { { {-0xe93, -0x2aa, -0x607}, {0xEA, -0x8cc, 0x1A9}, {-0x662, 0x214, 0xE84} }, {0, 0, 0} },
+            .matrixTitleFlag = {.m =
+                                    {
+                                        {-0xe93, -0x2aa, -0x607},
+                                        {0xEA, -0x8cc, 0x1A9},
+                                        {-0x662, 0x214, 0xE84},
+                                    },
+
+                                .t = {0, 0, 0}},
 
             .checkerFlagVariables = {0, 0x96, 0, 0xB4, 0},
 
@@ -5084,36 +5098,36 @@ struct Data
             .speedometerBG_vertData =
                 {
                     {
-                        {-65, 16},
-                        {-54, 13},
-                        {-70, 0},
-                        {-58, 0},
-                        {-65, -16},
-                        {-54, -13},
-                        {-50, -29},
-                        {-42, -24},
-                        {-25, -39},
-                        {-21, -32},
-                        {0, -42},
-                        {0, -35},
-                        {25, -39},
-                        {21, -32},
+                        {{-65, 16}},
+                        {{-54, 13}},
+                        {{-70, 0}},
+                        {{-58, 0}},
+                        {{-65, -16}},
+                        {{-54, -13}},
+                        {{-50, -29}},
+                        {{-42, -24}},
+                        {{-25, -39}},
+                        {{-21, -32}},
+                        {{0, -42}},
+                        {{0, -35}},
+                        {{25, -39}},
+                        {{21, -32}},
                     },
                     {
-                        {-65, 16},
-                        {-48, 11},
-                        {-70, 0},
-                        {-51, 0},
-                        {-65, -16},
-                        {-48, -11},
-                        {-50, -29},
-                        {-37, -21},
-                        {-25, -39},
-                        {-18, -29},
-                        {0, -42},
-                        {0, -31},
-                        {25, -39},
-                        {18, -29},
+                        {{-65, 16}},
+                        {{-48, 11}},
+                        {{-70, 0}},
+                        {{-51, 0}},
+                        {{-65, -16}},
+                        {{-48, -11}},
+                        {{-50, -29}},
+                        {{-37, -21}},
+                        {{-25, -39}},
+                        {{-18, -29}},
+                        {{0, -42}},
+                        {{0, -31}},
+                        {{25, -39}},
+                        {{18, -29}},
                     },
                 },
 
@@ -5367,209 +5381,1126 @@ struct Data
 
             .matArr01 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 0, -19, -537 } }, .authoredRot = { .v = { 0, -26, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4262, 3686 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 0, 45, -789 } }, .authoredRot = { .v = { 0, -53, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4429, 3276 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 0, 359, -162 } }, .authoredRot = { .v = { 0, -82, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 3596 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 0, 779, 720 } }, .authoredRot = { .v = { 0, -112, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4420, 4300 } } } },
-                    [4] = { { { .bakedOffset = { .v = { 0, 1234, 1471 } }, .authoredRot = { .v = { 0, -142, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4217, 5004 } } } },
-                    [5] = { { { .bakedOffset = { .v = { 0, 1685, 1994 } }, .authoredRot = { .v = { 0, -171, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 3974, 5324 } } } },
-                    [6] = { { { .bakedOffset = { .v = { 0, 2093, 1958 } }, .authoredRot = { .v = { 0, -198, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 3771, 5233 } } } },
-                    [7] = { { { .bakedOffset = { .v = { 0, 2385, 1690 } }, .authoredRot = { .v = { 0, -222, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 3686, 5006 } } } },
-                    [8] = { { { .bakedOffset = { .v = { 0, 2431, 1398 } }, .authoredRot = { .v = { 0, -243, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 3750, 4710 } } } },
-                    [9] = { { { .bakedOffset = { .v = { 0, 2361, 1115 } }, .authoredRot = { .v = { 0, -259, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 3891, 4414 } } } },
-                    [10] = { { { .bakedOffset = { .v = { 0, 2232, 946 } }, .authoredRot = { .v = { 0, -269, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4032, 4186 } } } },
+                    {{
+                               {
+                                   {0, -19, -537},
+                                   {0, -26, 0},
+                                   {0, 0, 4096},
+                               },
+                           4262, // Sneaky ND trick
+                           {3686, 0, 0}}},
+                    {{
+                               {
+                                   {0, 45, -789},
+                                   {0, -53, 0},
+                                   {0, 0, 4096},
+                               },
+                           4429, // Sneaky ND trick
+                           {3276, 0, 0}}},
+                    {{
+                               {
+                                   {0, 359, -162},
+                                   {0, -82, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {3596, 0, 0}}},
+                    {{
+                               {
+                                   {0, 779, 720},
+                                   {0, -112, 0},
+                                   {0, 0, 4096},
+                               },
+                           4420, // Sneaky ND trick
+                           {4300, 0, 0}}},
+                    {{
+                               {
+                                   {0, 1234, 1471},
+                                   {0, -142, 0},
+                                   {0, 0, 4096},
+                               },
+                           4217, // Sneaky ND trick
+                           {5004, 0, 0}}},
+                    {{
+                               {
+                                   {0, 1685, 1994},
+                                   {0, -171, 0},
+                                   {0, 0, 4096},
+                               },
+                           3974, // Sneaky ND trick
+                           {5324, 0, 0}}},
+                    {{
+                               {
+                                   {0, 2093, 1958},
+                                   {0, -198, 0},
+                                   {0, 0, 4096},
+                               },
+                           3771, // Sneaky ND trick
+                           {5233, 0, 0}}},
+                    {{
+                               {
+                                   {0, 2385, 1690},
+                                   {0, -222, 0},
+                                   {0, 0, 4096},
+                               },
+                           3686, // Sneaky ND trick
+                           {5006, 0, 0}}},
+                    {{
+                               {
+                                   {0, 2431, 1398},
+                                   {0, -243, 0},
+                                   {0, 0, 4096},
+                               },
+                           3750, // Sneaky ND trick
+                           {4710, 0, 0}}},
+                    {{
+                               {
+                                   {0, 2361, 1115},
+                                   {0, -259, 0},
+                                   {0, 0, 4096},
+                               },
+                           3891, // Sneaky ND trick
+                           {4414, 0, 0}}},
+                    {{
+                                {
+                                    {0, 2232, 946},
+                                    {0, -269, 0},
+                                    {0, 0, 4096},
+                                },
+                            4032, // Sneaky ND trick
+                            {4186, 0, 0}}},
                 },
 
             .matArr02 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 0, 2132, 879 } }, .authoredRot = { .v = { 0, -273, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {0, 2132, 879},
+                                   {0, -273, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr03 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 0, 1896, 865 } }, .authoredRot = { .v = { 0, -243, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4057, 4171 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 0, 1502, 844 } }, .authoredRot = { .v = { 0, -171, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 3974, 4338 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 0, 716, 792 } }, .authoredRot = { .v = { 0, -82, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 3891, 4505 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 0, 481, 1014 } }, .authoredRot = { .v = { 0, -2, 0 } }, .authoredScale = { .v = { 0, 0, 4915 } }, .authoredPad = { 3276, 4915 } } } },
-                    [4] = { { { .bakedOffset = { .v = { 0, 297, 541 } }, .authoredRot = { .v = { 0, -2, 0 } }, .authoredScale = { .v = { 0, 0, 4596 } }, .authoredPad = { 3595, 4596 } } } },
-                    [5] = { { { .bakedOffset = { .v = { 0, -22, -203 } }, .authoredRot = { .v = { 0, -2, 0 } }, .authoredScale = { .v = { 0, 0, 4005 } }, .authoredPad = { 4186, 4005 } } } },
-                    [6] = { { { .bakedOffset = { .v = { 0, -224, -389 } }, .authoredRot = { .v = { 0, -2, 0 } }, .authoredScale = { .v = { 0, 0, 3686 } }, .authoredPad = { 4505, 3686 } } } },
-                    [7] = { { { .bakedOffset = { .v = { 0, -287, -439 } }, .authoredRot = { .v = { 0, -2, 0 } }, .authoredScale = { .v = { 0, 0, 3792 } }, .authoredPad = { 4399, 3792 } } } },
-                    [8] = { { { .bakedOffset = { .v = { 0, -142, -220 } }, .authoredRot = { .v = { 0, -2, 0 } }, .authoredScale = { .v = { 0, 0, 3989 } }, .authoredPad = { 4202, 3989 } } } },
+                    {{
+                               {
+                                   {0, 1896, 865},
+                                   {0, -243, 0},
+                                   {0, 0, 4096},
+                               },
+                           4057, // Sneaky ND trick
+                           {4171, 0, 0}}},
+                    {{
+                               {
+                                   {0, 1502, 844},
+                                   {0, -171, 0},
+                                   {0, 0, 4096},
+                               },
+                           3974, // Sneaky ND trick
+                           {4338, 0, 0}}},
+                    {{
+                               {
+                                   {0, 716, 792},
+                                   {0, -82, 0},
+                                   {0, 0, 4096},
+                               },
+                           3891, // Sneaky ND trick
+                           {4505, 0, 0}}},
+                    {{
+                               {
+                                   {0, 481, 1014},
+                                   {0, -2, 0},
+                                   {0, 0, 4915},
+                               },
+                           3276, // Sneaky ND trick
+                           {4915, 0, 0}}},
+                    {{
+                               {
+                                   {0, 297, 541},
+                                   {0, -2, 0},
+                                   {0, 0, 4596},
+                               },
+                           3595, // Sneaky ND trick
+                           {4596, 0, 0}}},
+                    {{
+                               {
+                                   {0, -22, -203},
+                                   {0, -2, 0},
+                                   {0, 0, 4005},
+                               },
+                           4186, // Sneaky ND trick
+                           {4005, 0, 0}}},
+                    {{
+                               {
+                                   {0, -224, -389},
+                                   {0, -2, 0},
+                                   {0, 0, 3686},
+                               },
+                           4505, // Sneaky ND trick
+                           {3686, 0, 0}}},
+                    {{
+                               {
+                                   {0, -287, -439},
+                                   {0, -2, 0},
+                                   {0, 0, 3792},
+                               },
+                           4399, // Sneaky ND trick
+                           {3792, 0, 0}}},
+                    {{
+                               {
+                                   {0, -142, -220},
+                                   {0, -2, 0},
+                                   {0, 0, 3989},
+                               },
+                           4202, // Sneaky ND trick
+                           {3989, 0, 0}}},
                 },
 
             .matArr04 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 0, 5954, 491 } }, .authoredRot = { .v = { 0, 341, 0 } }, .authoredScale = { .v = { 0, 0, 5632 } }, .authoredPad = { 3328, 4403 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 0, 11000, 4199 } }, .authoredRot = { .v = { 0, 682, 0 } }, .authoredScale = { .v = { 0, 0, 7168 } }, .authoredPad = { 2560, 4710 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 0, 10893, 3886 } }, .authoredRot = { .v = { 0, 682, 0 } }, .authoredScale = { .v = { 0, 0, 6345 } }, .authoredPad = { 3011, 4524 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 0, 10546, 3394 } }, .authoredRot = { .v = { 0, 682, 0 } }, .authoredScale = { .v = { 0, 0, 4816 } }, .authoredPad = { 3849, 4179 } } } },
-                    [4] = { { { .bakedOffset = { .v = { 0, 9675, 2322 } }, .authoredRot = { .v = { 0, 633, 0 } }, .authoredScale = { .v = { 0, 0, 3993 } }, .authoredPad = { 4300, 3993 } } } },
-                    [5] = { { { .bakedOffset = { .v = { 0, 8182, 1161 } }, .authoredRot = { .v = { 0, 507, 0 } }, .authoredScale = { .v = { 0, 0, 4020 } }, .authoredPad = { 4247, 4020 } } } },
-                    [6] = { { { .bakedOffset = { .v = { 0, 5619, 171 } }, .authoredRot = { .v = { 0, 338, 0 } }, .authoredScale = { .v = { 0, 0, 4069 } }, .authoredPad = { 4149, 4069 } } } },
-                    [7] = { { { .bakedOffset = { .v = { 0, 2727, -357 } }, .authoredRot = { .v = { 0, 158, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [8] = { { { .bakedOffset = { .v = { 0, 182, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4710 } }, .authoredPad = { 3788, 4710 } } } },
-                    [9] = { { { .bakedOffset = { .v = { 0, 1255, -108 } }, .authoredRot = { .v = { 0, 69, 0 } }, .authoredScale = { .v = { 0, 0, 5324 } }, .authoredPad = { 3481, 5324 } } } },
-                    [10] = { { { .bakedOffset = { .v = { 0, 2330, -218 } }, .authoredRot = { .v = { 0, 139, 0 } }, .authoredScale = { .v = { 0, 0, 5057 } }, .authoredPad = { 3690, 5057 } } } },
-                    [11] = { { { .bakedOffset = { .v = { 0, 2818, -267 } }, .authoredRot = { .v = { 0, 170, 0 } }, .authoredScale = { .v = { 0, 0, 4468 } }, .authoredPad = { 4151, 4468 } } } },
-                    [12] = { { { .bakedOffset = { .v = { 0, 2342, -331 } }, .authoredRot = { .v = { 0, 158, 0 } }, .authoredScale = { .v = { 0, 0, 3879 } }, .authoredPad = { 4612, 3879 } } } },
-                    [13] = { { { .bakedOffset = { .v = { 0, 1665, -315 } }, .authoredRot = { .v = { 0, 126, 0 } }, .authoredScale = { .v = { 0, 0, 3612 } }, .authoredPad = { 4821, 3612 } } } },
-                    [14] = { { { .bakedOffset = { .v = { 0, 1019, -270 } }, .authoredRot = { .v = { 0, 84, 0 } }, .authoredScale = { .v = { 0, 0, 3737 } }, .authoredPad = { 4633, 3737 } } } },
-                    [15] = { { { .bakedOffset = { .v = { 0, 487, -112 } }, .authoredRot = { .v = { 0, 39, 0 } }, .authoredScale = { .v = { 0, 0, 3970 } }, .authoredPad = { 4284, 3970 } } } },
+                    {{
+                               {
+                                   {0, 5954, 491},
+                                   {0, 341, 0},
+                                   {0, 0, 5632},
+                               },
+                           3328, // Sneaky ND trick
+                           {4403, 0, 0}}},
+                    {{
+                               {
+                                   {0, 11000, 4199},
+                                   {0, 682, 0},
+                                   {0, 0, 7168},
+                               },
+                           2560, // Sneaky ND trick
+                           {4710, 0, 0}}},
+                    {{
+                               {
+                                   {0, 10893, 3886},
+                                   {0, 682, 0},
+                                   {0, 0, 6345},
+                               },
+                           3011, // Sneaky ND trick
+                           {4524, 0, 0}}},
+                    {{
+                               {
+                                   {0, 10546, 3394},
+                                   {0, 682, 0},
+                                   {0, 0, 4816},
+                               },
+                           3849, // Sneaky ND trick
+                           {4179, 0, 0}}},
+                    {{
+                               {
+                                   {0, 9675, 2322},
+                                   {0, 633, 0},
+                                   {0, 0, 3993},
+                               },
+                           4300, // Sneaky ND trick
+                           {3993, 0, 0}}},
+                    {{
+                               {
+                                   {0, 8182, 1161},
+                                   {0, 507, 0},
+                                   {0, 0, 4020},
+                               },
+                           4247, // Sneaky ND trick
+                           {4020, 0, 0}}},
+                    {{
+                               {
+                                   {0, 5619, 171},
+                                   {0, 338, 0},
+                                   {0, 0, 4069},
+                               },
+                           4149, // Sneaky ND trick
+                           {4069, 0, 0}}},
+                    {{
+                               {
+                                   {0, 2727, -357},
+                                   {0, 158, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 182, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4710},
+                               },
+                           3788, // Sneaky ND trick
+                           {4710, 0, 0}}},
+                    {{
+                               {
+                                   {0, 1255, -108},
+                                   {0, 69, 0},
+                                   {0, 0, 5324},
+                               },
+                           3481, // Sneaky ND trick
+                           {5324, 0, 0}}},
+                    {{
+                                {
+                                    {0, 2330, -218},
+                                    {0, 139, 0},
+                                    {0, 0, 5057},
+                                },
+                            3690, // Sneaky ND trick
+                            {5057, 0, 0}}},
+                    {{
+                                {
+                                    {0, 2818, -267},
+                                    {0, 170, 0},
+                                    {0, 0, 4468},
+                                },
+                            4151, // Sneaky ND trick
+                            {4468, 0, 0}}},
+                    {{
+                                {
+                                    {0, 2342, -331},
+                                    {0, 158, 0},
+                                    {0, 0, 3879},
+                                },
+                            4612, // Sneaky ND trick
+                            {3879, 0, 0}}},
+                    {{
+                                {
+                                    {0, 1665, -315},
+                                    {0, 126, 0},
+                                    {0, 0, 3612},
+                                },
+                            4821, // Sneaky ND trick
+                            {3612, 0, 0}}},
+                    {{
+                                {
+                                    {0, 1019, -270},
+                                    {0, 84, 0},
+                                    {0, 0, 3737},
+                                },
+                            4633, // Sneaky ND trick
+                            {3737, 0, 0}}},
+                    {{
+                                {
+                                    {0, 487, -112},
+                                    {0, 39, 0},
+                                    {0, 0, 3970},
+                                },
+                            4284, // Sneaky ND trick
+                            {3970, 0, 0}}},
                 },
 
             .matArr05 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 0, 3091, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 2227, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 0, 3896, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3704 } }, .authoredPad = { 4456, 3704 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 0, 4418, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3200 } }, .authoredPad = { 5869, 3200 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 0, 4636, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3086 } }, .authoredPad = { 6116, 3086 } } } },
-                    [4] = { { { .bakedOffset = { .v = { 0, 4418, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3200 } }, .authoredPad = { 5869, 3200 } } } },
-                    [5] = { { { .bakedOffset = { .v = { 0, 3338, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3758 } }, .authoredPad = { 5251, 3758 } } } },
-                    [6] = { { { .bakedOffset = { .v = { 0, 1669, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4550 } }, .authoredPad = { 4217, 4550 } } } },
-                    [7] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4952 } }, .authoredPad = { 3246, 4952 } } } },
-                    [8] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4670 } }, .authoredPad = { 2816, 4670 } } } },
-                    [9] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4049 } }, .authoredPad = { 3073, 4049 } } } },
-                    [10] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3427 } }, .authoredPad = { 3639, 3427 } } } },
-                    [11] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3145 } }, .authoredPad = { 4205, 3145 } } } },
-                    [12] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3294 } }, .authoredPad = { 4463, 3294 } } } },
-                    [13] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3620 } }, .authoredPad = { 4367, 3620 } } } },
-                    [14] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 3947 } }, .authoredPad = { 4191, 3947 } } } },
+                    {{
+                               {
+                                   {0, 3091, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           2227, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 3896, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 3704},
+                               },
+                           4456, // Sneaky ND trick
+                           {3704, 0, 0}}},
+                    {{
+                               {
+                                   {0, 4418, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 3200},
+                               },
+                           5869, // Sneaky ND trick
+                           {3200, 0, 0}}},
+                    {{
+                               {
+                                   {0, 4636, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 3086},
+                               },
+                           6116, // Sneaky ND trick
+                           {3086, 0, 0}}},
+                    {{
+                               {
+                                   {0, 4418, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 3200},
+                               },
+                           5869, // Sneaky ND trick
+                           {3200, 0, 0}}},
+                    {{
+                               {
+                                   {0, 3338, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 3758},
+                               },
+                           5251, // Sneaky ND trick
+                           {3758, 0, 0}}},
+                    {{
+                               {
+                                   {0, 1669, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4550},
+                               },
+                           4217, // Sneaky ND trick
+                           {4550, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4952},
+                               },
+                           3246, // Sneaky ND trick
+                           {4952, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4670},
+                               },
+                           2816, // Sneaky ND trick
+                           {4670, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4049},
+                               },
+                           3073, // Sneaky ND trick
+                           {4049, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 3427},
+                                },
+                            3639, // Sneaky ND trick
+                            {3427, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 3145},
+                                },
+                            4205, // Sneaky ND trick
+                            {3145, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 3294},
+                                },
+                            4463, // Sneaky ND trick
+                            {3294, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 3620},
+                                },
+                            4367, // Sneaky ND trick
+                            {3620, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 3947},
+                                },
+                            4191, // Sneaky ND trick
+                            {3947, 0, 0}}},
                 },
 
             .matArr06 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [4] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [5] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [6] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [7] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [8] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [9] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [10] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [11] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [12] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [13] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [14] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [15] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [16] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [17] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [18] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [19] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [20] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [21] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [22] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [23] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [24] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [25] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [26] = { { { .bakedOffset = { .v = { 0, 0, 0 } }, .authoredRot = { .v = { 0, 0, 0 } }, .authoredScale = { .v = { 0, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 0, 0},
+                                   {0, 0, 0},
+                                   {0, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
+                    {{
+                                {
+                                    {0, 0, 0},
+                                    {0, 0, 0},
+                                    {0, 0, 4096},
+                                },
+                            4096, // Sneaky ND trick
+                            {4096, 0, 0}}},
                 },
 
             .matArr07 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -209, 664, 179 } }, .authoredRot = { .v = { 0, -3, 2 } }, .authoredScale = { .v = { -41, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -672, 2127, 574 } }, .authoredRot = { .v = { 0, -6, 9 } }, .authoredScale = { .v = { -132, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -1133, 3591, 969 } }, .authoredRot = { .v = { 0, -10, 15 } }, .authoredScale = { .v = { -224, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -1343, 4255, 1149 } }, .authoredRot = { .v = { 0, -11, 18 } }, .authoredScale = { .v = { -265, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-209, 664, 179},
+                                   {0, -3, 2},
+                                   {-41, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-672, 2127, 574},
+                                   {0, -6, 9},
+                                   {-132, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-1133, 3591, 969},
+                                   {0, -10, 15},
+                                   {-224, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-1343, 4255, 1149},
+                                   {0, -11, 18},
+                                   {-265, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr08 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -157, 43, 121 } }, .authoredRot = { .v = { 0, -49, 0 } }, .authoredScale = { .v = { -27, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -503, 137, 389 } }, .authoredRot = { .v = { 0, -153, 0 } }, .authoredScale = { .v = { -88, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -849, 231, 656 } }, .authoredRot = { .v = { 0, -256, 0 } }, .authoredScale = { .v = { -148, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -1006, 275, 778 } }, .authoredRot = { .v = { 0, -303, 0 } }, .authoredScale = { .v = { -176, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-157, 43, 121},
+                                   {0, -49, 0},
+                                   {-27, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-503, 137, 389},
+                                   {0, -153, 0},
+                                   {-88, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-849, 231, 656},
+                                   {0, -256, 0},
+                                   {-148, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-1006, 275, 778},
+                                   {0, -303, 0},
+                                   {-176, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr09 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 78, 328, -103 } }, .authoredRot = { .v = { 0, 35, 0 } }, .authoredScale = { .v = { -17, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 252, 1051, -330 } }, .authoredRot = { .v = { 0, 113, 0 } }, .authoredScale = { .v = { -56, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 425, 1774, -557 } }, .authoredRot = { .v = { 0, 192, 0 } }, .authoredScale = { .v = { -96, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 505, 2103, -659 } }, .authoredRot = { .v = { 0, 227, 0 } }, .authoredScale = { .v = { -113, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {78, 328, -103},
+                                   {0, 35, 0},
+                                   {-17, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {252, 1051, -330},
+                                   {0, 113, 0},
+                                   {-56, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {425, 1774, -557},
+                                   {0, 192, 0},
+                                   {-96, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {505, 2103, -659},
+                                   {0, 227, 0},
+                                   {-113, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr0A =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -83, 252, 0 } }, .authoredRot = { .v = { 0, -20, 0 } }, .authoredScale = { .v = { -10, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -267, 808, 0 } }, .authoredRot = { .v = { 0, -62, 0 } }, .authoredScale = { .v = { -32, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -452, 1364, 0 } }, .authoredRot = { .v = { 0, -103, 0 } }, .authoredScale = { .v = { -54, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -536, 1617, 0 } }, .authoredRot = { .v = { 0, -121, 0 } }, .authoredScale = { .v = { -64, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-83, 252, 0},
+                                   {0, -20, 0},
+                                   {-10, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-267, 808, 0},
+                                   {0, -62, 0},
+                                   {-32, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-452, 1364, 0},
+                                   {0, -103, 0},
+                                   {-54, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-536, 1617, 0},
+                                   {0, -121, 0},
+                                   {-64, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr0B =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 11, 176, -96 } }, .authoredRot = { .v = { 0, 19, 0 } }, .authoredScale = { .v = { -13, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 38, 566, -310 } }, .authoredRot = { .v = { 0, 60, 0 } }, .authoredScale = { .v = { -44, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 62, 954, -524 } }, .authoredRot = { .v = { 0, 102, 0 } }, .authoredScale = { .v = { -74, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 74, 1131, -621 } }, .authoredRot = { .v = { 0, 121, 0 } }, .authoredScale = { .v = { -88, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {11, 176, -96},
+                                   {0, 19, 0},
+                                   {-13, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {38, 566, -310},
+                                   {0, 60, 0},
+                                   {-44, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {62, 954, -524},
+                                   {0, 102, 0},
+                                   {-74, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {74, 1131, -621},
+                                   {0, 121, 0},
+                                   {-88, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr0C =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -107, 313, -298 } }, .authoredRot = { .v = { 0, 31, 0 } }, .authoredScale = { .v = { -14, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -342, 1004, -954 } }, .authoredRot = { .v = { 0, 100, 0 } }, .authoredScale = { .v = { -44, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -576, 1693, -1610 } }, .authoredRot = { .v = { 0, 169, 0 } }, .authoredScale = { .v = { -75, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -684, 2008, -1909 } }, .authoredRot = { .v = { 0, 201, 0 } }, .authoredScale = { .v = { -89, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-107, 313, -298},
+                                   {0, 31, 0},
+                                   {-14, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-342, 1004, -954},
+                                   {0, 100, 0},
+                                   {-44, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-576, 1693, -1610},
+                                   {0, 169, 0},
+                                   {-75, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-684, 2008, -1909},
+                                   {0, 201, 0},
+                                   {-89, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr0D =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -61, 81, 115 } }, .authoredRot = { .v = { 0, -20, 0 } }, .authoredScale = { .v = { -11, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -196, 259, 369 } }, .authoredRot = { .v = { 0, -64, 0 } }, .authoredScale = { .v = { -37, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -331, 437, 625 } }, .authoredRot = { .v = { 0, -108, 0 } }, .authoredScale = { .v = { -63, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -393, 519, 740 } }, .authoredRot = { .v = { 0, -128, 0 } }, .authoredScale = { .v = { -75, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-61, 81, 115},
+                                   {0, -20, 0},
+                                   {-11, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-196, 259, 369},
+                                   {0, -64, 0},
+                                   {-37, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-331, 437, 625},
+                                   {0, -108, 0},
+                                   {-63, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-393, 519, 740},
+                                   {0, -128, 0},
+                                   {-75, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr0E =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -62, 180, -81 } }, .authoredRot = { .v = { 0, 20, 0 } }, .authoredScale = { .v = { -9, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -199, 578, -260 } }, .authoredRot = { .v = { 0, 65, 0 } }, .authoredScale = { .v = { -30, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -336, 976, -440 } }, .authoredRot = { .v = { 0, 111, 0 } }, .authoredScale = { .v = { -51, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -399, 1157, -521 } }, .authoredRot = { .v = { 0, 131, 0 } }, .authoredScale = { .v = { -61, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-62, 180, -81},
+                                   {0, 20, 0},
+                                   {-9, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-199, 578, -260},
+                                   {0, 65, 0},
+                                   {-30, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-336, 976, -440},
+                                   {0, 111, 0},
+                                   {-51, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-399, 1157, -521},
+                                   {0, 131, 0},
+                                   {-61, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr0F =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -150, 114, 0 } }, .authoredRot = { .v = { 0, -4, 0 } }, .authoredScale = { .v = { -28, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -481, 363, 0 } }, .authoredRot = { .v = { 0, -13, 0 } }, .authoredScale = { .v = { -92, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -812, 613, 0 } }, .authoredRot = { .v = { 0, -22, 0 } }, .authoredScale = { .v = { -155, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -963, 727, 0 } }, .authoredRot = { .v = { 0, -26, 0 } }, .authoredScale = { .v = { -184, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-150, 114, 0},
+                                   {0, -4, 0},
+                                   {-28, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-481, 363, 0},
+                                   {0, -13, 0},
+                                   {-92, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-812, 613, 0},
+                                   {0, -22, 0},
+                                   {-155, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-963, 727, 0},
+                                   {0, -26, 0},
+                                   {-184, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr10 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 0, 57, 38 } }, .authoredRot = { .v = { 0, -7, 0 } }, .authoredScale = { .v = { -2, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 0, 199, 132 } }, .authoredRot = { .v = { 0, -25, 0 } }, .authoredScale = { .v = { -7, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 0, 374, 247 } }, .authoredRot = { .v = { 0, -47, 0 } }, .authoredScale = { .v = { -14, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 0, 533, 352 } }, .authoredRot = { .v = { 0, -67, 0 } }, .authoredScale = { .v = { -20, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {0, 57, 38},
+                                   {0, -7, 0},
+                                   {-2, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 199, 132},
+                                   {0, -25, 0},
+                                   {-7, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 374, 247},
+                                   {0, -47, 0},
+                                   {-14, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 533, 352},
+                                   {0, -67, 0},
+                                   {-20, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr11 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { 0, 238, -83 } }, .authoredRot = { .v = { 0, 18, 0 } }, .authoredScale = { .v = { -6, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { 0, 761, -267 } }, .authoredRot = { .v = { 0, 58, 0 } }, .authoredScale = { .v = { -20, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { 0, 1284, -450 } }, .authoredRot = { .v = { 0, 98, 0 } }, .authoredScale = { .v = { -34, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { 0, 1523, -534 } }, .authoredRot = { .v = { 0, 117, 0 } }, .authoredScale = { .v = { -40, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {0, 238, -83},
+                                   {0, 18, 0},
+                                   {-6, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 761, -267},
+                                   {0, 58, 0},
+                                   {-20, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 1284, -450},
+                                   {0, 98, 0},
+                                   {-34, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {0, 1523, -534},
+                                   {0, 117, 0},
+                                   {-40, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr12 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -145, 0, 148 } }, .authoredRot = { .v = { 0, -19, 0 } }, .authoredScale = { .v = { -14, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -463, 0, 475 } }, .authoredRot = { .v = { 0, -62, 0 } }, .authoredScale = { .v = { -45, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -782, 0, 803 } }, .authoredRot = { .v = { 0, -105, 0 } }, .authoredScale = { .v = { -76, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -927, 0, 951 } }, .authoredRot = { .v = { 0, -125, 0 } }, .authoredScale = { .v = { -91, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-145, 0, 148},
+                                   {0, -19, 0},
+                                   {-14, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-463, 0, 475},
+                                   {0, -62, 0},
+                                   {-45, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-782, 0, 803},
+                                   {0, -105, 0},
+                                   {-76, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-927, 0, 951},
+                                   {0, -125, 0},
+                                   {-91, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .matArr13 =
                 {
-                    [0] = { { { .bakedOffset = { .v = { -237, 373, 55 } }, .authoredRot = { .v = { 0, -10, 0 } }, .authoredScale = { .v = { -19, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [1] = { { { .bakedOffset = { .v = { -760, 1196, 174 } }, .authoredRot = { .v = { 0, -34, 0 } }, .authoredScale = { .v = { -62, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [2] = { { { .bakedOffset = { .v = { -1281, 2018, 294 } }, .authoredRot = { .v = { 0, -58, 0 } }, .authoredScale = { .v = { -105, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
-                    [3] = { { { .bakedOffset = { .v = { -1520, 2392, 349 } }, .authoredRot = { .v = { 0, -69, 0 } }, .authoredScale = { .v = { -125, 0, 4096 } }, .authoredPad = { 4096, 4096 } } } },
+                    {{
+                               {
+                                   {-237, 373, 55},
+                                   {0, -10, 0},
+                                   {-19, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-760, 1196, 174},
+                                   {0, -34, 0},
+                                   {-62, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-1281, 2018, 294},
+                                   {0, -58, 0},
+                                   {-105, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
+                    {{
+                               {
+                                   {-1520, 2392, 349},
+                                   {0, -69, 0},
+                                   {-125, 0, 4096},
+                               },
+                           4096, // Sneaky ND trick
+                           {4096, 0, 0}}},
                 },
 
             .bakedGteMath =
@@ -5625,86 +6556,19 @@ struct Data
 
             .emSet_DirtLR =
                 {
-                    {.flags = 1,
-                     .initOffset = 12,
-                     .InitTypes = {.FuncInit = {
-                             .particle_funcPtr = 0x00000000,
-                             .particle_colorFlags = 0x58a2,
-                             .particle_lifespan = 0x000a,
-                             .particle_Type = 0,
-                         }}},
+                    {1, 12, {{{0x00000000, 0x58a2, 0x000a, 0, 0}}}, {0}},
 
-                    {.flags = 27,
-                     .initOffset = 0,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = -2560,
-                                                    .velocity = -500,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 5120,
-                                                    .velocity = 1000,
-                                                    .accel = 0,
-                                                }}}},
+                    {27, 0, {{{{-2560, -500, 0}, {5120, 1000, 0}}}}, {0}},
 
-                    {.flags = 27,
-                     .initOffset = 2,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = -2560,
-                                                    .velocity = -500,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 5120,
-                                                    .velocity = 1000,
-                                                    .accel = 0,
-                                                }}}},
+                    {27, 2, {{{{-2560, -500, 0}, {5120, 1000, 0}}}}, {0}},
 
-                    {.flags = 23,
-                     .initOffset = 1,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 2560,
-                                                    .velocity = 1500,
-                                                    .accel = -300,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 400,
-                                                    .accel = 0,
-                                                }}}},
+                    {23, 1, {{{{2560, 1500, -300}, {0, 400, 0}}}}, {0}},
 
-                    {.flags = 3,
-                     .initOffset = 7,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 65280,
-                                                    .velocity = -2048,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {3, 7, {{{{65280, -2048, 0}, {0, 0, 0}}}}, {0}},
 
-                    {.flags = 3,
-                     .initOffset = 8,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 32768,
-                                                    .velocity = -1024,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {3, 8, {{{{32768, -1024, 0}, {0, 0, 0}}}}, {0}},
 
-                    {.flags = 1,
-                     .initOffset = 9,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 1,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {1, 9, {{{{1, 0, 0}, {0, 0, 0}}}}, {0}},
 
                     // null terminator
                     //{},
@@ -5712,110 +6576,23 @@ struct Data
 
             .emSet_GrassL =
                 {
-                    {.flags = 1,
-                     .initOffset = 12,
-                     .InitTypes = {.FuncInit = {
-                             .particle_funcPtr = 0x00000000,
-                             .particle_colorFlags = 0x1800,
-                             .particle_lifespan = 0x000a,
-                             .particle_Type = 0,
-                         }}},
+                    {1, 12, {{{0x00000000, 0x1800, 0x000a, 0, 0}}}, {0}},
 
-                    {.flags = 27,
-                     .initOffset = 0,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = -2560,
-                                                    .velocity = -500,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 5120,
-                                                    .velocity = 1000,
-                                                    .accel = 0,
-                                                }}}},
+                    {27, 0, {{{{-2560, -500, 0}, {5120, 1000, 0}}}}, {0}},
 
-                    {.flags = 27,
-                     .initOffset = 2,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = -2560,
-                                                    .velocity = -500,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 5120,
-                                                    .velocity = 1000,
-                                                    .accel = 0,
-                                                }}}},
+                    {27, 2, {{{{-2560, -500, 0}, {5120, 1000, 0}}}}, {0}},
 
-                    {.flags = 23,
-                     .initOffset = 1,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 2560,
-                                                    .velocity = 2000,
-                                                    .accel = -300,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 400,
-                                                    .accel = 0,
-                                                }}}},
+                    {23, 1, {{{{2560, 2000, -300}, {0, 400, 0}}}}, {0}},
 
-                    {.flags = 64,
-                     .initOffset = 1,
-                     .InitTypes = {0},
-                     { .oscillator = {.flags = PARTICLE_OSC_MODE_SQUARE,
-                                      .previousValue = 0,
-                                      {{ .period = (u16)0x9600,
-                                         .phase = 0,
-                                         .scale = 0x100,
-                                         .offset = 0x1000,
-                                         .min = 1,
-                                         .max = 0x200 }}} }},
+                    {64, 1, {{{0}}}, {{PARTICLE_OSC_MODE_SQUARE, 0, 0x9600, 0, 0x100, 0x1000, 1, 0x200}}},
 
-                    {.flags = 1,
-                     .initOffset = 5,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 131072,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {1, 5, {{{{131072, 0, 0}, {0, 0, 0}}}}, {0}},
 
-                    {.flags = 1,
-                     .initOffset = 7,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 15360,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {1, 7, {{{{15360, 0, 0}, {0, 0, 0}}}}, {0}},
 
-                    {.flags = 1,
-                     .initOffset = 8,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 65280,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {1, 8, {{{{65280, 0, 0}, {0, 0, 0}}}}, {0}},
 
-                    {.flags = 0,
-                     .initOffset = 9,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {0, 9, {{{{0, 0, 0}, {0, 0, 0}}}}, {0}},
 
                     // null terminator
                     //{},
@@ -5823,110 +6600,23 @@ struct Data
 
             .emSet_GrassR =
                 {
-                    {.flags = 1,
-                     .initOffset = 12,
-                     .InitTypes = {.FuncInit = {
-                             .particle_funcPtr = 0x00000000,
-                             .particle_colorFlags = 0x1800,
-                             .particle_lifespan = 0x000a,
-                             .particle_Type = 0,
-                         }}},
+                    {1, 12, {{{0x00000000, 0x1800, 0x000a, 0, 0}}}, {0}},
 
-                    {.flags = 27,
-                     .initOffset = 0,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = -2560,
-                                                    .velocity = -500,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 5120,
-                                                    .velocity = 1000,
-                                                    .accel = 0,
-                                                }}}},
+                    {27, 0, {{{{-2560, -500, 0}, {5120, 1000, 0}}}}, {0}},
 
-                    {.flags = 27,
-                     .initOffset = 2,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = -2560,
-                                                    .velocity = -500,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 5120,
-                                                    .velocity = 1000,
-                                                    .accel = 0,
-                                                }}}},
+                    {27, 2, {{{{-2560, -500, 0}, {5120, 1000, 0}}}}, {0}},
 
-                    {.flags = 23,
-                     .initOffset = 1,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 2560,
-                                                    .velocity = 2000,
-                                                    .accel = -300,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 400,
-                                                    .accel = 0,
-                                                }}}},
+                    {23, 1, {{{{2560, 2000, -300}, {0, 400, 0}}}}, {0}},
 
-                    {.flags = 64,
-                     .initOffset = 1,
-                     .InitTypes = {0},
-                     { .oscillator = {.flags = PARTICLE_OSC_MODE_SQUARE,
-                                      .previousValue = 0,
-                                      {{ .period = (u16)0x9600,
-                                         .phase = 0,
-                                         .scale = 0x100,
-                                         .offset = 0x1000,
-                                         .min = 1,
-                                         .max = 0x200 }}} }},
+                    {64, 1, {{{0}}}, {{PARTICLE_OSC_MODE_SQUARE, 0, 0x9600, 0, 0x100, 0x1000, 1, 0x200}}},
 
-                    {.flags = 1,
-                     .initOffset = 5,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 131072,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {1, 5, {{{{131072, 0, 0}, {0, 0, 0}}}}, {0}},
 
-                    {.flags = 1,
-                     .initOffset = 7,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 1,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {1, 7, {{{{1, 0, 0}, {0, 0, 0}}}}, {0}},
 
-                    {.flags = 1,
-                     .initOffset = 8,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 40960,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {1, 8, {{{{40960, 0, 0}, {0, 0, 0}}}}, {0}},
 
-                    {.flags = 0,
-                     .initOffset = 9,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {0, 9, {{{{0, 0, 0}, {0, 0, 0}}}}, {0}},
 
                     // null terminator
                     //{},
@@ -5934,62 +6624,15 @@ struct Data
 
             .emSet_SnowLR =
                 {
-                    {.flags = 1,
-                     .initOffset = 12,
-                     .InitTypes = {.FuncInit = {
-                             .particle_funcPtr = 0x00000000,
-                             .particle_colorFlags = 0x58a2,
-                             .particle_lifespan = 0x000a,
-                             .particle_Type = 0,
-                         }}},
+                    {1, 12, {{{0x00000000, 0x58a2, 0x000a, 0, 0}}}, {0}},
 
-                    {.flags = 27,
-                     .initOffset = 0,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = -2560,
-                                                    .velocity = -500,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 5120,
-                                                    .velocity = 1000,
-                                                    .accel = 0,
-                                                }}}},
+                    {27, 0, {{{{-2560, -500, 0}, {5120, 1000, 0}}}}, {0}},
 
-                    {.flags = 27,
-                     .initOffset = 2,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = -2560,
-                                                    .velocity = -500,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 5120,
-                                                    .velocity = 1000,
-                                                    .accel = 0,
-                                                }}}},
+                    {27, 2, {{{{-2560, -500, 0}, {5120, 1000, 0}}}}, {0}},
 
-                    {.flags = 23,
-                     .initOffset = 1,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 2560,
-                                                    .velocity = 2000,
-                                                    .accel = -300,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 400,
-                                                    .accel = 0,
-                                                }}}},
+                    {23, 1, {{{{2560, 2000, -300}, {0, 400, 0}}}}, {0}},
 
-                    {.flags = 1,
-                     .initOffset = 7,
-                     .InitTypes = {.AxisInit = {.baseValue = {
-                                                    .startVal = 65280,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }, .rngSeed = {
-                                                    .startVal = 0,
-                                                    .velocity = 0,
-                                                    .accel = 0,
-                                                }}}},
+                    {1, 7, {{{{65280, 0, 0}, {0, 0, 0}}}}, {0}},
 
                     // null terminator
                     //{},
@@ -6140,7 +6783,7 @@ struct Data
 // EurRetail and JpnRetail dont start
 // gravity at offset 0x416, it starts at 0x41a,
 // need to make the offets compatible later on
-#define PHYSWRAP(b, c, d, e, f, g) .unusedDebugStr = 0, .offset = b, .size = c, .value[0] = d, .value[1] = e, .value[2] = f, .value[3] = g
+#define PHYSWRAP(b, c, d, e, f, g) 0, b, c, 0, {d, e, f, g}
 
 
             // Each line is one stat with four NTSC-U retail engine-class values.
@@ -6216,745 +6859,129 @@ struct Data
 
             .emSet_Exhaust_Water =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x08a0,
-                                   .particle_lifespan = 0x001e,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 27,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = -512,
-                                                          .velocity = -512,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 1024,
-                                                          .velocity = 1024,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 36,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 100,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 200,
-                                                      }}}},
-                    [3] = {.flags = 27,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = -512,
-                                                          .velocity = -512,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 1024,
-                                                          .velocity = 1024,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 1,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 512,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 1,
-                           .initOffset = 4,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 1,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x08a0, 0x001e, 0, 0}}}, {0}},
+                    {27, 0, {{{{-512, -512, 0}, {1024, 1024, 0}}}}, {0}},
+                    {36, 1, {{{{0, 0, 100}, {0, 0, 200}}}}, {0}},
+                    {27, 2, {{{{-512, -512, 0}, {1024, 1024, 0}}}}, {0}},
+                    {1, 5, {{{{512, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 4, {{{{1, 0, 0}, {0, 0, 0}}}}, {0}},
 
                     // null
-                    //[6] = {},
+                    //{},
                 },
 
             .emSet_Exhaust_High =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x08a3,
-
-                                   // less particles on-screen
-                                   .particle_lifespan = 0x0005,
-
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 18,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -250,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 500,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 22,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -250,
-                                                          .accel = -256,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 500,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 18,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -250,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 500,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 3,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 1536,
-                                                          .velocity = 400,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 3,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 16384,
-                                                          .velocity = -2560,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 26,
-                           .initOffset = 4,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 256,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = -512,
-                                                          .velocity = -512,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x08a3, 0x0005, 0, 0}}}, {0}},
+                    {18, 0, {{{{0, -250, 0}, {0, 500, 0}}}}, {0}},
+                    {22, 1, {{{{0, -250, -256}, {0, 500, 0}}}}, {0}},
+                    {18, 2, {{{{0, -250, 0}, {0, 500, 0}}}}, {0}},
+                    {3, 5, {{{{1536, 400, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 7, {{{{16384, -2560, 0}, {0, 0, 0}}}}, {0}},
+                    {26, 4, {{{{0, 256, 0}, {-512, -512, 0}}}}, {0}},
 
                     // null
-                    //[7] = {},
+                    //{},
                 },
 
             .emSet_Exhaust_Med =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x08a3,
-                                   .particle_lifespan = 0x0005,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 18,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -200,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 400,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 22,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -200,
-                                                          .accel = -256,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 400,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 18,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -200,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 400,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 3,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 1736,
-                                                          .velocity = 400,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 3,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 32768,
-                                                          .velocity = -4608,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 26,
-                           .initOffset = 4,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 200,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = -512,
-                                                          .velocity = -400,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x08a3, 0x0005, 0, 0}}}, {0}},
+                    {18, 0, {{{{0, -200, 0}, {0, 400, 0}}}}, {0}},
+                    {22, 1, {{{{0, -200, -256}, {0, 400, 0}}}}, {0}},
+                    {18, 2, {{{{0, -200, 0}, {0, 400, 0}}}}, {0}},
+                    {3, 5, {{{{1736, 400, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 7, {{{{32768, -4608, 0}, {0, 0, 0}}}}, {0}},
+                    {26, 4, {{{{0, 200, 0}, {-512, -400, 0}}}}, {0}},
 
                     // null
-                    //[7] = {},
+                    //{},
                 },
 
             .emSet_Exhaust_Low =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x08a3,
-                                   .particle_lifespan = 0x0005,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 18,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -1,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 2,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 22,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -1,
-                                                          .accel = -256,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 2,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 18,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -1,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 2,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 3,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 2000,
-                                                          .velocity = 200,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 3,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 40960,
-                                                          .velocity = -6144,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 26,
-                           .initOffset = 4,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 64,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = -512,
-                                                          .velocity = -128,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x08a3, 0x0005, 0, 0}}}, {0}},
+                    {18, 0, {{{{0, -1, 0}, {0, 2, 0}}}}, {0}},
+                    {22, 1, {{{{0, -1, -256}, {0, 2, 0}}}}, {0}},
+                    {18, 2, {{{{0, -1, 0}, {0, 2, 0}}}}, {0}},
+                    {3, 5, {{{{2000, 200, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 7, {{{{40960, -6144, 0}, {0, 0, 0}}}}, {0}},
+                    {26, 4, {{{{0, 64, 0}, {-512, -128, 0}}}}, {0}},
 
                     // null
-                    //[7] = {},
+                    //{},
                 },
 
             .emSet_GroundSparks =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x58a2,
-                                   .particle_lifespan = 0x0008,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 18,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -500,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 1000,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 18,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -500,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 1000,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 55,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 2048,
-                                                          .velocity = 1000,
-                                                          .accel = -300,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 800,
-                                                          .accel = 100,
-                                                      }}}},
-                    [4] = {.flags = 17,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 131072,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 200,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 3,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 65280,
-                                                          .velocity = -7680,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 3,
-                           .initOffset = 8,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 65280,
-                                                          .velocity = -7680,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [7] = {.flags = 3,
-                           .initOffset = 9,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 32768,
-                                                          .velocity = -3840,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x58a2, 0x0008, 0, 0}}}, {0}},
+                    {18, 0, {{{{0, -500, 0}, {0, 1000, 0}}}}, {0}},
+                    {18, 2, {{{{0, -500, 0}, {0, 1000, 0}}}}, {0}},
+                    {55, 1, {{{{2048, 1000, -300}, {0, 800, 100}}}}, {0}},
+                    {17, 5, {{{{131072, 0, 0}, {0, 200, 0}}}}, {0}},
+                    {3, 7, {{{{65280, -7680, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 8, {{{{65280, -7680, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 9, {{{{32768, -3840, 0}, {0, 0, 0}}}}, {0}},
 
                     // null
-                    //[8] = {},
+                    //{},
                 },
 
             .emSet_WallSparks =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x58a2,
-                                   .particle_lifespan = 0x0008,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 18,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -500,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 1000,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 18,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -500,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 1000,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 22,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 2000,
-                                                          .accel = -200,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 400,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 1,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 131072,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 3,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 65280,
-                                                          .velocity = -2048,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 3,
-                           .initOffset = 8,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 65280,
-                                                          .velocity = -3072,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [7] = {.flags = 1,
-                           .initOffset = 9,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 1,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x58a2, 0x0008, 0, 0}}}, {0}},
+                    {18, 0, {{{{0, -500, 0}, {0, 1000, 0}}}}, {0}},
+                    {18, 2, {{{{0, -500, 0}, {0, 1000, 0}}}}, {0}},
+                    {22, 1, {{{{0, 2000, -200}, {0, 400, 0}}}}, {0}},
+                    {1, 5, {{{{131072, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 7, {{{{65280, -2048, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 8, {{{{65280, -3072, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 9, {{{{1, 0, 0}, {0, 0, 0}}}}, {0}},
 
                     // null
-                    //[8] = {},
+                    //{},
                 },
 
             .emSet_MudSplash =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x8880,
-                                   .particle_lifespan = 0x000f,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 27,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = -512,
-                                                          .velocity = -512,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 1024,
-                                                          .velocity = 1024,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 27,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = -512,
-                                                          .velocity = -512,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 1024,
-                                                          .velocity = 1024,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 62,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 1536,
-                                                          .accel = -200,
-                                                      }, .rngSeed = {
-                                                          .startVal = 2048,
-                                                          .velocity = 128,
-                                                          .accel = -60,
-                                                      }}}},
-                    [4] = {.flags = 11,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 2048,
-                                                          .velocity = -100,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 300,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 19,
-                           .initOffset = 4,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 4096,
-                                                          .velocity = -128,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 512,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 1,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 16384,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [7] = {.flags = 1,
-                           .initOffset = 8,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 9216,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [8] = {.flags = 1,
-                           .initOffset = 9,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 4352,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x8880, 0x000f, 0, 0}}}, {0}},
+                    {27, 0, {{{{-512, -512, 0}, {1024, 1024, 0}}}}, {0}},
+                    {27, 2, {{{{-512, -512, 0}, {1024, 1024, 0}}}}, {0}},
+                    {62, 1, {{{{0, 1536, -200}, {2048, 128, -60}}}}, {0}},
+                    {11, 5, {{{{2048, -100, 0}, {300, 0, 0}}}}, {0}},
+                    {19, 4, {{{{4096, -128, 0}, {0, 512, 0}}}}, {0}},
+                    {1, 7, {{{{16384, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 8, {{{{9216, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 9, {{{{4352, 0, 0}, {0, 0, 0}}}}, {0}},
 
                     // null
-                    //[9] = {},
+                    //{},
                 },
 
             .emSet_BurnSmoke =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x08c2,
-                                   .particle_lifespan = 0x000a,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 27,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = -8192,
-                                                          .velocity = -2048,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 16384,
-                                                          .velocity = 4096,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 27,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 4096,
-                                                          .velocity = -2048,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 8192,
-                                                          .velocity = 4096,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 27,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = -8192,
-                                                          .velocity = -2048,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 16384,
-                                                          .velocity = 4096,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 9,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 4096,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 300,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 9,
-                           .initOffset = 4,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 50,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = -100,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 3,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 32768,
-                                                          .velocity = -3072,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x08c2, 0x000a, 0, 0}}}, {0}},
+                    {27, 0, {{{{-8192, -2048, 0}, {16384, 4096, 0}}}}, {0}},
+                    {27, 1, {{{{4096, -2048, 0}, {8192, 4096, 0}}}}, {0}},
+                    {27, 2, {{{{-8192, -2048, 0}, {16384, 4096, 0}}}}, {0}},
+                    {9, 5, {{{{4096, 0, 0}, {300, 0, 0}}}}, {0}},
+                    {9, 4, {{{{50, 0, 0}, {-100, 0, 0}}}}, {0}},
+                    {3, 7, {{{{32768, -3072, 0}, {0, 0, 0}}}}, {0}},
 
                     // null
-                    //[7] = {},
+                    //{},
                 },
 
             .emSet_Falling =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x88a0,
-                                   .particle_lifespan = 0x000f,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 27,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = -8192,
-                                                          .velocity = -2048,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 16384,
-                                                          .velocity = 4096,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 27,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = -8192,
-                                                          .velocity = -2048,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 16384,
-                                                          .velocity = 4096,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 62,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 4096,
-                                                          .accel = -600,
-                                                      }, .rngSeed = {
-                                                          .startVal = 2048,
-                                                          .velocity = 2048,
-                                                          .accel = -200,
-                                                      }}}},
-                    [4] = {.flags = 9,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 1024,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 300,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x88a0, 0x000f, 0, 0}}}, {0}},
+                    {27, 0, {{{{-8192, -2048, 0}, {16384, 4096, 0}}}}, {0}},
+                    {27, 2, {{{{-8192, -2048, 0}, {16384, 4096, 0}}}}, {0}},
+                    {62, 1, {{{{0, 4096, -600}, {2048, 2048, -200}}}}, {0}},
+                    {9, 5, {{{{1024, 0, 0}, {300, 0, 0}}}}, {0}},
 
                     // null
-                    //[5] = {},
+                    //{},
                 },
 
             .RNG_itemSetRace1 =
@@ -7028,483 +7055,76 @@ struct Data
             // 0xB
             .emSet_Warpball =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x0000,
-                                   .particle_lifespan = AS(0xffffffff),
-                                   .particle_Type = 1,
-                               }}},
-                    [1] = {.flags = 1,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 1,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 1,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 1,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 1,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 1,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 1,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 32768,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 1,
-                           .initOffset = 8,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 32768,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 1,
-                           .initOffset = 9,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 32768,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [7] = {.flags = 1,
-                           .initOffset = 3,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 8192,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [8] = {.flags = 1,
-                           .initOffset = 4,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 6144,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [9] = {.flags = 1,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 4096,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x0000, AS(0xffffffff), 1, 0}}}, {0}},
+                    {1, 0, {{{{1, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 1, {{{{1, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 2, {{{{1, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 7, {{{{32768, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 8, {{{{32768, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 9, {{{{32768, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 3, {{{{8192, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 4, {{{{6144, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {1, 5, {{{{4096, 0, 0}, {0, 0, 0}}}}, {0}},
 
                     // null
-                    //[10] = {},
+                    //{},
                 },
 
             // 0x1C
             .emSet_Maskgrab =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x50a2,
-                                   .particle_lifespan = 0x0020,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 18,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -900,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 1800,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 18,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = -900,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 1800,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 23,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 16384,
-                                                          .velocity = 3500,
-                                                          .accel = -400,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 700,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 1,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 131072,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 3,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 32512,
-                                                          .velocity = -1024,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 3,
-                           .initOffset = 9,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 65280,
-                                                          .velocity = -2048,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x50a2, 0x0020, 0, 0}}}, {0}},
+                    {18, 0, {{{{0, -900, 0}, {0, 1800, 0}}}}, {0}},
+                    {18, 2, {{{{0, -900, 0}, {0, 1800, 0}}}}, {0}},
+                    {23, 1, {{{{16384, 3500, -400}, {0, 700, 0}}}}, {0}},
+                    {1, 5, {{{{131072, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 7, {{{{32512, -1024, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 9, {{{{65280, -2048, 0}, {0, 0, 0}}}}, {0}},
+
+                    {0}, // 7
+
+                    {1, 12, {{{0x00000000, 0x00a3, 0x0014, 0, 0}}}, {0}},
+                    {16, 0, {{{{0, 0, 0}, {0, 400, 0}}}}, {0}},
+                    {18, 1, {{{{0, 2500, 0}, {0, 500, 0}}}}, {0}},
+                    {16, 2, {{{{0, 0, 0}, {0, 4096, 0}}}}, {0}},
+                    {1, 5, {{{{3000, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {11, 7, {{{{8192, -512, 0}, {16384, 0, 0}}}}, {0}},
+                    {11, 8, {{{{8192, -512, 0}, {16384, 0, 0}}}}, {0}},
+                    {11, 9, {{{{8192, -512, 0}, {16384, 0, 0}}}}, {0}},
+                    {26, 4, {{{{0, 256, 0}, {-512, -512, 0}}}}, {0}},
+
+                    {0}, // 17
+
+                    {1, 12, {{{0x00000000, 0x00c3, 0x0014, 0, 0}}}, {0}},
+                    {16, 0, {{{{0, 0, 0}, {0, 400, 0}}}}, {0}},
+                    {1, 1, {{{{1024, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {16, 2, {{{{0, 0, 0}, {0, 4096, 0}}}}, {0}},
+                    {1, 5, {{{{3000, 0, 0}, {0, 0, 0}}}}, {0}},
+                    {11, 7, {{{{16384, -512, 0}, {16384, 0, 0}}}}, {0}},
+                    {11, 8, {{{{16384, -512, 0}, {16384, 0, 0}}}}, {0}},
+                    {11, 9, {{{{8192, -512, 0}, {16384, 0, 0}}}}, {0}},
+                    {26, 4, {{{{0, 256, 0}, {-512, -512, 0}}}}, {0}},
 
                     // null
-                    //[7] = {},
-
-                    [8] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x00a3,
-                                   .particle_lifespan = 0x0014,
-                                   .particle_Type = 0,
-                               }}},
-                    [9] = {.flags = 16,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 400,
-                                                          .accel = 0,
-                                                      }}}},
-                    [10] = {.flags = 18,
-                            .initOffset = 1,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 0,
-                                                           .velocity = 2500,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 0,
-                                                           .velocity = 500,
-                                                           .accel = 0,
-                                                       }}}},
-                    [11] = {.flags = 16,
-                            .initOffset = 2,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 0,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 0,
-                                                           .velocity = 4096,
-                                                           .accel = 0,
-                                                       }}}},
-                    [12] = {.flags = 1,
-                            .initOffset = 5,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 3000,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 0,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [13] = {.flags = 11,
-                            .initOffset = 7,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 8192,
-                                                           .velocity = -512,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 16384,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [14] = {.flags = 11,
-                            .initOffset = 8,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 8192,
-                                                           .velocity = -512,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 16384,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [15] = {.flags = 11,
-                            .initOffset = 9,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 8192,
-                                                           .velocity = -512,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 16384,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [16] = {.flags = 26,
-                            .initOffset = 4,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 0,
-                                                           .velocity = 256,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = -512,
-                                                           .velocity = -512,
-                                                           .accel = 0,
-                                                       }}}},
-
-                    // null
-                    //[17] = {},
-
-                    [18] = {.flags = 1,
-                            .initOffset = 12,
-                            .InitTypes = {.FuncInit = {
-                                    .particle_funcPtr = 0x00000000,
-                                    .particle_colorFlags = 0x00c3,
-                                    .particle_lifespan = 0x0014,
-                                    .particle_Type = 0,
-                                }}},
-                    [19] = {.flags = 16,
-                            .initOffset = 0,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 0,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 0,
-                                                           .velocity = 400,
-                                                           .accel = 0,
-                                                       }}}},
-                    [20] = {.flags = 1,
-                            .initOffset = 1,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 1024,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 0,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [21] = {.flags = 16,
-                            .initOffset = 2,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 0,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 0,
-                                                           .velocity = 4096,
-                                                           .accel = 0,
-                                                       }}}},
-                    [22] = {.flags = 1,
-                            .initOffset = 5,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 3000,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 0,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [23] = {.flags = 11,
-                            .initOffset = 7,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 16384,
-                                                           .velocity = -512,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 16384,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [24] = {.flags = 11,
-                            .initOffset = 8,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 16384,
-                                                           .velocity = -512,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 16384,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [25] = {.flags = 11,
-                            .initOffset = 9,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 8192,
-                                                           .velocity = -512,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = 16384,
-                                                           .velocity = 0,
-                                                           .accel = 0,
-                                                       }}}},
-                    [26] = {.flags = 26,
-                            .initOffset = 4,
-                            .InitTypes = {.AxisInit = {.baseValue = {
-                                                           .startVal = 0,
-                                                           .velocity = 256,
-                                                           .accel = 0,
-                                                       }, .rngSeed = {
-                                                           .startVal = -512,
-                                                           .velocity = -512,
-                                                           .accel = 0,
-                                                       }}}},
-
-                    // null
-                    //[27] = {}
+                    //{}
                 },
 
             // 0x8
             .emSet_Warppad =
                 {
-                    [0] = {.flags = 1,
-                           .initOffset = 12,
-                           .InitTypes = {.FuncInit = {
-                                   .particle_funcPtr = 0x00000000,
-                                   .particle_colorFlags = 0x00c2,
-                                   .particle_lifespan = 0x0014,
-                                   .particle_Type = 0,
-                               }}},
-                    [1] = {.flags = 16,
-                           .initOffset = 0,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 256,
-                                                          .accel = 0,
-                                                      }}}},
-                    [2] = {.flags = 2,
-                           .initOffset = 1,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 512,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [3] = {.flags = 16,
-                           .initOffset = 2,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 256,
-                                                          .accel = 0,
-                                                      }}}},
-                    [4] = {.flags = 3,
-                           .initOffset = 5,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 2000,
-                                                          .velocity = 100,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [5] = {.flags = 3,
-                           .initOffset = 7,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 32768,
-                                                          .velocity = -2560,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = 0,
-                                                          .velocity = 0,
-                                                          .accel = 0,
-                                                      }}}},
-                    [6] = {.flags = 26,
-                           .initOffset = 4,
-                           .InitTypes = {.AxisInit = {.baseValue = {
-                                                          .startVal = 0,
-                                                          .velocity = 128,
-                                                          .accel = 0,
-                                                      }, .rngSeed = {
-                                                          .startVal = -512,
-                                                          .velocity = -256,
-                                                          .accel = 0,
-                                                      }}}},
+                    {1, 12, {{{0x00000000, 0x00c2, 0x0014, 0, 0}}}, {0}},
+                    {16, 0, {{{{0, 0, 0}, {0, 256, 0}}}}, {0}},
+                    {2, 1, {{{{0, 512, 0}, {0, 0, 0}}}}, {0}},
+                    {16, 2, {{{{0, 0, 0}, {0, 256, 0}}}}, {0}},
+                    {3, 5, {{{{2000, 100, 0}, {0, 0, 0}}}}, {0}},
+                    {3, 7, {{{{32768, -2560, 0}, {0, 0, 0}}}}, {0}},
+                    {26, 4, {{{{0, 128, 0}, {-512, -256, 0}}}}, {0}},
 
                     // null
-                    //[7] = {},
+                    //{},
                 },
 
             // .confetti = {}
 };
 
-#undef AS
+#

@@ -782,7 +782,7 @@ static void MM_NativeOptionsMenuProc(struct RectMenu *menu)
 		save_config();
 		return;
 	}
-#ifndef __vita__
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (choose == NATIVE_MENU_STRING_ANTI_ALIASING)
 	{
 		gNativeAntiAliasingEnabled ^= 1;

@@ -15,6 +15,24 @@ typedef s32 SDL_JoystickID;
 typedef void SDL_Gamepad;
 typedef s32 Sint32;
 
+#define SDL_SCANCODE_X             101
+#define SDL_SCANCODE_V             102
+#define SDL_SCANCODE_Z             103
+#define SDL_SCANCODE_C             104
+#define SDL_SCANCODE_LSHIFT        105
+#define SDL_SCANCODE_LCTRL         106
+#define SDL_SCANCODE_LEFTBRACKET   107
+#define SDL_SCANCODE_RSHIFT        108
+#define SDL_SCANCODE_RCTRL         109
+#define SDL_SCANCODE_RIGHTBRACKET  110
+#define SDL_SCANCODE_UP            111
+#define SDL_SCANCODE_DOWN          112
+#define SDL_SCANCODE_LEFT          113
+#define SDL_SCANCODE_RIGHT         114
+#define SDL_SCANCODE_SPACE         115
+#define SDL_SCANCODE_RETURN        116
+#define SDL_SCANCODE_RALT          117
+#define SDL_SCANCODE_LALT          118
 
 #define SDL_GAMEPAD_BUTTON_WEST            201
 #define SDL_GAMEPAD_BUTTON_EAST            202

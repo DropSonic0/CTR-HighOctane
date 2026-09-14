@@ -134,12 +134,13 @@ struct ParticleEmitter emSet_TubeBubbles[7] = {[0] =
                                                        // invalid axis, assume FuncInit
                                                        .initOffset = 0xC,
 
-                                                       .InitTypes = { .FuncInit = {
+                                                       .InitTypes.FuncInit =
+                                                           {
                                                                .particle_funcPtr = 0,
                                                                .particle_colorFlags = 0x4A0,
                                                                .particle_lifespan = 0x32,
                                                                .particle_Type = 0,
-                                                           } }
+                                                           }
 
                                                        // last 0x10 bytes are blank
                                                    },
@@ -151,15 +152,19 @@ struct ParticleEmitter emSet_TubeBubbles[7] = {[0] =
                                                        // posX
                                                        .initOffset = 0,
 
-                                                       .InitTypes = {.AxisInit = {.baseValue = {
+                                                       .InitTypes.AxisInit = {.baseValue =
+                                                                                  {
                                                                                       .startVal = -0x200,
                                                                                       .velocity = -0x200,
                                                                                       .accel = 0,
-                                                                                  }, .rngSeed = {
+                                                                                  },
+
+                                                                              .rngSeed =
+                                                                                  {
                                                                                       .startVal = 0x400,
                                                                                       .velocity = 0x400,
                                                                                       .accel = 0,
-                                                                                  }}}
+                                                                                  }}
 
                                                        // last 0x10 are blank
                                                    },
@@ -171,15 +176,19 @@ struct ParticleEmitter emSet_TubeBubbles[7] = {[0] =
                                                        // posY
                                                        .initOffset = 1,
 
-                                                       .InitTypes = {.AxisInit = {.baseValue = {
+                                                       .InitTypes.AxisInit = {.baseValue =
+                                                                                  {
                                                                                       .startVal = 0,
                                                                                       .velocity = 0,
                                                                                       .accel = 0x64,
-                                                                                  }, .rngSeed = {
+                                                                                  },
+
+                                                                              .rngSeed =
+                                                                                  {
                                                                                       .startVal = 0,
                                                                                       .velocity = 0,
                                                                                       .accel = 0xC8,
-                                                                                  }}}
+                                                                                  }}
 
                                                        // last 0x10 are blank
                                                    },
@@ -191,15 +200,19 @@ struct ParticleEmitter emSet_TubeBubbles[7] = {[0] =
                                                        // posZ
                                                        .initOffset = 2,
 
-                                                       .InitTypes = {.AxisInit = {.baseValue = {
+                                                       .InitTypes.AxisInit = {.baseValue =
+                                                                                  {
                                                                                       .startVal = -0x200,
                                                                                       .velocity = -0x200,
                                                                                       .accel = 0,
-                                                                                  }, .rngSeed = {
+                                                                                  },
+
+                                                                              .rngSeed =
+                                                                                  {
                                                                                       .startVal = 0x400,
                                                                                       .velocity = 0x400,
                                                                                       .accel = 0,
-                                                                                  }}}
+                                                                                  }}
 
                                                        // last 0x10 are blank
                                                    },
@@ -212,7 +225,7 @@ struct ParticleEmitter emSet_TubeBubbles[7] = {[0] =
                                                        .initOffset = 5,
 
                                                        // 20% scale
-                                                       .InitTypes = {.AxisInit = {.baseValue = {.startVal = 0x200}}},
+                                                       .InitTypes.AxisInit.baseValue.startVal = 0x200,
 
                                                        // all the rest is untouched
                                                    },
@@ -224,7 +237,7 @@ struct ParticleEmitter emSet_TubeBubbles[7] = {[0] =
                                                        // rotY
                                                        .initOffset = 4,
 
-                                                       .InitTypes = {.AxisInit = {.baseValue = {.startVal = 1}}},
+                                                       .InitTypes.AxisInit.baseValue.startVal = 1,
 
                                                        // all the rest is untouched
                                                    },

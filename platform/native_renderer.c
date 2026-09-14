@@ -423,7 +423,6 @@ internal void NativeRenderer_SetPresentationAspect(int width, int height);
 internal void NativeRenderer_UpdatePresentationViewport(void);
 internal void NativeRenderer_ClearPresentationBars(void);
 internal void NativeRenderer_SetWireframe(int enable);
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal void NativeRenderer_InitRenderTarget(struct NativeRenderTarget *target);
 internal void NativeRenderer_DestroyRenderTarget(struct NativeRenderTarget *target);
 internal void NativeRenderer_EnsureRenderTarget(struct NativeRenderTarget *target, int width, int height);
@@ -431,7 +430,6 @@ internal void NativeRenderer_BindMainRenderTarget(void);
 internal void NativeRenderer_DrawVRAMRegion(int x, int y, int width, int height);
 internal void NativeRenderer_LoadRenderTargetFromVRAM(struct NativeRenderTarget *target, int x, int y, int logicalWidth, int logicalHeight);
 internal void NativeRenderer_DestroyPSXShaders(void);
-#endif
 #if defined(CTR_INTERNAL)
 internal void NativeRenderer_ResolveGpuMeasurements(b32 waitForResults);
 #endif
@@ -468,7 +466,7 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 		PSGL_DEVICE_PARAMETERS_RESC_ADJUST_ASPECT_RATIO | PSGL_DEVICE_PARAMETERS_RESC_RATIO_MODE;
 	params.bufferingMode = PSGL_BUFFERING_MODE_TRIPLE;
 	params.colorFormat = GL_ARGB_SCE;
-	params.depthFormat = GL_DEPTH_COMPONENT24;
+	params.depthFormat = GL_NONE;
 	params.multisamplingMode = GL_MULTISAMPLING_NONE_SCE;
 	params.rescRatioMode = RESC_RATIO_MODE_FULLSCREEN;
 
@@ -547,7 +545,7 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 
 internal int NativeRenderer_InitialiseGLExt(void)
 {
-#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#ifndef __vita__
 	GLenum err = gladLoadGL();
 
 	if (err == 0)
@@ -615,16 +613,12 @@ int NativeRenderer_InitialiseRender(char *windowName, int width, int height, int
 
 void NativeRenderer_Shutdown(void)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glDeleteVertexArrays(MAX_NUM_VERTEX_BUFFERS, s_glVertexArray);
-#endif
 	glDeleteBuffers(MAX_NUM_VERTEX_BUFFERS, s_glVertexBuffer);
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	NativeRenderer_DestroyRenderTarget(&s_mainRenderTarget);
 	NativeRenderer_DestroyRenderTarget(&s_offscreenRenderTarget);
 	glDeleteFramebuffers(1, &s_glVramFramebuffer);
-#endif
 
 	NativeRenderer_DestroyTexture(s_vram.texture);
 
@@ -647,14 +641,12 @@ void NativeRenderer_Shutdown(void)
 	}
 	NativeRenderer_DestroyTexture(s_presentLutTexture);
 #endif
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	NativeRenderer_DestroyPSXShaders();
 	glDeleteProgram(s_packShader);
 	glDeleteProgram(s_presentVramShader);
 	glDeleteProgram(s_presentRgbaShader);
 	glDeleteVertexArrays(1, &s_vramQuadVAO);
 	glDeleteBuffers(1, &s_vramQuadVBO);
-#endif
 
 #if defined(__PS3__) || defined(__CELLOS_LV2__)
 	if (s_psglContext != NULL)
@@ -714,7 +706,7 @@ void NativeRenderer_UpdateSwapIntervalState(int swapInterval)
 
 void NativeRenderer_BeginScene(void)
 {
-#if defined(CTR_INTERNAL) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#if defined(CTR_INTERNAL)
 	NativeRenderer_ResolveGpuMeasurements(false);
 	const u32 gpuFrameIndex = s_gpuTimerFrameIndex++;
 	if (s_gpuTimerSupported && NativePerf_IsEnabled())
@@ -748,9 +740,7 @@ void NativeRenderer_BeginScene(void)
 
 	NativeRenderer_UpdatePresentationViewport();
 	NativeRenderer_ClearPresentationBars();
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	NativeRenderer_BindMainRenderTarget();
-#endif
 	NativeRenderer_SetDepthState(0, 1);
 
 	NativeRenderer_UpdateVRAM();
@@ -763,11 +753,7 @@ void NativeRenderer_BeginScene(void)
 	else
 #endif
 	{
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		const GLboolean previousScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
-#else
-		const GLboolean previousScissorEnabled = (GLboolean)s_previousScissorState;
-#endif
 		glDisable(GL_SCISSOR_TEST);
 #ifdef __vita__
 		glClear(GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -797,7 +783,7 @@ void NativeRenderer_BeginScene(void)
 
 void NativeRenderer_EndGpuFrame(void)
 {
-#if defined(CTR_INTERNAL) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#if defined(CTR_INTERNAL)
 	if (s_gpuTimerActive)
 	{
 		glEndQuery(GL_TIME_ELAPSED);
@@ -808,7 +794,7 @@ void NativeRenderer_EndGpuFrame(void)
 
 void NativeRenderer_FinishGpuMeasurements(void)
 {
-#if defined(CTR_INTERNAL) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
+#if defined(CTR_INTERNAL)
 	NativeRenderer_EndGpuFrame();
 	if (!s_gpuTimerSupported)
 	{
@@ -837,9 +823,7 @@ void NativeRenderer_EndScene(void)
 		NativeRenderer_SetWireframe(0);
 	}
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glBindVertexArray(0);
-#endif
 }
 
 //----------------------------------------------------------------------------------------
@@ -917,7 +901,6 @@ internal void NativeRenderer_UpdatePresentationViewport(void)
 	s_presentViewport.y = (g_windowHeight - viewportH) / 2;
 }
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal void NativeRenderer_InitRenderTarget(struct NativeRenderTarget *target)
 {
 	target->texture = (TextureID)-1;
@@ -1087,7 +1070,6 @@ internal void NativeRenderer_LoadRenderTargetFromVRAM(struct NativeRenderTarget 
 	NativeRenderer_SetDepthState(previousDepthMode, previousDepthWrite);
 	NativeRenderer_SetScissorState(previousScissorState);
 }
-#endif
 
 internal void NativeRenderer_ClearHostRect(int x, int y, int width, int height)
 {
@@ -1102,7 +1084,6 @@ internal void NativeRenderer_ClearHostRect(int x, int y, int width, int height)
 
 internal void NativeRenderer_ClearPresentationBars(void)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	GLint previousScissorBox[4];
 	GLfloat previousClearColor[4];
 	const GLboolean previousScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
@@ -1133,11 +1114,7 @@ internal void NativeRenderer_ClearPresentationBars(void)
 	if (previousScissorEnabled)
 	{
 		glEnable(GL_SCISSOR_TEST);
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		glScissor(previousScissorBox[0], previousScissorBox[1], previousScissorBox[2], previousScissorBox[3]);
-#else
-		NativeRenderer_SetScissorRectCached(s_previousScissorX, s_previousScissorY, s_previousScissorW, s_previousScissorH);
-#endif
 	}
 	else
 	{
@@ -1147,7 +1124,6 @@ internal void NativeRenderer_ClearPresentationBars(void)
 	glClearColor(previousClearColor[0], previousClearColor[1], previousClearColor[2], previousClearColor[3]);
 	s_previousScissorState = previousScissorEnabled ? 1 : 0;
 	NativeRenderer_InvalidateScissorRectCache();
-#endif
 }
 
 void NativeRenderer_ResetDevice(void)
@@ -1194,11 +1170,8 @@ internal int NativeRenderer_Shader_CheckShaderStatus(GLuint shader);
 internal int NativeRenderer_Shader_CheckProgramStatus(GLuint program);
 internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxShader, const char *fragmentDefines);
 internal void NativeRenderer_GenerateCommonTextures(void);
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal void NativeRenderer_CompilePSXShader(GTEShader *sh, const char *source, const char *fragmentDefines);
 internal void NativeRenderer_InitialisePSXShaders(void);
-internal void NativeRenderer_InitVRAMPipelines(void);
-#endif
 internal void NativeRenderer_InitRG8LUT(void);
 internal void NativeRenderer_Ortho2D(float left, float right, float bottom, float top, float znear, float zfar);
 internal void NativeRenderer_SetShader(const ShaderID shader);
@@ -1230,7 +1203,6 @@ GLint u_psxSemiTransPassLoc;
 GLint u_psxDrawMaskSetLoc;
 GLint u_psxTextureOutputStpLoc;
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal void NativeRenderer_DestroyPSXShaders(void)
 {
 #ifdef __vita__
@@ -1272,7 +1244,6 @@ internal void NativeRenderer_DestroyPSXShaders(void)
 	glDeleteProgram(s_gteShader32Rgba.shader);
 #endif
 }
-#endif
 
 #ifdef __vita__
 #define GPU_SAMPLE_TEXTURE_4BIT_FUNC                                                                                \
@@ -1605,7 +1576,6 @@ GPU_PSX_BLEND_APPLY
 	GTE_PAGE_CLUT_SETUP GTE_PERSPECTIVE_CORRECTION "		v_z = (gl_Position.z - 40.0) * 0.005;\n" \
 	"	}\n"
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal int NativeRenderer_Shader_CheckShaderStatus(GLuint shader)
 {
 	char info[1024];
@@ -1762,7 +1732,6 @@ internal ShaderID NativeRenderer_Shader_Compile(const char *source, bool isPsxSh
 
 	return program;
 }
-#endif
 
 //--------------------------------------------------------------------------------------------
 
@@ -1828,7 +1797,6 @@ internal void NativeRenderer_GenerateCommonTextures(void)
 #endif
 }
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 internal void NativeRenderer_CompilePSXShader(GTEShader *sh, const char *source, const char *fragmentDefines)
 {
 	sh->shader = NativeRenderer_Shader_Compile(source, true, fragmentDefines);
@@ -2091,7 +2059,6 @@ internal void NativeRenderer_InitVRAMPipelines(void)
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-#endif
 
 internal void NativeRenderer_InitRG8LUT(void)
 {
@@ -2134,15 +2101,13 @@ int NativeRenderer_InitialisePSX(void)
 #endif
 	NativeRenderer_InitRG8LUT();
 	NativeRenderer_GenerateCommonTextures();
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	NativeRenderer_InitialisePSXShaders();
 	NativeRenderer_InitVRAMPipelines();
-#endif
 
 #if defined(CTR_INTERNAL)
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	GLint glMajor = 0;
 	GLint glMinor = 0;
+#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glGetIntegerv(GL_MAJOR_VERSION, &glMajor);
 	glGetIntegerv(GL_MINOR_VERSION, &glMinor);
 	s_gpuTimerSupported = (glMajor > 3) || ((glMajor == 3) && (glMinor >= 3)) || SDL_GL_ExtensionSupported("GL_ARB_timer_query");
@@ -2166,13 +2131,11 @@ int NativeRenderer_InitialisePSX(void)
 	glBlendColor(0.5f, 0.5f, 0.5f, 0.25f);
 #endif
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	// Main and offscreen draws share one explicit render-target contract. The
 	// main target stays at CTR's logical display size; host scaling is deferred
 	// to presentation.
 	NativeRenderer_InitRenderTarget(&s_mainRenderTarget);
 	NativeRenderer_InitRenderTarget(&s_offscreenRenderTarget);
-#endif
 
 	// gen VRAM texture (single, persistent - mirrors PS1's single 1MB VRAM)
 	{
@@ -2188,7 +2151,6 @@ int NativeRenderer_InitialisePSX(void)
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		// VRAM framebuffer for offscreen blitting to VRAM
 		glGenFramebuffers(1, &s_glVramFramebuffer);
 		{
@@ -2207,7 +2169,6 @@ int NativeRenderer_InitialisePSX(void)
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
-#endif
 	}
 
 	// gen vertex buffer and index buffer
@@ -2215,14 +2176,10 @@ int NativeRenderer_InitialisePSX(void)
 		int i;
 
 		glGenBuffers(MAX_NUM_VERTEX_BUFFERS, s_glVertexBuffer);
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		glGenVertexArrays(MAX_NUM_VERTEX_BUFFERS, s_glVertexArray);
-#endif
 		for (i = 0; i < MAX_NUM_VERTEX_BUFFERS; i++)
 		{
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 			glBindVertexArray(s_glVertexArray[i]);
-#endif
 			glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[i]);
 #ifdef __vita__
 			// Initialise vitaGL's VBO metadata. Each submitted batch later
@@ -2231,7 +2188,6 @@ int NativeRenderer_InitialisePSX(void)
 #else
 			glBufferData(GL_ARRAY_BUFFER, sizeof(GrVertex)* MAX_VERTEX_BUFFER_SIZE, NULL, GL_DYNAMIC_DRAW);
 #endif
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 			glEnableVertexAttribArray(a_position);
 			glEnableVertexAttribArray(a_texcoord);
 			glEnableVertexAttribArray(a_color);
@@ -2247,11 +2203,8 @@ int NativeRenderer_InitialisePSX(void)
 #ifdef __vita__
 			glVertexAttribPointer(a_order_depth, 1, GL_UNSIGNED_SHORT, GL_FALSE, sizeof(GrVertex), &((GrVertex *)NULL)->orderDepth);
 #endif
-#endif
 		}
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		glBindVertexArray(0);
-#endif
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -2351,16 +2304,12 @@ void NativeRenderer_SetupClipMode(const RECT16 *rect, const DISPENV *displayEnv,
 
 internal void NativeRenderer_SetShader(const ShaderID shader)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (s_previousShader != shader)
 	{
 		glUseProgram(shader);
 
 		s_previousShader = shader;
 	}
-#else
-	(void)shader;
-#endif
 }
 
 
@@ -2463,7 +2412,6 @@ void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat, int semiT
 		texture = s_whiteTexture;
 	}
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	// NOTE(penta3): s_texture (unit 0) and s_rgLut (unit 1) sampler bindings are baked
 	// into each program at compile time (NativeRenderer_Shader_Compile) and uniform
 	// values persist per-program, so re-setting them on every split was redundant GL
@@ -2477,7 +2425,6 @@ void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat, int semiT
 	{
 		glUniform1i(u_psxSemiTransPassLoc, semiTransPass);
 	}
-#endif
 #endif
 
 	if (s_lastBoundTexture == texture)
@@ -2504,7 +2451,6 @@ void NativeRenderer_SetTexture(TextureID texture, TexFormat texFormat, int semiT
 
 void NativeRenderer_SetOverrideTextureSize(int width, int height)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (u_texelSizeLoc == -1)
 	{
 		return;
@@ -2512,34 +2458,22 @@ void NativeRenderer_SetOverrideTextureSize(int width, int height)
 
 	float vec[] = { 1.0f / (float)width, 1.0f / (float)height };
 	glUniform2fv(u_texelSizeLoc, 1, vec);
-#else
-	(void)width;
-	(void)height;
-#endif
 }
 
 void NativeRenderer_SetPSXTextureOutputSTP(int enabled)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (u_psxTextureOutputStpLoc >= 0)
 	{
 		glUniform1f(u_psxTextureOutputStpLoc, enabled ? 1.0f : 0.0f);
 	}
-#else
-	(void)enabled;
-#endif
 }
 
 void NativeRenderer_SetPSXDrawMaskSet(int maskSet)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if (u_psxDrawMaskSetLoc >= 0)
 	{
 		glUniform1f(u_psxDrawMaskSetLoc, maskSet ? 1.0f : 0.0f);
 	}
-#else
-	(void)maskSet;
-#endif
 }
 
 internal void NativeRenderer_DestroyTexture(TextureID texture)
@@ -3169,13 +3103,9 @@ void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 		return;
 	}
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	GLint previousScissorBox[4];
 	const GLboolean previousScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
 	glGetIntegerv(GL_SCISSOR_BOX, previousScissorBox);
-#else
-	const GLboolean previousScissorEnabled = (GLboolean)s_previousScissorState;
-#endif
 
 	glEnable(GL_SCISSOR_TEST);
 	glScissor(scissorX, scissorY, scissorW, scissorH);
@@ -3185,11 +3115,7 @@ void NativeRenderer_Clear(int x, int y, int w, int h, u8 r, u8 g, u8 b)
 	if (previousScissorEnabled)
 	{
 		glEnable(GL_SCISSOR_TEST);
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 		glScissor(previousScissorBox[0], previousScissorBox[1], previousScissorBox[2], previousScissorBox[3]);
-#else
-		NativeRenderer_SetScissorRectCached(s_previousScissorX, s_previousScissorY, s_previousScissorW, s_previousScissorH);
-#endif
 	}
 	else
 	{
@@ -3281,18 +3207,16 @@ internal void NativeRenderer_SyncGpuVRAMToCPU(int x, int y, int w, int h)
 	NativeRenderer_UpdateVRAM();
 
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_READBACK);
-#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	GLint previousReadFramebuffer;
 	GLint previousPackRowLength;
 	GLint previousPackAlignment;
 	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &previousReadFramebuffer);
+#if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glGetIntegerv(GL_PACK_ROW_LENGTH, &previousPackRowLength);
 	glGetIntegerv(GL_PACK_ALIGNMENT, &previousPackAlignment);
 #endif
 
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, s_glVramFramebuffer);
-#endif
 #if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glPixelStorei(GL_PACK_ROW_LENGTH, VRAM_WIDTH);
 	glPixelStorei(GL_PACK_ALIGNMENT, sizeof(u16));
@@ -3340,8 +3264,8 @@ internal void NativeRenderer_SyncGpuVRAMToCPU(int x, int y, int w, int h)
 #if !defined(__vita__) && !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glPixelStorei(GL_PACK_ROW_LENGTH, previousPackRowLength);
 	glPixelStorei(GL_PACK_ALIGNMENT, previousPackAlignment);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, (GLuint)previousReadFramebuffer);
 #endif
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, (GLuint)previousReadFramebuffer);
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_FRAMEBUFFER_READBACK);
 }
 
@@ -3393,7 +3317,6 @@ internal void NativeRenderer_SetScissorState(int enable)
 
 void NativeRenderer_SetOffscreenState(const RECT16 *offscreenRect, int enable)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	const int sameOffscreenRect = NativeRenderer_RectEquals(&s_previousOffscreen, offscreenRect);
 	if (!enable && !s_previousOffscreenState)
 	{
@@ -3427,10 +3350,6 @@ void NativeRenderer_SetOffscreenState(const RECT16 *offscreenRect, int enable)
 		NativeRenderer_BindMainRenderTarget();
 		NativeRenderer_SetViewPort(0, 0, s_mainRenderTarget.width, s_mainRenderTarget.height);
 	}
-#else
-	(void)offscreenRect;
-	(void)enable;
-#endif
 }
 
 void NativeRenderer_SetProjection(const RECT16 *drawRect, const DISPENV *displayEnv, int offscreen)
@@ -3451,7 +3370,6 @@ void NativeRenderer_SetProjection(const RECT16 *drawRect, const DISPENV *display
 // disturbed by this native bridge before the submit run continues.
 internal void NativeRenderer_GpuPackTextureToVRAM(TextureID sourceTexture, int x, int y, int w, int h, b32 flipY)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	const ShaderID previousShader = s_previousShader;
 	const TextureID previousTexture = s_lastBoundTexture;
 	const BlendMode previousBlendMode = s_previousBlendMode;
@@ -3521,14 +3439,6 @@ internal void NativeRenderer_GpuPackTextureToVRAM(TextureID sourceTexture, int x
 	NativeRenderer_SetDepthState(previousDepthMode, previousDepthWrite);
 	NativeRenderer_SetScissorState(previousScissorState);
 	NativeRenderer_MarkGpuVRAMNewer(x, y, w, h);
-#else
-	(void)sourceTexture;
-	(void)x;
-	(void)y;
-	(void)w;
-	(void)h;
-	(void)flipY;
-#endif
 }
 
 // NOTE(aalhendi): PS1 draws into VRAM and can texture from that same VRAM. Native
@@ -4133,7 +4043,6 @@ internal b32 NativeRenderer_LoadGhostReplayOverlay(void)
 
 internal void NativeRenderer_DrawGhostReplayQuad(TextureID texture, int x, int y, int width, int height)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if ((texture == 0) || (width <= 0) || (height <= 0))
 	{
 		return;
@@ -4152,13 +4061,6 @@ internal void NativeRenderer_DrawGhostReplayQuad(TextureID texture, int x, int y
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glBindVertexArray(s_vramQuadVAO);
 	NativeRenderer_DrawTriangles(0, 2);
-#else
-	(void)texture;
-	(void)x;
-	(void)y;
-	(void)width;
-	(void)height;
-#endif
 }
 
 internal void NativeRenderer_DrawGhostReplayHighlight(int overlayX, int overlayY, int overlayW, int overlayH,
@@ -4183,7 +4085,6 @@ internal void NativeRenderer_DrawGhostReplayImageRegion(TextureID texture, int o
 
 void NativeRenderer_DrawGhostReplayOverlay(void)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	u32 buttonsHeld;
 	u8 stickLX;
 	u8 stickLY;
@@ -4254,12 +4155,10 @@ void NativeRenderer_DrawGhostReplayOverlay(void)
 	glBindVertexArray(0);
 	s_previousShader = (ShaderID)-1;
 	s_lastBoundTexture = (TextureID)-1;
-#endif
 }
 
 void NativeRenderer_PresentStreamingTexture(TextureID texture, int contentHeight, int displayHeight)
 {
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	if ((texture == 0) || (contentHeight <= 0) || (displayHeight < contentHeight))
 	{
 		return;
@@ -4292,11 +4191,6 @@ void NativeRenderer_PresentStreamingTexture(TextureID texture, int contentHeight
 	glBindVertexArray(0);
 	s_previousShader = (ShaderID)-1;
 	s_lastBoundTexture = (TextureID)-1;
-#else
-	(void)texture;
-	(void)contentHeight;
-	(void)displayHeight;
-#endif
 }
 
 void NativeRenderer_PresentVRAMDisplay(void)
@@ -4495,15 +4389,6 @@ void NativeRenderer_UpdateVertexBuffer(const GrVertex *vertices, int num_vertice
 		NativePerf_EndScope(NATIVE_PERF_BUCKET_RENDERER_VERTEX_UPLOAD);
 		return;
 	}
-#if defined(__PS3__) || defined(__CELLOS_LV2__)
-	static int ps3VboLogCount = 0;
-	ps3VboLogCount++;
-	if (ps3VboLogCount <= 10 || (ps3VboLogCount % 120) == 0)
-	{
-		Platform_Log("[PS3 Renderer] UpdateVertexBuffer #%d: num_vertices=%d vboIndex=%d\n",
-			ps3VboLogCount, num_vertices, s_curVertexBuffer);
-	}
-#endif
 	if ((u32)num_vertices >= MAX_VERTEX_BUFFER_SIZE)
 	{
 		NATIVE_RENDERER_ERROR("%s\n", "MAX_VERTEX_BUFFER_SIZE reached, expect rendering errors");
@@ -4515,9 +4400,7 @@ void NativeRenderer_UpdateVertexBuffer(const GrVertex *vertices, int num_vertice
 	s_curVertexBuffer = (s_curVertexBuffer + 1) % MAX_NUM_VERTEX_BUFFERS;
 #endif
 	s_boundVertexBuffer = bufferIndex;
-#if !defined(__PS3__) && !defined(__CELLOS_LV2__)
 	glBindVertexArray(s_glVertexArray[bufferIndex]);
-#endif
 	glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[bufferIndex]);
 #ifdef __vita__
 	GrVertex *gpuVertices = NativeRenderer_AllocateVertexBuffer(num_vertices);
@@ -4553,14 +4436,6 @@ void NativeRenderer_DrawTriangles(int start_vertex, int triangles)
 {
 	NativePerf_BeginScope(NATIVE_PERF_BUCKET_RENDERER_DRAW_TRIANGLES);
 #if defined(__PS3__) || defined(__CELLOS_LV2__)
-	static int ps3DrawTriLogCount = 0;
-	ps3DrawTriLogCount++;
-	if (ps3DrawTriLogCount <= 20 || (ps3DrawTriLogCount % 200) == 0)
-	{
-		Platform_Log("[PS3 Renderer] DrawTriangles #%d: start_vertex=%d triangles=%d shader=%d boundVBO=%d\n",
-			ps3DrawTriLogCount, start_vertex, triangles, (int)s_previousShader, s_boundVertexBuffer);
-	}
-
 	if (s_boundVertexBuffer >= 0)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, s_glVertexBuffer[s_boundVertexBuffer]);

@@ -99,7 +99,7 @@ void howl_InitChannelAttr_EngineFX(struct EngineFX *engineFX, struct ChannelAttr
 {
 	Channel_SetVolume(attr, (sdata->vol_FX * engineFX->volume * vol) >> 10, LR);
 
-	s16 pitch = engineFX->pitch;
+	s16 pitch = (s16)CTR_ReadU16LE(&engineFX->pitch);
 
 	if (distort != HOWL_SFX_DISTORTION_NONE)
 	{
@@ -112,7 +112,7 @@ void howl_InitChannelAttr_EngineFX(struct EngineFX *engineFX, struct ChannelAttr
 	attr->ad = 0x80ff;
 	attr->sr = 0x1fc2;
 
-	attr->spuStartAddr = (void *)(sdata->howl_spuAddrs[engineFX->spuIndex].spuAddr << 3);
+	attr->spuStartAddr = (void *)((u32)CTR_ReadU16LE(&sdata->howl_spuAddrs[CTR_ReadU16LE(&engineFX->spuIndex)].spuAddr) << 3);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002c424-0x8002c510
@@ -129,7 +129,7 @@ void howl_InitChannelAttr_OtherFX(struct OtherFX *otherFX, struct ChannelAttr *a
 
 	Channel_SetVolume(attr, (otherVol * otherFX->volume * vol) >> 10, LR);
 
-	s16 pitch = otherFX->pitch;
+	s16 pitch = (s16)CTR_ReadU16LE(&otherFX->pitch);
 
 	if (distort != HOWL_SFX_DISTORTION_NONE)
 	{
@@ -142,7 +142,7 @@ void howl_InitChannelAttr_OtherFX(struct OtherFX *otherFX, struct ChannelAttr *a
 	attr->ad = 0x80ff;
 	attr->sr = 0x1fc2;
 
-	attr->spuStartAddr = (void *)(sdata->howl_spuAddrs[otherFX->spuIndex].spuAddr << 3);
+	attr->spuStartAddr = (void *)((u32)CTR_ReadU16LE(&sdata->howl_spuAddrs[CTR_ReadU16LE(&otherFX->spuIndex)].spuAddr) << 3);
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002c510-0x8002c64c

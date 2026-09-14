@@ -179,7 +179,6 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 	}
 	else
 	{
-		int rate;
 		wInterpLessThanZero = rotCurrW_interp < 0;
 		if (wInterpLessThanZero)
 		{
@@ -188,7 +187,7 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 		}
 		if (rotCurrW_original < rotCurrW_interp)
 		{
-			rate = CTR_MipsSra(
+			int rate = CTR_MipsSra(
 			    CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, VEH_PHYS_ANGULAR_TURN_RESPONSE_ACCEL_SCALE)),
 			                  terrain->turnResponseScale),
 			    8);
@@ -203,7 +202,7 @@ void VehPhysGeneral_PhysAngular(struct Thread *thread, struct Driver *driver)
 		}
 		else if (rotCurrW_interp < rotCurrW_original)
 		{
-			rate = CTR_MipsSra(
+			int rate = CTR_MipsSra(
 			    CTR_MipsMulLo(CTR_MipsAddLo(driver->const_TurnInputDelay, CTR_MipsMulLo((s8)driver->turnConst, VEH_PHYS_ANGULAR_TURN_RESPONSE_DECEL_SCALE)),
 			                  terrain->turnResponseScale),
 			    8);
@@ -663,12 +662,12 @@ void VehPhysGeneral_JumpAndFriction(struct Thread *t, struct Driver *d)
 	Vec3 movement = d->velocity;
 	int speedLoss = 0;
 
-	int acceleration = 0;
-
 	if ((d->actionsFlagSet & ACTION_TOUCH_GROUND) == 0)
 	{
 		goto CHECK_FOR_ANY_JUMP;
 	}
+
+	int acceleration = 0;
 
 	if (((d->stepFlagSet & COLL_STEP_TRIGGER_TURBO_PAD_MASK) != 0) && (d->baseSpeed > 0))
 	{
@@ -866,7 +865,6 @@ CHECK_FOR_ANY_JUMP:
 	}
 
 PROCESS_JUMP:
-{
 	d->jump_CooldownMS = VEH_PHYS_JUMP_COOLDOWN_MS;
 	d->jump_TenBuffer = 0;
 	d->actionsFlagSet |= ACTION_JUMP_STARTED | ACTION_TURBO_INPUT_LATCH;
@@ -917,7 +915,6 @@ PROCESS_JUMP:
 	{
 		movement.y = verticalSpeed;
 	}
-}
 
 NOT_JUMPING:
 	VehPhysCrash_ConvertVecToSpeed(d, &movement);

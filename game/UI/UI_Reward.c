@@ -205,15 +205,19 @@ void UI_ThTick_big1(struct Thread *bucket)
 	struct GameTracker *gGT = sdata->gGT;
 
 	s16 scale = obj->scale;
-	CTR_WriteU32LE(&inst->matrix.m[0][0], scale);
-	CTR_WriteU32LE(&inst->matrix.m[0][2], 0);
-	CTR_WriteU32LE(&inst->matrix.m[1][1], scale);
-	CTR_WriteU32LE(&inst->matrix.m[2][0], 0);
+	inst->matrix.m[0][0] = scale;
+	inst->matrix.m[0][1] = 0;
+	inst->matrix.m[0][2] = 0;
+	inst->matrix.m[1][0] = 0;
+	inst->matrix.m[1][1] = scale;
+	inst->matrix.m[1][2] = 0;
+	inst->matrix.m[2][0] = 0;
+	inst->matrix.m[2][1] = 0;
 	inst->matrix.m[2][2] = scale;
 
 	MatrixRotate(&inst->matrix, &obj->m, &inst->matrix);
 
-	u32 drawOtagState = CTR_ReadU32LE(&gGT->bool_DrawOTag_InProgress);
+	u32 drawOtagState = CTR_ReadU32LE(&sdata->gGT->bool_DrawOTag_InProgress);
 	if ((drawOtagState & UI_REWARD_HUD_VISIBLE_WORD_MASK) == UI_REWARD_HUD_VISIBLE_WORD_VALUE)
 	{
 		inst->flags &= ~HIDE_MODEL;
