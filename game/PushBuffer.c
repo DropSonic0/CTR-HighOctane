@@ -240,6 +240,13 @@ void PushBuffer_SetDrawEnv_Normal(void *ot, struct PushBuffer *pb, struct DB *ba
 {
 	DRAWENV newDrawEnv;
 
+#ifdef CTR_NATIVE
+	if (!NativeGpuLinks_IsRegisteredHostPointer(ot))
+	{
+		return;
+	}
+#endif
+
 	for (u32 i = 0; i < sizeof(DRAWENV) / 4; i++)
 	{
 		CTR_WriteU32LE((u8 *)&newDrawEnv + i * 4, CTR_ReadU32LE((u8 *)&backBuffer->drawEnv + i * 4));

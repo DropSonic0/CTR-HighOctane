@@ -21,7 +21,7 @@ static void MainFrame_RegisterGpuLinkRanges(struct GameTracker *gGT)
 		NativeGpuLinks_RegisterRangeChecked(otLabels[i], db->otMem.start, db->otMem.capacityBytes);
 	}
 
-	u32 swapchainOTBytes = ((u32)gGT->numPlyrCurrGame << 12) | 0x18u;
+	u32 swapchainOTBytes = (4u << 12) | 0x18u;
 	for (int i = 0; i < 2; i++)
 	{
 		NativeGpuLinks_RegisterRangeChecked(swapchainLabels[i], gGT->otSwapchainDB[i], swapchainOTBytes);
@@ -104,7 +104,14 @@ void MainFrame_ResetDB(struct GameTracker *gGT)
 	CTR_EmptyFunc_MainFrame_ResetDB();
 	DecalGlobal_EmptyFunc_MainFrame_ResetDB();
 
+#if defined(CTR_NATIVE)
+	// NOTE(aalhendi): Clear full 4-player capacity (0x4018 bytes) so dummy
+	// pushBuffers (1..3) pointing to offset 0x3018 in 1P mode are properly
+	// initialized with valid OT tags and link tokens.
+	ClearOTagR((u32 *)otSwapchainDB, (4 << 10) | 6);
+#else
 	ClearOTagR((u32 *)otSwapchainDB, sdata->gGT->numPlyrCurrGame << 10 | 6);
+#endif
 
 	for (iVar4 = 0; iVar4 < sdata->gGT->numPlyrCurrGame; iVar4++)
 	{

@@ -404,7 +404,7 @@ internal struct Model *MM_Characters_GetOxideMenuModel(void)
 		u8 *modelBuf = fileBuf + sizeof(u32);
 		struct DramPointerMap *ptrMap = (struct DramPointerMap *)(modelBuf + ptrMapOffset);
 
-		LOAD_RunPtrMap((char *)modelBuf, DRAM_GETOFFSETS(ptrMap), ptrMap->numBytes >> DRAM_POINTER_MAP_WORD_SHIFT);
+		LOAD_RunPtrMap((char *)modelBuf, DRAM_GETOFFSETS(ptrMap), (int)CTR_ReadU32LE(&ptrMap->numBytes) >> DRAM_POINTER_MAP_WORD_SHIFT);
 
 		s_oxideCharacterSelectModel = (struct Model *)modelBuf;
 

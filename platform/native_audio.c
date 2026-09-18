@@ -2633,7 +2633,7 @@ internal int NativeAudio_IsXAAudioSector(const u8 *sector, int sectorBase, int c
 	int coding = header[3];
 	int bpsBits = (coding >> 4) & 0x03;
 
-	return ((subMode & 0x04) != 0) && ((header[1] & 0x1f) == (channelFilter & 0x1f)) && (bpsBits == 0);
+	return ((subMode & 0x04) != 0) && (header[0] == 1) && (header[1] == channelFilter) && (bpsBits == 0);
 }
 
 internal int NativeAudio_DecodeXA28Nibbles(const u8 *sector, int frameOff, int block, int nibble, int channel, struct NativeAudioXaDecodeState *state,

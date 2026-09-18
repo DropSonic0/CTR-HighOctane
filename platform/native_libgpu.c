@@ -478,6 +478,12 @@ void DrawPrim(void *p)
 
 void AddPrim(void *ot, void *p)
 {
+#ifdef CTR_NATIVE
+	if (!NativeGpuLinks_IsRegisteredHostPointer(ot) || !NativeGpuLinks_IsRegisteredHostPointer(p))
+	{
+		return;
+	}
+#endif
 	u32 otTag = CTR_GPU_ReadTagWord(ot);
 	u32 primTag = CTR_GPU_ReadTagWord(p);
 

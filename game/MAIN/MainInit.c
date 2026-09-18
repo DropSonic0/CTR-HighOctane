@@ -241,8 +241,15 @@ EndFunc:
 	MainDB_OTMem(&gGT->db[0].otMem, size);
 	MainDB_OTMem(&gGT->db[1].otMem, size);
 
+#ifdef CTR_NATIVE
+	// NOTE(aalhendi): Native allocates full 4-player capacity (0x4018 bytes) so
+	// that dummy pushBuffers (1..3) pointing to offset 0x3018 in 1P mode stay
+	// inside valid allocated memory.
+	size = (4 << 0xC) | 0x18;
+#else
 	// 0x1000 per player, plus 0x18 for linking
 	size = ((gGT->numPlyrCurrGame) << 0xC) | 0x18;
+#endif
 	gGT->otSwapchainDB[0] = MEMPACK_AllocMem(size); // "ot1"
 	gGT->otSwapchainDB[1] = MEMPACK_AllocMem(size); // "ot2"
 }

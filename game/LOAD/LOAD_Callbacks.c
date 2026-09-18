@@ -69,7 +69,7 @@ void LOAD_Callback_PatchMem(struct LoadQueueSlot *lqs)
 
 	// that's why the patch map is handled here
 	struct DramPointerMap *patchMap = lqs->ptrDestination;
-	int patchNum = patchMap->numBytes >> DRAM_POINTER_MAP_WORD_SHIFT;
+	int patchNum = (int)CTR_ReadU32LE(&patchMap->numBytes) >> DRAM_POINTER_MAP_WORD_SHIFT;
 
 	sdata->load_inProgress = 0;
 

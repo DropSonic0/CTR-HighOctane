@@ -17,19 +17,19 @@ typedef union
 #if defined(__PS3__) || defined(__CELLOS_LV2__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
 	struct
 	{
-		unsigned char l, h, h2, h3;
+		unsigned char h3, h2, h, l;
 	} b;
 	struct
 	{
-		unsigned short l, h;
+		unsigned short h, l;
 	} w;
 	struct
 	{
-		char l, h, h2, h3;
+		char h3, h2, h, l;
 	} sb;
 	struct
 	{
-		short l, h;
+		short h, l;
 	} sw;
 #else
 	struct

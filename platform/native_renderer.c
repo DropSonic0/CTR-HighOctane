@@ -455,8 +455,8 @@ internal int NativeRenderer_InitialiseGLContext(char *windowName, int fullscreen
 	memset(&options, 0, sizeof(options));
 	options.enable = PSGL_INIT_MAX_SPUS | PSGL_INIT_INITIALIZE_SPUS | PSGL_INIT_HOST_MEMORY_SIZE;
 	options.maxSPUs = 1;
-	options.initializeSPUs = GL_FALSE;
-	options.hostMemorySize = 8 * 1024 * 1024;
+	options.initializeSPUs = GL_TRUE;
+	options.hostMemorySize = 16 * 1024 * 1024;
 
 	psglInit(&options);
 
