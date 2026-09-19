@@ -15,10 +15,9 @@ void LibraryOfModels_Store(struct GameTracker *gGT, u32 numModels, struct Model 
 		{
 			return;
 		}
-		s16 modelID = MODEL_GET_ID(m);
-		if (modelID != -1 && (u16)modelID < len(gGT->modelPtr))
+		if (m->id != -1)
 		{
-			gGT->modelPtr[modelID] = m;
+			gGT->modelPtr[m->id] = m;
 		}
 		numModels--;
 		ptrModelArray++;

@@ -715,12 +715,12 @@ void CS_Podium_FullScene_Init(void)
 	// position and rotation of podium scene
 	// Y coordinate (podiumPos.y) has added height
 	posRot = gGT->level1->ptrSpawnType2_PosRot[1].posRot;
-	InitData.podiumPos.x = (s16)CTR_ReadU16LE((u16 *)&posRot->pos.x);
-	InitData.podiumPos.y = (s16)CTR_ReadU16LE((u16 *)&posRot->pos.y) + PODIUM_SCENE_SPAWN_Y_OFFSET;
-	InitData.podiumPos.z = (s16)CTR_ReadU16LE((u16 *)&posRot->pos.z);
-	InitData.rot.x = (s16)CTR_ReadU16LE((u16 *)&posRot->rot.x);
-	InitData.rot.y = (s16)CTR_ReadU16LE((u16 *)&posRot->rot.y);
-	InitData.rot.z = (s16)CTR_ReadU16LE((u16 *)&posRot->rot.z);
+	InitData.podiumPos.x = posRot->pos.x;
+	InitData.podiumPos.y = posRot->pos.y + PODIUM_SCENE_SPAWN_Y_OFFSET;
+	InitData.podiumPos.z = posRot->pos.z;
+	InitData.rot.x = posRot->rot.x;
+	InitData.rot.y = posRot->rot.y;
+	InitData.rot.z = posRot->rot.z;
 
 	// convert 3 rotation shorts into rotation matrix
 	ConvertRotToMatrix(&podiumMatrix, &InitData.rot.vec);

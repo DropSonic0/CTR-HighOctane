@@ -88,13 +88,13 @@ void howl_InitChannelAttr_Music(struct SongSeq *seq, struct ChannelAttr *attr, i
 	{
 		struct SampleInstrument *longSample = &sdata->ptrCseqLongSamples[seq->instrumentID];
 
-		pitch = howl_InstrumentPitch((s16)CTR_ReadU16LE(&longSample->basePitch), index, seq->distort);
+		pitch = howl_InstrumentPitch(longSample->basePitch, index, seq->distort);
 
-		attr->spuStartAddr = (void *)((u32)CTR_ReadU16LE(&sdata->howl_spuAddrs[CTR_ReadU16LE(&longSample->spuIndex)].spuAddr) << 3);
+		attr->spuStartAddr = (void *)(sdata->howl_spuAddrs[longSample->spuIndex].spuAddr << 3);
 
 		// audio ADSR
-		attr->ad = (s16)CTR_ReadU16LE(&longSample->ad);
-		attr->sr = (s16)CTR_ReadU16LE(&longSample->sr);
+		attr->ad = longSample->ad;
+		attr->sr = longSample->sr;
 
 		sampleVol = CTR_MipsMulLo(sampleVol, longSample->volume);
 	}
@@ -104,19 +104,17 @@ void howl_InitChannelAttr_Music(struct SongSeq *seq, struct ChannelAttr *attr, i
 	{
 		struct SampleDrums *shortSample = &sdata->ptrCseqShortSamples[index];
 
-		s16 shortPitch = (s16)CTR_ReadU16LE(&shortSample->pitch);
-
 		if (seq->distort == HOWL_SFX_DISTORTION_NONE)
 		{
-			pitch = shortPitch;
+			pitch = shortSample->pitch;
 		}
 
 		else
 		{
-			pitch = CTR_MipsSrl(CTR_MipsMulLo((u16)shortPitch, data.distortConst_OtherFX[seq->distort]), 16);
+			pitch = CTR_MipsSrl(CTR_MipsMulLo((u16)shortSample->pitch, data.distortConst_OtherFX[seq->distort]), 16);
 		}
 
-		attr->spuStartAddr = (void *)((u32)CTR_ReadU16LE(&sdata->howl_spuAddrs[CTR_ReadU16LE(&shortSample->spuIndex)].spuAddr) << 3);
+		attr->spuStartAddr = (void *)(sdata->howl_spuAddrs[shortSample->spuIndex].spuAddr << 3);
 
 		// audio ADSR
 		attr->ad = 0x80ff;
@@ -302,23 +300,22 @@ void cseq_opcode0a(struct SongSeq *seq)
 		{
 			struct SampleInstrument *longSample = &sdata->ptrCseqLongSamples[seq->instrumentID];
 
-			pitch = howl_InstrumentPitch((s16)CTR_ReadU16LE(&longSample->basePitch), index, seq->distort);
+			pitch = howl_InstrumentPitch(longSample->basePitch, index, seq->distort);
 		}
 
 		// drums
 		else
 		{
 			struct SampleDrums *shortSample = &sdata->ptrCseqShortSamples[index];
-			s16 shortPitch = (s16)CTR_ReadU16LE(&shortSample->pitch);
 
 			if (seq->distort == HOWL_SFX_DISTORTION_NONE)
 			{
-				pitch = shortPitch;
+				pitch = shortSample->pitch;
 			}
 
 			else
 			{
-				pitch = CTR_MipsSrl(CTR_MipsMulLo((u16)shortPitch, data.distortConst_OtherFX[seq->distort]), 16);
+				pitch = CTR_MipsSrl(CTR_MipsMulLo((u16)shortSample->pitch, data.distortConst_OtherFX[seq->distort]), 16);
 			}
 		}
 

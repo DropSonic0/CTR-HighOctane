@@ -13,12 +13,15 @@
 #include <pthread.h>
 #include <sys/timer.h>
 
+#ifndef CTR_SDL_TYPES_DEFINED
+#define CTR_SDL_TYPES_DEFINED
 typedef u32 SDL_AudioDeviceID;
 typedef void SDL_AudioStream;
 typedef void SDL_Mutex;
 typedef void SDL_Condition;
 typedef void SDL_Thread;
 typedef int SDL_AtomicInt;
+#endif
 #ifndef SDLCALL
 #define SDLCALL
 #endif
@@ -2633,7 +2636,7 @@ internal int NativeAudio_IsXAAudioSector(const u8 *sector, int sectorBase, int c
 	int coding = header[3];
 	int bpsBits = (coding >> 4) & 0x03;
 
-	return ((subMode & 0x04) != 0) && (header[0] == 1) && (header[1] == channelFilter) && (bpsBits == 0);
+	return ((subMode & 0x04) != 0) && ((header[1] & 0x1f) == (channelFilter & 0x1f)) && (bpsBits == 0);
 }
 
 internal int NativeAudio_DecodeXA28Nibbles(const u8 *sector, int frameOff, int block, int nibble, int channel, struct NativeAudioXaDecodeState *state,
@@ -3524,11 +3527,12 @@ internal void NativeAudio_MixSample(int *dstLeft, int *dstRight, int sampleLeft,
 
 internal int NativeAudio_GetQueuedFramesNoLock(void)
 {
-	const int frameBytes = (int)sizeof(s16) * NATIVE_AUDIO_CHANNELS;
-	int queuedBytes;
 	int queuedFrames = s_audio.output.scheduledFrameCount;
 
 #if !defined(__PS3__) && !defined(__CELLOS_LV2__)
+	const int frameBytes = (int)sizeof(s16) * NATIVE_AUDIO_CHANNELS;
+	int queuedBytes;
+
 	if (s_audio.output.stream != NULL)
 	{
 		queuedBytes = SDL_GetAudioStreamQueued(s_audio.output.stream);

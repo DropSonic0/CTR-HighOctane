@@ -61,7 +61,7 @@ int OtherFX_Play_LowLevel(u32 soundID, u8 boolAntiSpam, u32 flags)
 	id = soundID & 0xffff;
 
 	// quit if out of bounds
-	if (id >= CTR_ReadU32LE(&sdata->ptrHowlHeader->numOtherFX))
+	if (id >= sdata->ptrHowlHeader->numOtherFX)
 	{
 		return 0;
 	}
@@ -70,7 +70,7 @@ int OtherFX_Play_LowLevel(u32 soundID, u8 boolAntiSpam, u32 flags)
 	ptrOtherFX = &sdata->howl_metaOtherFX[id];
 
 	// quit if effect is not loaded
-	if (CTR_ReadU16LE(&sdata->howl_spuAddrs[CTR_ReadU16LE(&ptrOtherFX->spuIndex)].spuAddr) == 0)
+	if (sdata->howl_spuAddrs[ptrOtherFX->spuIndex].spuAddr == 0)
 	{
 		return 0;
 	}
@@ -115,7 +115,7 @@ int OtherFX_Play_LowLevel(u32 soundID, u8 boolAntiSpam, u32 flags)
 	channel->vol = volume;
 	channel->distort = distortion;
 	channel->LR = LR;
-	channel->timeLeft = (s16)CTR_ReadU16LE(&ptrOtherFX->duration);
+	channel->timeLeft = ptrOtherFX->duration;
 
 	// soundID, shift in CountSounds for
 	// this specific instance of the sound
@@ -147,7 +147,7 @@ u32 OtherFX_Modify(u32 soundId, u32 flags)
 	}
 
 	// quit if out of bounds
-	if ((int)CTR_ReadU32LE(&sdata->ptrHowlHeader->numOtherFX) <= (int)(soundId & 0xffff))
+	if ((sdata->ptrHowlHeader->numOtherFX) <= (int)(soundId & 0xffff))
 	{
 		return 0;
 	}
@@ -167,18 +167,16 @@ u32 OtherFX_Modify(u32 soundId, u32 flags)
 		modify = sdata->vol_Voice;
 	}
 
-	s16 otherPitch = (s16)CTR_ReadU16LE(&ptrOtherFX->pitch);
-
 	// no distortion
 	if (distort == HOWL_SFX_DISTORTION_NONE)
 	{
-		channelAttr.pitch = otherPitch;
+		channelAttr.pitch = ptrOtherFX->pitch;
 	}
 
 	// distortion
 	else
 	{
-		channelAttr.pitch = otherPitch * data.distortConst_OtherFX[distort] >> 0x10;
+		channelAttr.pitch = ptrOtherFX->pitch * data.distortConst_OtherFX[distort] >> 0x10;
 	}
 
 	Channel_SetVolume(&channelAttr, modify * ptrOtherFX->volume * volume >> 10, LR);

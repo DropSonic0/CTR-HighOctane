@@ -283,16 +283,16 @@ LAB_80055930:
 
 			                   introPB->rect.x + ((introPB->rect.w << 0x10) >> 0x11),
 
-			                   ((introPB->rect.y - (titleTransition - UI_RACE_START_TITLE_TOP_Y_BIAS)) + UI_RACE_START_CUP_TITLE_Y_OFFSET), FONT_BIG,
+			                   (int)((introPB->rect.y - (titleTransition - UI_RACE_START_TITLE_TOP_Y_BIAS)) + UI_RACE_START_CUP_TITLE_Y_OFFSET), FONT_BIG,
 			                   (JUSTIFY_CENTER | ORANGE));
 
 			// Track 1/4, 2/4, 3/4, 4/4 in cup
-			sprintf(trackText, "%s %ld/4",
+			sprintf(trackText, "%s %d/4",
 
 			        sdata->lngStrings[LNG_TRACK],
 
 			        // Track Index (0, 1, 2, 3) + 1
-			        CTR_PRINTF_PSX_LONG((gGT->cup.trackIndex) + 1));
+			        (int)(gGT->cup.trackIndex + 1));
 
 			// string of top title bar
 			titleText = trackText;
@@ -322,7 +322,7 @@ LAB_80055930:
 
 		    introPB->rect.x + ((introPB->rect.w << 0x10) >> 0x11),
 
-		    (introPB->rect.y + introPB->rect.h + titleTransition + UI_RACE_START_LEVEL_TITLE_Y_OFFSET), FONT_BIG,
+		    (int)(introPB->rect.y + introPB->rect.h + titleTransition + UI_RACE_START_LEVEL_TITLE_Y_OFFSET), FONT_BIG,
 		    (JUSTIFY_CENTER | ORANGE));
 
 		// same for all

@@ -7,8 +7,6 @@ void Music_SetIntro(void)
 
 	sdata->audioDefaults[7] = 0;
 
-	Platform_Log("[CTR Native] Music_SetIntro: Loading Bank 33...\n");
-	Platform_LogFlush();
 	Bank_Load(33, &thisBank);
 
 	while (Bank_AssignSpuAddrs() == 0)
@@ -17,21 +15,15 @@ void Music_SetIntro(void)
 		VSync(0);
 #endif
 	}
-	Platform_Log("[CTR Native] Music_SetIntro: Bank 33 assigned SPU addrs\n");
-	Platform_LogFlush();
 
 	howl_SetSong(HOWL_SONG_ND_CRATE);
 
-	Platform_Log("[CTR Native] Music_SetIntro: Loading ND Crate song...\n");
-	Platform_LogFlush();
 	while (howl_LoadSong() == 0)
 	{
 #ifdef CTR_NATIVE
 		VSync(0);
 #endif
 	}
-	Platform_Log("[CTR Native] Music_SetIntro: ND Crate song loaded\n");
-	Platform_LogFlush();
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002dd74-0x8002de48
@@ -442,7 +434,7 @@ void Music_SetDefaults(void)
 {
 	// no music playing
 	sdata->cseqBoolPlay = false;
-	sdata->cseqHighestIndex = -1;
+	sdata->cseqHighestIndex = 0xffffffffU;
 	sdata->cseqTempo = 0;
 }
 
@@ -551,7 +543,7 @@ void Music_Stop(void)
 	CseqMusic_Stop(sdata->cseqHighestIndex & 0xffff);
 
 	sdata->cseqBoolPlay = 0;
-	sdata->cseqHighestIndex = -1;
+	sdata->cseqHighestIndex = 0xffffffffU;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e524-0x8002e53c
@@ -569,7 +561,7 @@ void Music_End(void)
 	sdata->cseqBoolPlay = false;
 
 	// no songs are playing
-	sdata->cseqHighestIndex = -1;
+	sdata->cseqHighestIndex = 0xffffffffU;
 }
 
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x8002e550-0x8002e55c

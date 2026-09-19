@@ -117,7 +117,7 @@ void CS_Credits_AnimateCreditGhost(struct Instance *dst, struct Instance *src, i
 
 	localModel->headers = co->creditGhostHeaders[index];
 
-	s16 srcNumHeaders = (s16)CTR_ReadU16LE(&srcModel->numHeaders);
+	s16 srcNumHeaders = srcModel->numHeaders;
 	if (srcNumHeaders > 0)
 	{
 		struct ModelHeader *dstHeaders = localModel->headers;

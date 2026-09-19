@@ -14,24 +14,6 @@
 
 typedef union
 {
-#if defined(__PS3__) || defined(__CELLOS_LV2__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-	struct
-	{
-		unsigned char h3, h2, h, l;
-	} b;
-	struct
-	{
-		unsigned short h, l;
-	} w;
-	struct
-	{
-		char h3, h2, h, l;
-	} sb;
-	struct
-	{
-		short h, l;
-	} sw;
-#else
 	struct
 	{
 		unsigned char l, h, h2, h3;
@@ -48,7 +30,6 @@ typedef union
 	{
 		short l, h;
 	} sw;
-#endif
 
 	unsigned int d;
 	int sd;

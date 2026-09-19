@@ -162,13 +162,15 @@ struct Instance *UI_INSTANCE_BirthWithThread(int modelID, int tickFunc, int hudS
 		// token
 		else if (createdModelID == STATIC_TOKEN)
 		{
-			// get AdvCup ID from level metadata
-			int advCupID = data.metaDataLEV[gGT->levelID].ctrTokenGroupID;
+			{
+				// get AdvCup ID from level metadata
+				int advCupID = data.metaDataLEV[gGT->levelID].ctrTokenGroupID;
 
-			s16 *cupColor = &data.AdvCups[advCupID].color[0];
+				s16 *cupColor = &data.AdvCups[advCupID].color[0];
 
-			inst->colorRGBA = (cupColor[0] << UI_INSTANCE_TOKEN_COLOR_R_SHIFT) | (cupColor[1] << UI_INSTANCE_TOKEN_COLOR_G_SHIFT) |
-			                  (cupColor[2] << UI_INSTANCE_TOKEN_COLOR_B_SHIFT);
+				inst->colorRGBA = (cupColor[0] << UI_INSTANCE_TOKEN_COLOR_R_SHIFT) | (cupColor[1] << UI_INSTANCE_TOKEN_COLOR_G_SHIFT) |
+				                  (cupColor[2] << UI_INSTANCE_TOKEN_COLOR_B_SHIFT);
+			}
 
 		ApplyDefaultLightTransparent:
 

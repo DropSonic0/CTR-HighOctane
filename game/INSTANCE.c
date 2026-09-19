@@ -21,14 +21,11 @@ void INSTANCE_Birth(struct Instance *inst, struct Model *model, const char *name
 	else
 #endif
 	{
-		for (i = 0; (i < 15) && (name[i] != '\0'); i++)
+		for (i = 0; i < 15; i++)
 		{
 			inst->name[i] = name[i];
 		}
-		for (; i < 16; i++)
-		{
-			inst->name[i] = '\0';
-		}
+		inst->name[15] = '\0';
 	}
 
 	inst->depthBiasNormal = 0xfe;
@@ -282,7 +279,7 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 			idpp[j].pushBuffer = &gGT->pushBuffer[j];
 		}
 
-		modelID = MODEL_GET_ID(levInstDef->model);
+		modelID = levInstDef->model->id;
 
 		// can be -1
 		if ((s16)modelID > 0)
@@ -369,7 +366,7 @@ void INSTANCE_LevDelayedLInBs(struct InstDef *instDef, int numInstances)
 {
 	for (int i = 0; i < numInstances; i++)
 	{
-		struct MetaDataMODEL *meta = COLL_LevModelMeta(MODEL_GET_ID(instDef->model));
+		struct MetaDataMODEL *meta = COLL_LevModelMeta(instDef->model->id);
 
 		if ((meta != NULL) && (meta->LInB != NULL))
 		{
@@ -383,7 +380,7 @@ void INSTANCE_LevDelayedLInBs(struct InstDef *instDef, int numInstances)
 
 b32 INSTANCE_Use60FpsAnimation(struct Instance *inst)
 {
-	if (!CTR_NATIVE_60FPS_ACTIVE || (inst == NULL) || (inst->model == NULL) || (CTR_ReadU16LE(&inst->model->numHeaders) == 0) || (inst->model->headers == NULL))
+	if (!CTR_NATIVE_60FPS_ACTIVE || (inst == NULL) || (inst->model == NULL) || (inst->model->numHeaders <= 0) || (inst->model->headers == NULL))
 	{
 		return false;
 	}
@@ -393,7 +390,7 @@ b32 INSTANCE_Use60FpsAnimation(struct Instance *inst)
 		return false;
 	}
 
-	if (MODEL_GET_ID(inst->model) == DYNAMIC_FIREBALL)
+	if (inst->model->id == DYNAMIC_FIREBALL)
 	{
 		return false;
 	}
@@ -423,7 +420,7 @@ u16 INSTANCE_GetNumAnimFrames(struct Instance *pInstance, int animIndex)
 	if (pModel = pInstance->model, pModel != NULL)
 	{
 		// if model got headers
-		if ((s16)CTR_ReadU16LE(&pModel->numHeaders) > 0)
+		if (pModel->numHeaders > 0)
 		{
 			// get first header ptr and validate
 			if (pHeader = pModel->headers, pHeader != NULL)
@@ -432,16 +429,15 @@ u16 INSTANCE_GetNumAnimFrames(struct Instance *pInstance, int animIndex)
 				if (pHeader->ptrAnimations != NULL)
 				{
 					// validate anim index param
-					if (animIndex < (int)CTR_ReadU32LE(&pHeader->numAnimations))
+					if (animIndex < (int)pHeader->numAnimations)
 					{
 						// get proper animation ptr and validate
 						if (pAnim = *(pHeader->ptrAnimations + animIndex), pAnim != NULL)
 						{
 							// we're finally there, get number of frames
 							// remember it's masked due to interp flag
-							u16 animFrames = CTR_ReadU16LE(&pAnim->numFrames);
-							u16 frameCount = animFrames & 0x7fff;
-							if (INSTANCE_Use60FpsAnimation(pInstance) && ((animFrames & 0x8000) == 0) && (frameCount != 0))
+							u16 frameCount = pAnim->numFrames & 0x7fff;
+							if (INSTANCE_Use60FpsAnimation(pInstance) && ((pAnim->numFrames & 0x8000) == 0) && (frameCount != 0))
 							{
 								frameCount = (u16)((frameCount << 1) - 1);
 							}

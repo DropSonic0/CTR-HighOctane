@@ -59,7 +59,7 @@ int NativeGpuLinks_IsTerminator(uint32_t token)
 
 int NativeGpuLinks_RegisterRange(const void *hostStart, size_t size, uint32_t *tokenStartOut)
 {
-	uint32_t tokenSize;
+	uint32_t tokenSize = 0;
 	uintptr_t start;
 	uintptr_t end;
 

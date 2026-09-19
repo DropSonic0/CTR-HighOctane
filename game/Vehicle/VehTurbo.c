@@ -299,7 +299,7 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 	// player of any kind
 	if (instanceDriver->thread->modelIndex == DYNAMIC_PLAYER)
 	{
-		int fireSfxVolume = TURBO_AUDIO_VOLUME_BASE - (u32)(instance->alphaScale >> TURBO_AUDIO_ALPHA_SHIFT);
+		int fireSfxVolume = TURBO_AUDIO_VOLUME_BASE - (int)(instance->alphaScale >> TURBO_AUDIO_ALPHA_SHIFT);
 
 		if (fireSfxVolume < 0)
 		{
@@ -422,7 +422,7 @@ void VehTurbo_ThTick(struct Thread *turboThread)
 			else
 #endif
 			{
-				OtherFX_RecycleNew(&driver->driverAudioPtrs[TURBO_AUDIO_SLOT], TURBO_STOP_SFX_ID, stopSfxParams);
+				OtherFX_RecycleNew(&driver->driverAudioPtrs[TURBO_AUDIO_SLOT], (u32)TURBO_STOP_SFX_ID, stopSfxParams);
 			}
 		}
 
