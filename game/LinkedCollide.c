@@ -22,7 +22,7 @@ struct Instance *LinkedCollide_Radius(struct Instance *objInst, struct Thread *_
 		diff_dist = diff_x * diff_x + diff_z * diff_z;
 
 		// Minecart
-		if (objInst->model->id == DYNAMIC_MINE_CART)
+		if ((objInst->model != NULL) && ((s16)CTR_ReadU16LE(&objInst->model->id) == DYNAMIC_MINE_CART))
 		{
 			// Cylinder collision
 			if ((diff_dist < hitRadius) && (-0x20 < diff_y))

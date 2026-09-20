@@ -116,14 +116,14 @@ void LOAD_DramFileCallback(struct LoadQueueSlot *lqs)
 
 	if (fileBuf != NULL)
 	{
-		int ptrMapOffset = *(int *)&fileBuf[0];
+		int ptrMapOffset = (int)CTR_ReadU32LE(&fileBuf[0]);
 		char *realFileBuf = &fileBuf[4];
 
 		if (ptrMapOffset >= 0)
 		{
 			struct DramPointerMap *dpm = (struct DramPointerMap *)&realFileBuf[ptrMapOffset];
 
-			LOAD_RunPtrMap(realFileBuf, (int *)DRAM_GETOFFSETS(dpm), dpm->numBytes >> 2);
+			LOAD_RunPtrMap(realFileBuf, (int *)DRAM_GETOFFSETS(dpm), (int)(CTR_ReadU32LE(&dpm->numBytes) >> 2));
 
 #if defined(CTR_NATIVE)
 			if ((lqs->flags & LT_MEMPACK) != 0)

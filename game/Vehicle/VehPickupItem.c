@@ -859,7 +859,7 @@ void VehPickupItem_ShootNow(struct Driver *d, s32 weaponID, s32 flags)
 
 		RB_MinePool_Add(mw);
 		VehPickupItem_PotionThrow(mw, weaponInst, flags);
-		mineHitModel = weaponInst->model->id | COLL_MODELID_BLOCKAGE_FLAG;
+		mineHitModel = ((weaponInst->model != NULL) ? (s16)CTR_ReadU16LE(&weaponInst->model->id) : 0) | COLL_MODELID_BLOCKAGE_FLAG;
 		mineShouldInitFollower = (flags == 0);
 
 	RunMineCOLL:;
@@ -1020,7 +1020,7 @@ void VehPickupItem_ShootNow(struct Driver *d, s32 weaponID, s32 flags)
 
 			VehPickupItem_ClearMineMotion(mw);
 
-			mineHitModel = weaponInst->model->id;
+			mineHitModel = (weaponInst->model != NULL) ? (s16)CTR_ReadU16LE(&weaponInst->model->id) : 0;
 			mineShouldInitFollower = 1;
 			goto RunMineCOLL;
 		}

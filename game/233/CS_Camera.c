@@ -137,7 +137,11 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 					mArr[i] = (struct Model *)((char *)mArr[i] + 4);
 				}
 
-				gGT->modelPtr[mArr[i]->id] = mArr[i];
+				if ((mArr[i] != NULL) && (mArr[i] != (struct Model *)sdata->ptrLevelFile))
+				{
+					u16 mID = CTR_ReadU16LE(&mArr[i]->id);
+					gGT->modelPtr[mID] = mArr[i];
+				}
 			}
 		}
 
@@ -160,12 +164,12 @@ void CS_Camera_ThTick_Boss(struct Thread *t)
 		t = 0;
 		for (int i = 1; i >= 0; i--)
 		{
-			if (mArr[i] == NULL)
+			if ((mArr[i] == NULL) || (mArr[i] == (struct Model *)sdata->ptrLevelFile))
 			{
 				continue;
 			}
 
-			t = CS_Thread_Init(mArr[i]->id, mArr[i]->name, &initData, 0, t);
+			t = CS_Thread_Init(CTR_ReadU16LE(&mArr[i]->id), mArr[i]->name, &initData, 0, t);
 			if (t == NULL)
 			{
 				continue;

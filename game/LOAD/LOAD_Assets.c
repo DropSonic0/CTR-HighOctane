@@ -11,8 +11,17 @@ void LOAD_RunPtrMap(char *origin, int *patchArr, int numPtrs)
 
 	for (ptrCurrOffset = &patchArr[0]; ptrCurrOffset < &patchArr[numPtrs]; ptrCurrOffset++)
 	{
-		int offset = (*ptrCurrOffset >> 2) << 2;
-		*(int *)&origin[offset] = *(int *)&origin[offset] + (int)origin;
+		u32 rawOffset = CTR_ReadU32LE(ptrCurrOffset);
+		int offset = (int)((rawOffset >> 2) << 2);
+		u32 relOffs = CTR_ReadU32LE(&origin[offset]);
+		if (relOffs != 0)
+		{
+			*(u32 *)&origin[offset] = (u32)((uintptr_t)origin + relOffs);
+		}
+		else
+		{
+			*(u32 *)&origin[offset] = 0;
+		}
 #if defined(CTR_NATIVE) && defined(CTR_INTERNAL)
 		NativeCheckpoint_RegisterPointerSlot(&origin[offset]);
 #endif

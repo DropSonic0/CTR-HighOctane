@@ -9,17 +9,18 @@ void LOAD_GlobalModelPtrs_MPK()
 	{
 		struct Model *m = data.driverModelExtras[i].model;
 
-		if (m == NULL)
+		if ((m == NULL) || (m == (struct Model *)sdata->ptrLevelFile))
 		{
 			continue;
 		}
 
-		if (m->id == -1)
+		s16 id = (s16)CTR_ReadU16LE(&m->id);
+		if (id == -1)
 		{
 			continue;
 		}
 
-		gGT->modelPtr[m->id] = m;
+		gGT->modelPtr[id] = m;
 	}
 
 	if (sdata->PLYROBJECTLIST != 0)

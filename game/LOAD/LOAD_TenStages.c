@@ -665,12 +665,18 @@ int LOAD_TenStages(struct GameTracker *gGT, int loadingStage, struct BigHeader *
 					modelPtrArr[i] = m;
 				}
 
-				if (m->id == -1)
+				if ((m == NULL) || (m == (struct Model *)sdata->ptrLevelFile))
 				{
 					continue;
 				}
 
-				gGT->modelPtr[m->id] = m;
+				s16 id = (s16)CTR_ReadU16LE(&m->id);
+				if (id == -1)
+				{
+					continue;
+				}
+
+				gGT->modelPtr[id] = m;
 			}
 
 			MEMPACK_SwapPacks(gGT->activeMempackIndex);

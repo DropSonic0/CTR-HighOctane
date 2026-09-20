@@ -50,25 +50,36 @@ void DecalGlobal_Store(struct GameTracker *gGT, struct LevTexLookup *LTL)
 		return;
 	}
 
+	int numIcon = (int)CTR_ReadU32LE(&LTL->numIcon);
+	struct Icon *firstIcon = LTL->firstIcon; // Patched to native host pointer by LOAD_RunPtrMap
+
 	for (
 	    // array of Icon
-	    currIcon = &LTL->firstIcon[0]; currIcon < &LTL->firstIcon[LTL->numIcon]; currIcon++)
+	    currIcon = &firstIcon[0]; currIcon < &firstIcon[numIcon]; currIcon++)
 	{
+		u32 iconIndex = CTR_ReadU32LE(&currIcon->global_IconArray_Index);
 		// uint, in case of negatives
-		if ((u32)currIcon->global_IconArray_Index < 0x88)
+		if (iconIndex < 0x88)
 		{
-			gGT->ptrIcons[currIcon->global_IconArray_Index] = currIcon;
+			gGT->ptrIcons[iconIndex] = currIcon;
 		}
 	}
 
+	int numIconGroup = (int)CTR_ReadU32LE(&LTL->numIconGroup);
+	struct IconGroup **firstIconGroupPtr = LTL->firstIconGroupPtr; // Patched to native host pointer by LOAD_RunPtrMap
+
 	for (
 	    // array of POINTER to iconGroup
-	    currGroup = &LTL->firstIconGroupPtr[0]; currGroup < &LTL->firstIconGroupPtr[LTL->numIconGroup]; currGroup++)
+	    currGroup = &firstIconGroupPtr[0]; currGroup < &firstIconGroupPtr[numIconGroup]; currGroup++)
 	{
-		// use '[0]' to dereference pointer
-		if ((u32)currGroup[0]->groupID < 0x11)
+		struct IconGroup *group = *currGroup; // Patched to native host pointer by LOAD_RunPtrMap
+		if (group != NULL)
 		{
-			gGT->iconGroup[currGroup[0]->groupID] = currGroup[0];
+			u32 groupID = (u32)(s16)CTR_ReadU16LE(&group->groupID);
+			if (groupID < 0x11)
+			{
+				gGT->iconGroup[groupID] = group;
+			}
 		}
 	}
 }
@@ -77,21 +88,22 @@ void DecalGlobal_Store(struct GameTracker *gGT, struct LevTexLookup *LTL)
 // NOTE(aalhendi): ASM-verified NTSC-U 926 0x80022c88-0x80022d2c.
 int *DecalGlobal_FindInLEV(struct Level *level, char *str)
 {
-	struct LevTexLookup *ltl = level->levTexLookup;
+	struct LevTexLookup *ltl = level->levTexLookup; // Patched to native host pointer by LOAD_RunPtrMap
 
 	if (ltl == NULL)
 	{
 		return NULL;
 	}
 
-	struct IconGroup **curr = ltl->firstIconGroupPtr;
-	struct IconGroup **end = &ltl->firstIconGroupPtr[ltl->numIconGroup];
+	int numIconGroup = (int)CTR_ReadU32LE(&ltl->numIconGroup);
+	struct IconGroup **curr = ltl->firstIconGroupPtr; // Patched to native host pointer by LOAD_RunPtrMap
+	struct IconGroup **end = &curr[numIconGroup];
 
 	for (; curr < end; curr++)
 	{
-		struct IconGroup *group = *curr;
+		struct IconGroup *group = *curr; // Patched to native host pointer by LOAD_RunPtrMap
 
-		if (DecalGlobal_NameEquals(group->name, str))
+		if (group != NULL && DecalGlobal_NameEquals(group->name, str))
 		{
 			return (int *)group;
 		}

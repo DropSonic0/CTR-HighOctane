@@ -11,13 +11,14 @@ void LibraryOfModels_Store(struct GameTracker *gGT, u32 numModels, struct Model 
 	while (numModels != 0)
 	{
 		struct Model *m = *ptrModelArray;
-		if (m == NULL)
+		if ((m == NULL) || (m == (struct Model *)sdata->ptrLevelFile))
 		{
 			return;
 		}
-		if (m->id != -1)
+		s16 id = (s16)CTR_ReadU16LE(&m->id);
+		if (id != -1)
 		{
-			gGT->modelPtr[m->id] = m;
+			gGT->modelPtr[id] = m;
 		}
 		numModels--;
 		ptrModelArray++;

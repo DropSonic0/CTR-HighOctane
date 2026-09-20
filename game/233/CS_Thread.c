@@ -181,7 +181,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 			instance->vertSplit = D233.VertSplitLine;
 		}
 
-		if ((int)instance->model->id == (int)(u8)gGT->podium_modelIndex_Second)
+		if ((instance->model != NULL) && ((int)(s16)CTR_ReadU16LE(&instance->model->id) == (int)(u8)gGT->podium_modelIndex_Second))
 		{
 			if ((u32)(D233.podiumCameraFrame - CS_PODIUM_SECOND_HIDE_START_FRAME) < CS_PODIUM_SECOND_HIDE_FRAME_COUNT)
 			{
@@ -200,7 +200,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 		}
 	afterPodiumSecondModelCheck:
 
-		if ((int)instance->model->id == (int)(u8)gGT->podium_modelIndex_First)
+		if ((instance->model != NULL) && ((int)(s16)CTR_ReadU16LE(&instance->model->id) == (int)(u8)gGT->podium_modelIndex_First))
 		{
 			if ((u32)(D233.podiumCameraFrame - CS_PODIUM_FIRST_HIDE_START_FRAME) < CS_PODIUM_FIRST_HIDE_FRAME_COUNT)
 			{
@@ -221,7 +221,8 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 
 		if ((cs->flags & CS_FLAG_ADV_CHAR_SELECT_LOGIC) != 0)
 		{
-			if (((int)instance->model->id - STATIC_CRASHSELECT == (int)gGarage.garageCharacterIDs[sdata->advCharSelectIndex_curr]) &&
+			s16 instModelID = (instance->model != NULL) ? (s16)CTR_ReadU16LE(&instance->model->id) : (s16)-1;
+			if (((int)instModelID - STATIC_CRASHSELECT == (int)gGarage.garageCharacterIDs[sdata->advCharSelectIndex_curr]) &&
 			    (gGarage.boolSelected == 1))
 			{
 				if ((cs->flags & CS_FLAG_ADV_CHAR_SELECT_SELECTED) == 0)
@@ -230,7 +231,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 					gGT->pushBuffer[0].fadeFromBlack_desiredResult = CS_FADE_FROM_BLACK_TARGET;
 					gGT->pushBuffer[0].fade_step = CS_FADE_FROM_BLACK_STEP;
 					cs->flags |= CS_FLAG_ADV_CHAR_SELECT_SELECTED;
-					CS_ScriptCmd_OpcodeAt(cs, R233.advCharSelectSelectOpcodes[(int)instance->model->id - STATIC_CRASHSELECT]);
+					CS_ScriptCmd_OpcodeAt(cs, R233.advCharSelectSelectOpcodes[(int)instModelID - STATIC_CRASHSELECT]);
 					CS_SaveDecodedOpcode(cs, metadataBackup);
 				reloadAdvCharSelectOpcodeState:
 					cs->animFrame32 = cs->decodedOpcode.words[2];
@@ -247,7 +248,7 @@ int CS_Thread_UseOpcode(struct Instance *instance, struct CutsceneObj *cs)
 				if ((cs->flags & CS_FLAG_ADV_CHAR_SELECT_SELECTED) != 0)
 				{
 					cs->flags &= ~CS_FLAG_ADV_CHAR_SELECT_SELECTED;
-					CS_ScriptCmd_OpcodeAt(cs, R233.advCharSelectDeselectOpcodes[(int)instance->model->id - STATIC_CRASHSELECT]);
+					CS_ScriptCmd_OpcodeAt(cs, R233.advCharSelectDeselectOpcodes[(int)instModelID - STATIC_CRASHSELECT]);
 					CS_SaveDecodedOpcode(cs, metadataBackup);
 					goto reloadAdvCharSelectOpcodeState;
 				}
@@ -588,9 +589,9 @@ processOpcode:
 	case CS_OPCODE_PLAY_CONTEXT_FX:
 		if (gGT->levelID == ADVENTURE_GARAGE)
 		{
-			if (instance != 0)
+			if ((instance != 0) && (instance->model != NULL))
 			{
-				Garage_PlayFX(opcodeMeta->arg1.u, (int)instance->model->id - STATIC_CRASHSELECT);
+				Garage_PlayFX(opcodeMeta->arg1.u, (int)(s16)CTR_ReadU16LE(&instance->model->id) - STATIC_CRASHSELECT);
 			}
 		}
 		else
@@ -1109,7 +1110,7 @@ void CS_Thread_MoveOnPath(struct Thread *t)
 		return;
 	}
 
-	modelID = inst->model->id;
+	modelID = (inst->model != NULL) ? (s16)CTR_ReadU16LE(&inst->model->id) : (s16)-1;
 	pathModelKind = (s16)(modelID - STATIC_PPOINTTHINGINTRO);
 
 	if ((u32)pathModelKind >= CS_PATH_MODEL_KIND_COUNT)
@@ -1478,7 +1479,7 @@ void CS_Thread_LInB(struct Instance *inst)
 	cs->prevOpcode = (char *)-1;
 	cs->Subtitles.lngIndex = -1;
 
-	modelID = inst->model->id;
+	modelID = (inst->model != NULL) ? (s16)CTR_ReadU16LE(&inst->model->id) : (s16)-1;
 
 	if (modelID < NDI_BOX_BOX_01)
 	{

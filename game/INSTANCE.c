@@ -198,8 +198,6 @@ void INSTANCE_Death(struct Instance *inst)
 void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 {
 	u16 modelID;
-	int *dst;
-	int *src;
 	struct Instance *inst;
 	struct MetaDataMODEL *meta;
 	struct GameTracker *gGT = sdata->gGT;
@@ -223,31 +221,32 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 			return;
 		}
 
-		// pointer to InstDef in LEV
-		src = (int *)levInstDef;
+		// copy name (16 bytes)
+		memcpy(inst->name, levInstDef->name, sizeof(inst->name));
 
-		// pointer to instance in pool,
-		// add 8 bytes to skip Prev and Next
-		dst = (int *)((int)inst + 8);
+		// model pointer
+		struct Model *model = levInstDef->model;
+		inst->model = model;
 
-		// copy InstDef data from LEV to instance pool
-		while (src != (int *)((int)levInstDef + 0x20))
-		{
-			dst[0] = src[0];
-			dst[1] = src[1];
-			dst[2] = src[2];
-			dst[3] = src[3];
-			src += 4;
-			dst += 4;
-		}
+		// scale (SVec3)
+		inst->scale.x = (s16)CTR_ReadU16LE(&levInstDef->scale.x);
+		inst->scale.y = (s16)CTR_ReadU16LE(&levInstDef->scale.y);
+		inst->scale.z = (s16)CTR_ReadU16LE(&levInstDef->scale.z);
 
-		dst[0] = src[0];
-		dst[1] = src[1];
-		dst[2] = src[2];
+		// alphaScale (from _pad_scale)
+		inst->alphaScale = (s16)CTR_ReadU16LE(&levInstDef->_pad_scale);
+
+		// colorRGBA
+		inst->colorRGBA = CTR_ReadU32LE(&levInstDef->colorRGBA);
+
+		// flags
+		inst->flags = CTR_ReadU32LE(&levInstDef->flags);
+
+		s32 unk24 = (s32)CTR_ReadU32LE(&levInstDef->unk24);
 
 		// 0x10 + (5 * 4) = 0x24
-		inst->depthBiasNormal = levInstDef->unk24 - 2;
-		inst->depthBiasSecondary = levInstDef->unk24 + 12;
+		inst->depthBiasNormal = (u8)(unk24 - 2);
+		inst->depthBiasSecondary = (u8)(unk24 + 12);
 
 		// reflect color
 		inst->reflectionRGBA = 0x7f7f7f;
@@ -255,7 +254,7 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 		inst->animIndex = 0;
 		inst->animFrame = 0;
 
-		// instace -> instDef
+		// instance -> instDef
 		// the two are now linked on both ends
 		inst->instDef = levInstDef;
 
@@ -263,11 +262,19 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 		inst->specLightX = 1;
 		inst->compressedNormalAndDriverIndex = 0;
 
-		// converted to TEST in rebuildPS1
-		ConvertRotToMatrix(&inst->matrix, &levInstDef->rot);
+		// rot
+		SVec3 rot;
+		rot.x = (s16)CTR_ReadU16LE(&levInstDef->rot.x);
+		rot.y = (s16)CTR_ReadU16LE(&levInstDef->rot.y);
+		rot.z = (s16)CTR_ReadU16LE(&levInstDef->rot.z);
 
-		// instance posX and posY
-		CTR_COPY_VEC3(inst->matrix.t, levInstDef->pos.v);
+		// converted to TEST in rebuildPS1
+		ConvertRotToMatrix(&inst->matrix, &rot);
+
+		// instance posX, posY, posZ
+		inst->matrix.t[0] = (s32)(s16)CTR_ReadU16LE(&levInstDef->pos.x);
+		inst->matrix.t[1] = (s32)(s16)CTR_ReadU16LE(&levInstDef->pos.y);
+		inst->matrix.t[2] = (s32)(s16)CTR_ReadU16LE(&levInstDef->pos.z);
 
 		inst->thread = NULL;
 		struct InstDrawPerPlayer *idpp = INST_GETIDPP(inst);
@@ -279,7 +286,14 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 			idpp[j].pushBuffer = &gGT->pushBuffer[j];
 		}
 
-		modelID = levInstDef->model->id;
+		if ((model != NULL) && (model != (struct Model *)sdata->ptrLevelFile))
+		{
+			modelID = CTR_ReadU16LE(&model->id);
+		}
+		else
+		{
+			modelID = 0xffff;
+		}
 
 		// can be -1
 		if ((s16)modelID > 0)
@@ -290,7 +304,7 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 			{
 				meta = COLL_LevModelMeta(modelID);
 
-				if (meta->LInB != NULL)
+				if ((meta != NULL) && (meta->LInB != NULL))
 				{
 					// call funcLevInstDefBirth, make thread for this instance
 					meta->LInB(inst);
@@ -366,7 +380,9 @@ void INSTANCE_LevDelayedLInBs(struct InstDef *instDef, int numInstances)
 {
 	for (int i = 0; i < numInstances; i++)
 	{
-		struct MetaDataMODEL *meta = COLL_LevModelMeta(instDef->model->id);
+		struct Model *model = instDef->model;
+		s16 modelID = ((model != NULL) && (model != (struct Model *)sdata->ptrLevelFile)) ? (s16)CTR_ReadU16LE(&model->id) : (s16)-1;
+		struct MetaDataMODEL *meta = COLL_LevModelMeta(modelID);
 
 		if ((meta != NULL) && (meta->LInB != NULL))
 		{
@@ -390,7 +406,7 @@ b32 INSTANCE_Use60FpsAnimation(struct Instance *inst)
 		return false;
 	}
 
-	if (inst->model->id == DYNAMIC_FIREBALL)
+	if ((s16)CTR_ReadU16LE(&inst->model->id) == DYNAMIC_FIREBALL)
 	{
 		return false;
 	}

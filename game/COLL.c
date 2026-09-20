@@ -2248,14 +2248,14 @@ internal int CollMoved_PlayerSearch_RunHitboxLInC(struct ScratchpadStruct *sps, 
 		}
 
 		struct InstDef *instDef = bsp->data.hitbox.instDef;
-		if (instDef == NULL)
+		if ((instDef == NULL) || (instDef->model == NULL) || (instDef->model == (struct Model *)sdata->ptrLevelFile))
 		{
 			return 1;
 		}
 
 		// Retail passes the InstDef pointer for these hitboxes, not ptrInstance.
 		linCInstance = (struct Instance *)instDef;
-		modelID = instDef->model->id;
+		modelID = (s16)CTR_ReadU16LE(&instDef->model->id);
 	}
 
 	struct MetaDataMODEL *meta = COLL_LevModelMeta(modelID);
