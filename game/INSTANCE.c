@@ -193,6 +193,41 @@ void INSTANCE_Death(struct Instance *inst)
 }
 
 
+struct Model *InstDef_GetModel(struct InstDef *instDef)
+{
+	if ((instDef == NULL) || (instDef->model == NULL))
+	{
+		return NULL;
+	}
+
+	struct Model *model = instDef->model;
+	struct Level *lev = sdata->ptrLevelFile;
+
+	if (lev != NULL)
+	{
+		uintptr_t levBase = (uintptr_t)lev;
+		uintptr_t levEnd = (uintptr_t)sdata->PtrMempack->endOfAllocator;
+		uintptr_t modelPtr = (uintptr_t)model;
+
+		if (modelPtr < levBase || modelPtr >= levEnd)
+		{
+			u32 relOffs = CTR_ReadU32LE(&instDef->model);
+			if (relOffs != 0 && (levBase + relOffs) < levEnd)
+			{
+				model = (struct Model *)((u8 *)lev + relOffs);
+				instDef->model = model;
+			}
+			else
+			{
+				model = NULL;
+			}
+		}
+	}
+
+	return model;
+}
+
+
 // param1 - pointer to Instance Descriptions
 // param2 - number of instances
 void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
@@ -204,6 +239,14 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 
 	for (int i = 0; i < numInst; i++)
 	{
+		{
+			const u8 *b = (const u8 *)&levInstDef->model;
+			Platform_Log("LevInit i=%d/%d def=%p lev=%p rawNative=%08x LE=%08x bytes=%02x%02x%02x%02x",
+				i, numInst, levInstDef, sdata->ptrLevelFile,
+				(u32)(uintptr_t)levInstDef->model,
+				CTR_ReadU32LE(&levInstDef->model),
+				b[0], b[1], b[2], b[3]);
+		}
 		// get first free item in Instance Pool
 		inst = (struct Instance *)LIST_RemoveFront(&gGT->JitPools.instance.free);
 
@@ -225,7 +268,7 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 		memcpy(inst->name, levInstDef->name, sizeof(inst->name));
 
 		// model pointer
-		struct Model *model = levInstDef->model;
+		struct Model *model = InstDef_GetModel(levInstDef);
 		inst->model = model;
 
 		// scale (SVec3)
@@ -380,7 +423,7 @@ void INSTANCE_LevDelayedLInBs(struct InstDef *instDef, int numInstances)
 {
 	for (int i = 0; i < numInstances; i++)
 	{
-		struct Model *model = instDef->model;
+		struct Model *model = InstDef_GetModel(instDef);
 		s16 modelID = ((model != NULL) && (model != (struct Model *)sdata->ptrLevelFile)) ? (s16)CTR_ReadU16LE(&model->id) : (s16)-1;
 		struct MetaDataMODEL *meta = COLL_LevModelMeta(modelID);
 

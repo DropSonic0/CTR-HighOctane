@@ -6,61 +6,50 @@ void CTR_CycleTex_LEV(struct AnimTex *animtex, int timer)
 	int frameCurr;
 	struct AnimTex *curAnimTex = animtex;
 
-	// Termination is determined by pointer to First AnimTex
 	while (*(int *)curAnimTex != (int)animtex)
 	{
-		// which texture to draw this frame
-		frameCurr = FPS_HALF(timer) + curAnimTex->frameOffset;
+		s16 numFrames = (s16)CTR_ReadU16LE(&curAnimTex->numFrames);
+		s16 frameOffset = (s16)CTR_ReadU16LE(&curAnimTex->frameOffset);
+		s16 frameSkip = (s16)CTR_ReadU16LE(&curAnimTex->frameSkip);
 
-		// allow frames to skip updating (like 60fps hacks)
-		frameCurr = frameCurr >> curAnimTex->frameSkip;
+		if (numFrames <= 0) { break; }
 
-		// loop back to index[0] after finished cycle
-		frameCurr = frameCurr % curAnimTex->numFrames;
+		frameCurr = FPS_HALF(timer) + frameOffset;
+		frameCurr = frameCurr >> frameSkip;
+		frameCurr = frameCurr % numFrames;
 
-		// save result
-		curAnimTex->frameCurr = frameCurr;
+		CTR_WriteU16LE(&curAnimTex->frameCurr, (u16)frameCurr);
 
 		struct IconGroup4 **ptrArray = ANIMTEX_GETARRAY(curAnimTex);
-
-		// Save new frame
-		// For levels, this is just a pointer
 		curAnimTex->ptrActiveTex = (int *)ptrArray[frameCurr];
 
-		// Go to next AnimTex, which comes after this AnimTex's ptrarray
-		curAnimTex = (struct AnimTex *)&ptrArray[curAnimTex->numFrames];
+		curAnimTex = (struct AnimTex *)&ptrArray[numFrames];
 	}
 }
 
-// NOTE(aalhendi): ASM-verified NTSC-U 926 0x80021a20-0x80021ac0.
 void CTR_CycleTex_Model(struct AnimTex *animtex, int timer)
 {
 	int frameCurr;
 	struct AnimTex *curAnimTex = animtex;
 
-	// Termination is determined by pointer to First AnimTex
 	while (*(int *)curAnimTex != (int)animtex)
 	{
-		// which texture to draw this frame
-		frameCurr = FPS_HALF(timer) + curAnimTex->frameOffset;
+		s16 numFrames = (s16)CTR_ReadU16LE(&curAnimTex->numFrames);
+		s16 frameOffset = (s16)CTR_ReadU16LE(&curAnimTex->frameOffset);
+		s16 frameSkip = (s16)CTR_ReadU16LE(&curAnimTex->frameSkip);
 
-		// allow frames to skip updating (like 60fps hacks)
-		frameCurr = frameCurr >> curAnimTex->frameSkip;
+		if (numFrames <= 0) { break; }
 
-		// loop back to index[0] after finished cycle
-		frameCurr = frameCurr % curAnimTex->numFrames;
+		frameCurr = FPS_HALF(timer) + frameOffset;
+		frameCurr = frameCurr >> frameSkip;
+		frameCurr = frameCurr % numFrames;
 
-		// save result
-		curAnimTex->frameCurr = frameCurr;
+		CTR_WriteU16LE(&curAnimTex->frameCurr, (u16)frameCurr);
 
 		struct IconGroup4 **ptrArray = ANIMTEX_GETARRAY(curAnimTex);
-
-		// Save new frame
-		// For Model, this is a pointer to a pointer
 		*curAnimTex->ptrActiveTex = (int)ptrArray[frameCurr];
 
-		// Go to next AnimTex, which comes after this AnimTex's ptrarray
-		curAnimTex = (struct AnimTex *)&ptrArray[curAnimTex->numFrames];
+		curAnimTex = (struct AnimTex *)&ptrArray[numFrames];
 	}
 }
 
