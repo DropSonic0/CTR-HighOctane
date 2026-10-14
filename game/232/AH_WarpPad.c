@@ -169,7 +169,7 @@ void AH_WarpPad_SpinRewards(struct Instance *prizeInst, struct WarpPad *warppadO
 
 	ConvertRotToMatrix(&prizeInst->matrix, &warppadObj->spinRot_Prize);
 
-	u32 modelID = prizeInst->model->id;
+	u32 modelID = MODEL_GETID(prizeInst->model);
 
 	if (modelID != STATIC_TROPHY) // if not trophy (no lightDir on trophy)
 	{
@@ -374,7 +374,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 			    !CHECK_ADV_BIT(sdata->advProgress.rewards, ADV_REWARD_HINT_NEED_MORE_TROPHIES) &&
 
 			    // required item is not KEY
-			    (instArr[WPIS_CLOSED_ITEM]->model->id != STATIC_KEY))
+			    (MODEL_GETID(instArr[WPIS_CLOSED_ITEM]->model) != STATIC_KEY))
 			{
 				// give hint for "need more trophies"
 				MainFrame_RequestMaskHint(ADV_MASK_HINT_ID_NEED_MORE_TROPHIES, 0);
@@ -446,7 +446,7 @@ void AH_WarpPad_ThTick(struct Thread *t)
 		// converted to TEST in rebuildPS1
 		ConvertRotToMatrix(&closedItemInst->matrix, &warppadObj->spinRot_Prize);
 
-		modelID = closedItemInst->model->id;
+		modelID = MODEL_GETID(closedItemInst->model);
 
 		// Trophy has no specular light
 		if (modelID == STATIC_TROPHY)
@@ -842,7 +842,7 @@ WarpPad_AnimateOpen:
 		{
 			AH_WarpPad_SpinRewards(instArr[WPIS_OPEN_PRIZE1 + i], warppadObj, i, warppadInst->matrix.t[0], warppadInst->matrix.t[1], warppadInst->matrix.t[2]);
 
-			modelID = instArr[WPIS_OPEN_PRIZE1 + i]->model->id;
+			modelID = MODEL_GETID(instArr[WPIS_OPEN_PRIZE1 + i]->model);
 
 			if (rewardScale == 0)
 			{
@@ -1499,7 +1499,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 		CTR_SET_VEC3(newInst->scale.v, AH_WP_STANDARD_ITEM_SCALE, AH_WP_STANDARD_ITEM_SCALE, AH_WP_STANDARD_ITEM_SCALE);
 
 		// always face camera
-		for (i = 0; i < newInst->model->numHeaders; i++)
+		for (i = 0; i < MODEL_NUMHEADERS(newInst->model); i++)
 		{
 			newInst->model->headers[i].flags |= 1;
 		}
@@ -1531,7 +1531,7 @@ void AH_WarpPad_LInB(struct Instance *inst)
 	CTR_SET_VEC3(newInst->scale.v, AH_WP_STANDARD_ITEM_SCALE, AH_WP_STANDARD_ITEM_SCALE, AH_WP_STANDARD_ITEM_SCALE);
 
 	// always face camera
-	for (i = 0; i < newInst->model->numHeaders; i++)
+	for (i = 0; i < MODEL_NUMHEADERS(newInst->model); i++)
 	{
 		newInst->model->headers[i].flags |= 1;
 	}

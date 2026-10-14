@@ -92,9 +92,9 @@ void LOAD_Hub_SwapNow()
 
 	if (level1 != 0)
 	{
-		LibraryOfModels_Store(gGT, level1->numModels, level1->ptrModelsPtrArray);
+		LibraryOfModels_Store(gGT, LEV_NUMMODELS(level1), level1->ptrModelsPtrArray);
 
-		INSTANCE_LevInitAll(level1->ptrInstDefs, level1->numInstances);
+		INSTANCE_LevInitAll(level1->ptrInstDefs, LEV_NUMINSTANCES(level1));
 
 		LevInstDef_UnPack(level1->ptr_mesh_info);
 

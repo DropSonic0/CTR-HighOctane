@@ -43,7 +43,7 @@ void RB_Explosion_InitPotion(struct Instance *inst)
 	shatterColor = STATIC_SHOCKWAVE_GREEN;
 
 	// if red beaker, red explosion
-	if (inst->model->id == STATIC_BEAKER_RED)
+	if (MODEL_GETID(inst->model) == STATIC_BEAKER_RED)
 	{
 		shatterColor = STATIC_SHOCKWAVE_RED;
 	}
@@ -125,7 +125,7 @@ void RB_Explosion_InitGeneric(struct Instance *inst)
 	color = 0x1eac000;
 
 	// instance -> model -> modelID == TNT
-	if ((inst->model->id) == STATIC_CRATE_TNT)
+	if ((MODEL_GETID(inst->model)) == STATIC_CRATE_TNT)
 	{
 		// red
 		color = 0xad10000;

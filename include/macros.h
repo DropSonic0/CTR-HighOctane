@@ -161,6 +161,17 @@ force_inline void CTR_WriteU32LE(void *dst, u32 value)
 	bytes[3] = (u8)(value >> 24);
 }
 
+#define LEV_NUMINSTANCES(l) ((int)CTR_ReadU32LE(&(l)->numInstances))
+#define LEV_NUMMODELS(l)    ((u32)CTR_ReadU32LE(&(l)->numModels))
+#define MODEL_NUMHEADERS(m) ((s16)CTR_ReadU16LE(&(m)->numHeaders))
+#define MODEL_GETID(m)      ((s16)CTR_ReadU16LE(&(m)->id))
+#define MH_MAXDIST(mh)      ((s16)CTR_ReadU16LE(&(mh)->maxDistanceLOD))
+#define MH_FLAGS(mh)        ((u16)CTR_ReadU16LE(&(mh)->flags))
+#define MH_NUMANIMS(mh)     ((u32)CTR_ReadU32LE(&(mh)->numAnimations))
+#define MF_POS_X(f) ((s16)CTR_ReadU16LE(&(f)->pos.x))
+#define MF_POS_Y(f) ((s16)CTR_ReadU16LE(&(f)->pos.y))
+#define MF_POS_Z(f) ((s16)CTR_ReadU16LE(&(f)->pos.z))
+
 // Raw [3] vector array helpers. Arguments must be side-effect-free lvalues.
 #define CTR_COPY_VEC3(DST, SRC) \
 	do                          \

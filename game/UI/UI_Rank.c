@@ -398,7 +398,7 @@ void UI_DrawRankedDrivers(void)
 			struct Instance *warpballInst = warpballThread->inst;
 
 			// if not warpball, skip
-			if (warpballInst->model->id != DYNAMIC_WARPBALL)
+			if (MODEL_GETID(warpballInst->model) != DYNAMIC_WARPBALL)
 			{
 				continue;
 			}

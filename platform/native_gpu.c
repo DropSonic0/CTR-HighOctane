@@ -2799,6 +2799,31 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 			GPUDrawSplit *lastSplit = &s_gpu.splits[s_gpu.splitIndex];
 			lastSplit->numVerts = s_gpu.vertexIndex - lastSplit->startVertex;
 
+			{
+				static int s_walkId = -1;
+				static int s_shown = 0;
+				static int s_hist[256];
+				if (basePacket == (u8 *)p)
+				{
+					s_walkId++;
+					s_shown = 0;
+					memset(s_hist, 0, sizeof(s_hist));
+				}
+				if ((s_walkId % 200) == 150 && tagLength > 0)
+				{
+					s_hist[getcode(basePacket)]++;
+					if (s_shown < 25)
+					{
+						u32 w[4];
+						memcpy(w, basePacket, 16);
+						printf("PK len=%d code=%02x w=%08x %08x %08x %08x vtx=%d\n",
+							tagLength, (unsigned)getcode(basePacket), w[0], w[1], w[2], w[3], (int)s_gpu.vertexIndex);
+						fflush(stdout);
+						s_shown++;
+					}
+				}
+			}
+
 			if (isendprim(basePacket))
 			{
 				break;
@@ -2820,6 +2845,16 @@ void ParsePrimitivesLinkedList(u32 *p, int singlePrimitive)
 
 			basePacket = nextPacket;
 		}
+	}
+
+	{
+		static int s_otLog = 0;
+		if (s_otLog < 10 || (s_otLog % 60) == 0)
+		{
+			printf("OT walk done: vertexIndex=%d splitIndex=%d\n", (int)s_gpu.vertexIndex, (int)s_gpu.splitIndex);
+			fflush(stdout);
+		}
+		s_otLog++;
 	}
 
 	NativePerf_EndScope(NATIVE_PERF_BUCKET_DRAW_OTAG_PARSE);
@@ -3292,7 +3327,7 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 	const u32 *codePtr = (u32 *)&polyTag->pad0;
 	int processedLongs = 0;
 	bool fullDrawEnvPacket = false;
-	for (int i = 0; i < polyTag->len; ++i)
+	for (int i = 0; i < getlen(polyTag); ++i)
 	{
 		const u32 code = codePtr[i];
 		const int primType = code >> 24 & 0xF0;
@@ -3368,7 +3403,7 @@ internal int ProcessDrawEnv(P_TAG *polyTag)
 			// word can be terminal draw-env padding, or the tag word for the
 			// next primitive packed into the same OT entry.
 			// return processedLongs;
-			if (i + 1 != polyTag->len)
+			if (i + 1 != getlen(polyTag))
 			{
 				return processedLongs;
 			}
@@ -3461,11 +3496,11 @@ int ParsePrimitive(P_TAG *polyTag)
 		// emit a retail length-2 zero packet when weather is enabled but the
 		// level has no fill-mode payload. The PSX consumes it by tag length;
 		// the native parser must advance past it too.
-		if (polyTag->len == 2 && codePtr[0] == 0 && codePtr[1] == 0)
+		if (getlen(polyTag) == 2 && codePtr[0] == 0 && codePtr[1] == 0)
 		{
 			primLength = 2;
 		}
-		else if (polyTag->len == 0 && *(u32 *)polyTag == 0)
+		else if (getlen(polyTag) == 0 && *(u32 *)polyTag == 0)
 		{
 			// CTR ghost transparency packets include raw GPU NOP words between
 			// draw-mode changes and triangle commands. They consume exactly one

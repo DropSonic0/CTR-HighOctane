@@ -241,7 +241,7 @@ void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 	{
 		{
 			const u8 *b = (const u8 *)&levInstDef->model;
-			Platform_Log("LevInit i=%d/%d def=%p lev=%p rawNative=%08x LE=%08x bytes=%02x%02x%02x%02x",
+			Platform_Log("",
 				i, numInst, levInstDef, sdata->ptrLevelFile,
 				(u32)(uintptr_t)levInstDef->model,
 				CTR_ReadU32LE(&levInstDef->model),
@@ -439,7 +439,7 @@ void INSTANCE_LevDelayedLInBs(struct InstDef *instDef, int numInstances)
 
 b32 INSTANCE_Use60FpsAnimation(struct Instance *inst)
 {
-	if (!CTR_NATIVE_60FPS_ACTIVE || (inst == NULL) || (inst->model == NULL) || (inst->model->numHeaders <= 0) || (inst->model->headers == NULL))
+	if (!CTR_NATIVE_60FPS_ACTIVE || (inst == NULL) || (inst->model == NULL) || (MODEL_NUMHEADERS(inst->model) <= 0) || (inst->model->headers == NULL))
 	{
 		return false;
 	}
@@ -479,7 +479,7 @@ u16 INSTANCE_GetNumAnimFrames(struct Instance *pInstance, int animIndex)
 	if (pModel = pInstance->model, pModel != NULL)
 	{
 		// if model got headers
-		if (pModel->numHeaders > 0)
+		if (MODEL_NUMHEADERS(pModel) > 0)
 		{
 			// get first header ptr and validate
 			if (pHeader = pModel->headers, pHeader != NULL)
@@ -488,15 +488,16 @@ u16 INSTANCE_GetNumAnimFrames(struct Instance *pInstance, int animIndex)
 				if (pHeader->ptrAnimations != NULL)
 				{
 					// validate anim index param
-					if (animIndex < (int)pHeader->numAnimations)
+					if (animIndex < (int)CTR_ReadU32LE(&pHeader->numAnimations))
 					{
 						// get proper animation ptr and validate
 						if (pAnim = *(pHeader->ptrAnimations + animIndex), pAnim != NULL)
 						{
 							// we're finally there, get number of frames
 							// remember it's masked due to interp flag
-							u16 frameCount = pAnim->numFrames & 0x7fff;
-							if (INSTANCE_Use60FpsAnimation(pInstance) && ((pAnim->numFrames & 0x8000) == 0) && (frameCount != 0))
+							u16 rawFrames = CTR_ReadU16LE(&pAnim->numFrames);
+							u16 frameCount = rawFrames & 0x7fff;
+							if (INSTANCE_Use60FpsAnimation(pInstance) && ((rawFrames & 0x8000) == 0) && (frameCount != 0))
 							{
 								frameCount = (u16)((frameCount << 1) - 1);
 							}

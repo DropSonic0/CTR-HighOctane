@@ -54,7 +54,7 @@ struct Instance *RB_Hazard_CollideWithDrivers(struct Instance *weaponInst, s16 p
 			dist[j] = (u32)delta * (u32)delta;
 		}
 
-		modelID = weaponInst->model->id;
+		modelID = MODEL_GETID(weaponInst->model);
 
 		// 2D collision (barrel, warpball)
 		distCheck = dist[0] + dist[2];
@@ -138,7 +138,7 @@ void RB_Hazard_ThCollide_Missile(struct Thread *thread)
 	struct Instance *inst = thread->inst;
 	struct TrackerWeapon *tw = inst->thread->object;
 
-	if (inst->model->id == DYNAMIC_ROCKET)
+	if (MODEL_GETID(inst->model) == DYNAMIC_ROCKET)
 	{
 		// get driver
 		struct Driver *driver = tw->driverTarget;
@@ -184,7 +184,7 @@ void RB_Hazard_ThCollide_Generic(struct Thread *thread)
 		}
 	}
 
-	int modelID = inst->model->id;
+	int modelID = MODEL_GETID(inst->model);
 
 	// if red beaker or green beaker
 	if ((u32)(modelID - STATIC_BEAKER_RED) < 2)
@@ -258,7 +258,7 @@ u16 RB_Hazard_CollLevInst(struct ScratchpadStruct *sps, struct Thread *th)
 			return 1;
 		}
 
-		s16 model = inst->model->id;
+		s16 model = MODEL_GETID(inst->model);
 
 		// Get the metadata for the model
 		struct MetaDataMODEL *meta = COLL_LevModelMeta(model);

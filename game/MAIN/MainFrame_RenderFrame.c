@@ -748,7 +748,7 @@ void RenderAllHUD(struct GameTracker *gGT)
 					{
 						gGT->overlayTransition = 0;
 
-						INSTANCE_LevDelayedLInBs(gGT->level1->ptrInstDefs, gGT->level1->numInstances);
+						INSTANCE_LevDelayedLInBs(gGT->level1->ptrInstDefs, LEV_NUMINSTANCES(gGT->level1));
 
 						// allow instances again
 						gGT->gameMode2 &= ~(NO_LEV_INSTANCE);

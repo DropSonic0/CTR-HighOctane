@@ -157,7 +157,7 @@ int CS_Instance_GetNumAnimFrames(struct Instance *modelInst, int animIndex, int 
 		return 0;
 	}
 
-	if (LOD >= model->numHeaders)
+	if (LOD >= MODEL_NUMHEADERS(model))
 	{
 		return 0;
 	}
@@ -168,7 +168,7 @@ int CS_Instance_GetNumAnimFrames(struct Instance *modelInst, int animIndex, int 
 		return 0;
 	}
 
-	if (animIndex >= (int)header->numAnimations)
+	if (animIndex >= (int)MH_NUMANIMS(header))
 	{
 		return 0;
 	}

@@ -88,7 +88,7 @@ static struct InstDef *VehBirth_FindDoor5(struct Level *level)
 {
 	struct InstDef *instDef = level->ptrInstDefs;
 
-	for (int i = 0; i < (int)level->numInstances; i++, instDef++)
+	for (int i = 0; i < LEV_NUMINSTANCES(level); i++, instDef++)
 	{
 		if (VehBirth_IsDoor5InstDef(instDef))
 		{

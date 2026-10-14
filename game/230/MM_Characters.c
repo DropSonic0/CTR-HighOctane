@@ -408,7 +408,7 @@ internal struct Model *MM_Characters_GetOxideMenuModel(void)
 
 		s_oxideCharacterSelectModel = (struct Model *)modelBuf;
 
-		if ((s_oxideCharacterSelectModel->headers != NULL) && (s_oxideCharacterSelectModel->numHeaders > 0))
+		if ((s_oxideCharacterSelectModel->headers != NULL) && (MODEL_NUMHEADERS(s_oxideCharacterSelectModel) > 0))
 		{
 			struct ModelHeader *header = &s_oxideCharacterSelectModel->headers[0];
 			header->scale.x = (header->scale.x * 5) >> 3;

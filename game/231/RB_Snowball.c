@@ -16,7 +16,7 @@ void RB_Snowball_ThTick(struct Thread *t)
 	snowInst = t->inst;
 	snowObj = (struct Snowball *)t->object;
 
-	modelID = snowInst->model->id;
+	modelID = MODEL_GETID(snowInst->model);
 
 	if (sdata->gGT->level1->numSpawnType2_PosRot != 0)
 	{

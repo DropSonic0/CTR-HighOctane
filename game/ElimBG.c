@@ -219,11 +219,13 @@ void ElimBG_ToggleAllInstances(struct GameTracker *gGT, b32 boolGameIsPaused)
 	struct Level *lev;
 	struct Instance *inst;
 	struct InstDef *ptrInstDefs;
+	struct InstDef *ptrInstDefsEnd;
 
 	lev = gGT->level1;
+	ptrInstDefsEnd = &lev->ptrInstDefs[LEV_NUMINSTANCES(lev)];
 
 	// Loop through all instances in level
-	for (ptrInstDefs = &lev->ptrInstDefs[0]; ptrInstDefs < &lev->ptrInstDefs[lev->numInstances]; ptrInstDefs++)
+	for (ptrInstDefs = &lev->ptrInstDefs[0]; ptrInstDefs < ptrInstDefsEnd; ptrInstDefs++)
 	{
 		inst = ptrInstDefs->ptrInstance;
 

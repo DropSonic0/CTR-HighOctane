@@ -418,7 +418,7 @@ UpdateTrackerState:
 			bgColor = UI_TRACKER_BG_WHITE;
 		}
 
-		if (d->thTrackingMe->inst->model->id == DYNAMIC_WARPBALL)
+		if (MODEL_GETID(d->thTrackingMe->inst->model) == DYNAMIC_WARPBALL)
 		{
 			struct CheckpointNode *firstNode = &gGT->level1->ptr_restart_points[0];
 

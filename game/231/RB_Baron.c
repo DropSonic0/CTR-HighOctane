@@ -40,7 +40,7 @@ void RB_Baron_ThTick(struct Thread *t)
 	baronObj = (struct Baron *)t->object;
 	gGT = sdata->gGT;
 	level = gGT->level1;
-	modelID = baronInst->model->id;
+	modelID = MODEL_GETID(baronInst->model);
 
 	if ((modelID == DYNAMIC_DRUM) && CTR_NATIVE_60FPS_ACTIVE && ((gGT->timer & 1) == 0))
 	{
@@ -151,7 +151,7 @@ void RB_Baron_LInB(struct Instance *inst)
 	baronObj->unused06 = 0;
 	baronObj->otherInst = 0;
 
-	if (inst->model->id == DYNAMIC_VONLABASS)
+	if (MODEL_GETID(inst->model) == DYNAMIC_VONLABASS)
 	{
 		inst->flags |= HIDE_MODEL;
 	}

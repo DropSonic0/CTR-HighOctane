@@ -45,7 +45,7 @@ void RB_GenericMine_LInB(struct Instance *inst)
 
 	t->funcThCollide = (void *)RB_Hazard_ThCollide_Generic;
 	t->parentThread = parentInst->thread;
-	t->modelIndex = inst->model->id;
+	t->modelIndex = MODEL_GETID(inst->model);
 
 	mw = t->object;
 	mw->instParent = parentInst;
@@ -83,7 +83,7 @@ void RB_GenericMine_ThTick(struct Thread *t)
 	gGT = sdata->gGT;
 	inst = t->inst;
 	mw = inst->thread->object;
-	model = inst->model->id;
+	model = MODEL_GETID(inst->model);
 
 	boolPotion = (u32)(model - STATIC_BEAKER_RED) < 2;
 
@@ -428,7 +428,7 @@ LAB_800ad17c:
 	// === If destroyed from MinePool overflow ===
 
 	// instance -> model -> modelID
-	model = inst->model->id;
+	model = MODEL_GETID(inst->model);
 
 	if (model == PU_EXPLOSIVE_CRATE)
 	{
@@ -464,7 +464,7 @@ void RB_GenericMine_ThDestroy(struct Thread *t, struct Instance *inst, struct Mi
 	u32 model;
 	u16 param;
 
-	model = inst->model->id;
+	model = MODEL_GETID(inst->model);
 
 	if (model == PU_EXPLOSIVE_CRATE)
 	{

@@ -443,7 +443,7 @@ void UI_Map_DrawTracking(struct UIMap *map, struct Thread *bucket)
 		inst = bucket->inst;
 
 		// instance -> model -> modelID != warpball
-		if (inst->model->id != DYNAMIC_WARPBALL)
+		if (MODEL_GETID(inst->model) != DYNAMIC_WARPBALL)
 		{
 			continue;
 		}

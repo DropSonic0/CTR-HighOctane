@@ -323,6 +323,7 @@ struct Instance *INSTANCE_BirthWithThread_Stack(int *spArr);
 void INSTANCE_Death(struct Instance *inst);
 b32 INSTANCE_Use60FpsAnimation(struct Instance *inst);
 u16 INSTANCE_GetNumAnimFrames(struct Instance *pInstance, int animIndex);
+struct Model *InstDef_GetModel(struct InstDef *instDef);
 void INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst);
 
 // JitPool

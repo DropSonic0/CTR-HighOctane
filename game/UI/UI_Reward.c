@@ -60,7 +60,7 @@ void UI_ThTick_CountPickup(struct Thread *bucket)
 	struct GameTracker *gGT = sdata->gGT;
 	struct UiElement3D *obj = bucket->object;
 	struct Instance *inst = bucket->inst;
-	b32 isTimeCrate = inst->model->id == STATIC_TIME_CRATE_01;
+	b32 isTimeCrate = MODEL_GETID(inst->model) == STATIC_TIME_CRATE_01;
 
 	inst->colorRGBA = UI_REWARD_PICKUP_COLOR;
 
@@ -80,7 +80,7 @@ void UI_ThTick_CountPickup(struct Thread *bucket)
 	MatrixRotate(mat, &obj->m, mat);
 
 #if defined(CTR_NATIVE)
-	if (!isTimeCrate && (inst->model->id == STATIC_FRUITDISP) &&
+	if (!isTimeCrate && (MODEL_GETID(inst->model) == STATIC_FRUITDISP) &&
 	    (gGT->numPlyrCurrGame >= 2) && ((gGT->gameMode1 & MAIN_MENU) == 0))
 	{
 		int owner = -1;

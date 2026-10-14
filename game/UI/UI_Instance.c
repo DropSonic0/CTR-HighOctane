@@ -88,7 +88,7 @@ struct Instance *UI_INSTANCE_BirthWithThread(int modelID, int tickFunc, int hudS
 		// give the Instance to the thread
 		hudThread->inst = inst;
 
-		createdModelID = model->id;
+		createdModelID = MODEL_GETID(model);
 
 		// bigNum
 		if (createdModelID == STATIC_BIG1)

@@ -114,7 +114,7 @@ void RB_Blowup_Init(struct Instance *weaponInst)
 	int modelID = STATIC_SHOCKWAVE_GREEN;
 
 	// if instance -> model -> modelID == tnt
-	if (weaponInst->model->id == STATIC_CRATE_TNT)
+	if (MODEL_GETID(weaponInst->model) == STATIC_CRATE_TNT)
 	{
 		// red
 		color = 0xad10000;
@@ -173,7 +173,7 @@ void RB_Blowup_Init(struct Instance *weaponInst)
 		sps->Input1.hitRadiusSquared = 0x19000;
 	}
 
-	sps->Input1.modelID = weaponInst->model->id;
+	sps->Input1.modelID = MODEL_GETID(weaponInst->model);
 
 	sps->Union.ThBuckColl.thread = weaponInst->thread;
 	sps->Union.ThBuckColl.funcCallback = RB_Burst_CollThBucket;
@@ -184,7 +184,7 @@ void RB_Blowup_Init(struct Instance *weaponInst)
 	PROC_CollideHitboxWithBucket(gGT->threadBuckets[MINE].thread, sps, 0);
 
 	// Nitro explosion has smaller radius than TNT explosion
-	if (weaponInst->model->id != STATIC_CRATE_TNT)
+	if (MODEL_GETID(weaponInst->model) != STATIC_CRATE_TNT)
 	{
 		// hitRadius and hitRadiusSquared
 		sps->Input1.hitRadius = 0x80;

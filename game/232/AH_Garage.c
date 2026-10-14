@@ -408,7 +408,7 @@ void AH_Garage_LInB(struct Instance *inst)
 	garage->cooldown = 0;
 
 	// if it is Oxide's Door
-	if (inst->model->id == STATIC_OXIDEGARAGE)
+	if (MODEL_GETID(inst->model) == STATIC_OXIDEGARAGE)
 	{
 		garage->garageTopInst = NULL;
 	}

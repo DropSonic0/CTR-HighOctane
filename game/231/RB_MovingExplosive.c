@@ -26,7 +26,7 @@ void RB_MovingExplosive_ThTick(struct Thread *t)
 	SVec3 posB;
 
 	inst = t->inst;
-	modelID = inst->model->id;
+	modelID = MODEL_GETID(inst->model);
 
 	tw = t->object;
 	tw->timeAlive += gGT->elapsedTimeMS;
@@ -387,7 +387,7 @@ LAB_800adc08:;
 			else
 			{
 				// not a missile
-				if (hitInst->model->id != DYNAMIC_ROCKET)
+				if (MODEL_GETID(hitInst->model) != DYNAMIC_ROCKET)
 				{
 					// quit, warpball collisions dont matter
 					return;
@@ -437,7 +437,7 @@ void RB_MovingExplosive_Explode(struct Thread *t, struct Instance *inst, struct 
 	struct Driver *d;
 
 	// bomb
-	if (inst->model->id == DYNAMIC_BOMB)
+	if (MODEL_GETID(inst->model) == DYNAMIC_BOMB)
 	{
 		// bomb explode
 		soundId = 0x49;

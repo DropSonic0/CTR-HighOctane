@@ -311,7 +311,7 @@ struct ModelFrame
 
 	// char verts[0];
 };
-#define MODELFRAME_GETVERT(x) ((char *)&mf[0] + mf->vertexOffset)
+#define MODELFRAME_GETVERT(x) ((char *)&mf[0] + (int)CTR_ReadU32LE(&mf->vertexOffset))
 
 struct ModelAnim
 {

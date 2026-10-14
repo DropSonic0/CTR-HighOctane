@@ -26,7 +26,7 @@ void RB_Minecart_CheckColl(struct Instance *minecartInst, struct Thread *minecar
 		hitDriver = (struct Driver *)hitInst->thread->object;
 
 		// attempt to harm driver (squish or spin-out)
-		RB_Hazard_HurtDriver(hitDriver, (minecartInst->model->id == DYNAMIC_SKUNK) ? 1 : 3, 0, 0);
+		RB_Hazard_HurtDriver(hitDriver, (MODEL_GETID(minecartInst->model) == DYNAMIC_SKUNK) ? 1 : 3, 0, 0);
 	}
 }
 
@@ -115,7 +115,7 @@ void RB_Minecart_ThTick(struct Thread *t)
 
 		RB_Minecart_NewPoint(minecartInst, minecartObj, spawnType2);
 
-		if ((minecartObj->posIndex == 1) && (minecartInst->model->id == DYNAMIC_MINE_CART))
+		if ((minecartObj->posIndex == 1) && (MODEL_GETID(minecartInst->model) == DYNAMIC_MINE_CART))
 		{
 			for (i = 0; i < 3; i++)
 			{
@@ -189,7 +189,7 @@ void RB_Minecart_LInB(struct Instance *inst)
 	inst->scale.y = 0x1000;
 	inst->scale.z = 0x1000;
 
-	if (inst->model->id == DYNAMIC_SKUNK)
+	if (MODEL_GETID(inst->model) == DYNAMIC_SKUNK)
 	{
 		inst->scale.x = 0x2000;
 		inst->scale.y = 0x2000;
@@ -198,7 +198,7 @@ void RB_Minecart_LInB(struct Instance *inst)
 		minecartObj->rotSpeed = 0x18;
 	}
 
-	else if (inst->model->id == DYNAMIC_VONLABASS)
+	else if (MODEL_GETID(inst->model) == DYNAMIC_VONLABASS)
 	{
 		inst->scale.x = 0x800;
 		inst->scale.y = 0x800;

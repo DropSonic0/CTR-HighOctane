@@ -371,7 +371,7 @@ void RB_Burst_Init(struct Instance *weaponInst)
 
 	struct TrackerWeapon *tw = weaponInst->thread->object;
 
-	int modelID = weaponInst->model->id;
+	int modelID = MODEL_GETID(weaponInst->model);
 
 	// missile
 	if (modelID == DYNAMIC_ROCKET)

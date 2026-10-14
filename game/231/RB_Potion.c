@@ -32,7 +32,7 @@ void RB_Potion_OnShatter_TeethSearch(struct Instance *inst)
 	sps->Input1.pos.z = (s16)inst->matrix.t[2];
 	sps->Input1.hitRadius = 0x140;
 	sps->Input1.hitRadiusSquared = 0x19000;
-	sps->Input1.modelID = inst->model->id;
+	sps->Input1.modelID = MODEL_GETID(inst->model);
 
 	sps->Union.ThBuckColl.thread = inst->thread;
 	sps->Union.ThBuckColl.funcCallback = RB_Potion_OnShatter_TeethCallback;

@@ -156,7 +156,7 @@ void RB_CrateAny_ThTick_Grow(struct Thread *t)
 
 	crateInst = t->inst;
 	crateObj = (struct Crate *)t->object;
-	modelID = crateInst->model->id;
+	modelID = MODEL_GETID(crateInst->model);
 
 	if ((modelID == STATIC_TIME_CRATE_01) || (modelID == STATIC_TIME_CRATE_02) || (modelID == STATIC_TIME_CRATE_03))
 	{
@@ -477,7 +477,7 @@ int RB_CrateTime_ThCollide(struct Thread *crateThread, struct Thread *driverTh, 
 				return 1;
 			}
 
-			modelID = crateInst->model->id;
+			modelID = MODEL_GETID(crateInst->model);
 
 			if ((driver->actionsFlagSet & ACTION_BOT) != 0)
 			{

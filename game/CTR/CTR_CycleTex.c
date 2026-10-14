@@ -78,12 +78,25 @@ void CTR_CycleTex_AllModels(u32 numModels, struct Model **pModelArray, int timer
 		}
 
 		// iterate over all model headers
-		for (int j = 0; j < pModel->numHeaders; j++)
+		for (int j = 0; j < MODEL_NUMHEADERS(pModel); j++)
 		{
 			pHeader = &pModel->headers[j];
 
-			if ((pHeader->animtex != NULL) && ((pHeader->flags & 2) == 0))
+			if (j == 0 || pHeader->animtex != NULL)
 			{
+				Platform_Log("",
+					pModel, (int)pModel->numHeaders,
+					(int)(s16)CTR_ReadU16LE(&pModel->numHeaders),
+					pHeader, j, pHeader->animtex);
+			}
+
+			if ((pHeader->animtex != NULL) && (((MH_FLAGS(pHeader) & 2)) == 0))
+			{
+				uintptr_t a = (uintptr_t)pHeader->animtex;
+				if (a < (uintptr_t)sdata->ptrBigfile1 || a >= (uintptr_t)sdata->PtrMempack->endOfAllocator)
+				{
+					continue; // animtex fuera del arena: no tocar
+				}
 				CTR_CycleTex_Model(pHeader->animtex, timer);
 			}
 		}

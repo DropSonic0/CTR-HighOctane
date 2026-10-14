@@ -618,7 +618,7 @@ processOpcode:
 	case CS_OPCODE_SET_VISIBLE_LOD:
 		if (instance != 0)
 		{
-			int numHeaders = (int)instance->model->numHeaders;
+			int numHeaders = (int)MODEL_NUMHEADERS(instance->model);
 			if ((numHeaders != 0) && (modelHeader = instance->model->headers, modelHeader != 0))
 			{
 				lodIndex = opcodeMeta->arg1.i;
@@ -630,11 +630,11 @@ processOpcode:
 				}
 				while (lodIndex != 0)
 				{
-					modelHeader->maxDistanceLOD = 0;
+					CTR_WriteU16LE(&modelHeader->maxDistanceLOD, 0);
 					lodIndex = lodIndex + -1;
 					modelHeader++;
 				}
-				modelHeader->maxDistanceLOD = CS_MODEL_LOD_DISTANCE_VISIBLE;
+				CTR_WriteU16LE(&modelHeader->maxDistanceLOD, (u16)CS_MODEL_LOD_DISTANCE_VISIBLE);
 			}
 		}
 		break;
